@@ -57,6 +57,12 @@ milestone for 3.6.2
 
   * Name change to `NEWS.md` for better visualization on GitHub
 
+
+pgRouting 3.7.0 Release Notes
+-------------------------------------------------------------------------------
+
+No Changes Yet
+
 pgRouting 3.6.1 Release Notes
 -------------------------------------------------------------------------------
 
