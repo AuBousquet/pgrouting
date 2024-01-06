@@ -27,29 +27,20 @@ pgRouting 3
    :local:
    :depth: 1
 
-pgRouting 3.6
+pgRouting 3.7
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. contents:: Contents
-   :local:
-   :depth: 1
-
-.. current
-
-pgRouting 3.6.2 Release Notes
+pgRouting 3.7.0 Release Notes
 -------------------------------------------------------------------------------
 
 To see all issues & pull requests closed by this release see the `Git closed
-milestone for 3.6.2
-<https://github.com/pgRouting/pgrouting/issues?utf8=%E2%9C%93&q=milestone%3A%22Release%203.6.2%22>`__
+milestone for 3.7.0
+<https://github.com/pgRouting/pgrouting/issues?utf8=%E2%9C%93&q=milestone%3A%22Release%203.7.0%22>`__
 
-.. rubric:: Upgrade fix
+.. rubric:: Code enhancement
 
-* The upgrade was failing for same minor
-
-.. rubric:: Code fixes
-
-* Fix warnings from cpplint
+* `#2599 <https://github.com/pgRouting/pgrouting/pull/2599>`__  Driving distance
+  cleanup
 
 .. rubric:: Others
 
@@ -57,18 +48,12 @@ milestone for 3.6.2
 
   * Name change to `NEWS.md` for better visualization on GitHub
 
+pgRouting 3.6
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-pgRouting 3.7.0 Release Notes
--------------------------------------------------------------------------------
-
-To see all issues & pull requests closed by this release see the `Git closed
-milestone for 3.7.0
-<https://github.com/pgRouting/pgrouting/issues?utf8=%E2%9C%93&q=milestone%3A%22Release%203.7.0%22>`_
-
-.. rubric:: Code enhancement
-
-* `#2599 <https://github.com/pgRouting/pgrouting/pull/2599>`__  Driving distance
-  cleanup
+.. contents:: Contents
+   :local:
+   :depth: 1
 
 pgRouting 3.6.1 Release Notes
 -------------------------------------------------------------------------------
