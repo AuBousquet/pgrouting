@@ -30,7 +30,7 @@ pgRouting 3
 pgRouting 3.7
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. contents:: Contents
+.. contents:: Mayors
    :local:
    :depth: 1
 
@@ -166,7 +166,22 @@ milestone for 3.6.2
 pgRouting 3.6.2 Release Notes
 -------------------------------------------------------------------------------
 
-No Changes Yet
+To see all issues & pull requests closed by this release see the `Git closed
+milestone for 3.6.2
+<https://github.com/pgRouting/pgrouting/issues?utf8=%E2%9C%93&q=milestone%3A%22Release%203.6.2%22>`__
+
+.. rubric:: Others
+
+* Adjust NEWS generator
+
+  * Name change to `NEWS.md` for better visualization on GitHub
+
+pgRouting 3.6
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents:: Contents
+   :local:
+   :depth: 1
 
 pgRouting 3.6.1 Release Notes
 -------------------------------------------------------------------------------
