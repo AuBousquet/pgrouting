@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <vector>
 #include <algorithm>
 
+#include "cpp_common/pgdata_getters.hpp"
 #include "contraction/ch_graphs.hpp"
 #include "contraction/pgr_contract.hpp"
 
@@ -193,10 +194,14 @@ do_pgr_contractGraph(
     using pgrouting::pgr_alloc;
     using pgrouting::pgr_msg;
     using pgrouting::pgr_free;
+    using pgrouting::pgget::get_intArray;
+    using pgrouting::pgget::get_edges;
 
     std::ostringstream log;
     std::ostringstream notice;
     std::ostringstream err;
+    char *hint = nullptr;
+
     try {
         pgassert(total_edges != 0);
         pgassert(size_contraction_methods != 0);
@@ -265,6 +270,9 @@ do_pgr_contractGraph(
         err << except.what();
         *err_msg = pgr_msg(err.str().c_str());
         *log_msg = pgr_msg(log.str().c_str());
+    } catch (const std::string &ex) {
+        *err_msg = pgr_msg(ex.c_str());
+        *log_msg = hint? pgr_msg(hint) : pgr_msg(log.str().c_str());
     } catch (std::exception &except) {
         (*return_tuples) = pgr_free(*return_tuples);
         (*return_count) = 0;

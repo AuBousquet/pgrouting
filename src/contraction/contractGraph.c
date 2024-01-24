@@ -41,7 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "c_common/e_report.h"
 #include "c_common/time_msg.h"
 #include "c_types/contracted_rt.h"
-#include "c_common/trsp_pgget.h"
 #include "drivers/contraction/contractGraph_driver.h"
 
 PGDLLEXPORT Datum _pgr_contraction(PG_FUNCTION_ARGS);
@@ -102,7 +101,6 @@ process(char* edges_sql,
             &log_msg,
             &notice_msg,
             &err_msg);
-
     time_msg("processing pgr_contraction()", start_t, clock());
 
 
@@ -111,7 +109,6 @@ process(char* edges_sql,
         (*result_tuples) = NULL;
         (*result_count) = 0;
     }
-
     pgr_global_report(log_msg, notice_msg, err_msg);
 
     if (log_msg) pfree(log_msg);
@@ -128,10 +125,8 @@ _pgr_contraction(PG_FUNCTION_ARGS) {
     FuncCallContext     *funcctx;
     TupleDesc            tuple_desc;
 
-    /**********************************************************************/
     contracted_rt  *result_tuples = NULL;
     size_t result_count = 0;
-    /**********************************************************************/
 
     if (SRF_IS_FIRSTCALL()) {
         MemoryContext   oldcontext;
@@ -156,8 +151,6 @@ _pgr_contraction(PG_FUNCTION_ARGS) {
                 &result_tuples,
                 &result_count);
 
-
-        /**********************************************************************/
         funcctx->max_calls = result_count;
 
         funcctx->user_fctx = result_tuples;
@@ -183,7 +176,6 @@ _pgr_contraction(PG_FUNCTION_ARGS) {
         int16 typlen;
         size_t      call_cntr = funcctx->call_cntr;
 
-        /**********************************************************************/
         size_t numb = 6;
         values =(Datum *)palloc(numb * sizeof(Datum));
         nulls = palloc(numb * sizeof(bool));
@@ -243,7 +235,6 @@ _pgr_contraction(PG_FUNCTION_ARGS) {
         values[4] = Int64GetDatum(result_tuples[call_cntr].target);
         values[5] = Float8GetDatum(result_tuples[call_cntr].cost);
 
-        /*********************************************************************/
         tuple = heap_form_tuple(tuple_desc, values, nulls);
         result = HeapTupleGetDatum(tuple);
 

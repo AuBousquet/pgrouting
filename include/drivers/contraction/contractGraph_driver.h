@@ -30,17 +30,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #define INCLUDE_DRIVERS_CONTRACTION_CONTRACTGRAPH_DRIVER_H_
 #pragma once
 
-/* for size-t */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <postgres.h>
+#include <utils/array.h>
+
+#ifdef __cplusplus
+}
+#endif
+
+#include "cpp_common/undefPostgresDefine.hpp"
+
 #ifdef __cplusplus
 #   include <cstdint>
 #   include <cstddef>
 using contracted_rt = struct contracted_rt;
-using Edge_t = struct Edge_t;
 #else
 #   include <stdint.h>
 #   include <stddef.h>
 typedef struct contracted_rt contracted_rt;
-typedef struct Edge_t Edge_t;
 #endif
 
 
