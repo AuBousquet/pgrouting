@@ -37,7 +37,7 @@ QUIET="-v"
 QUIET="-q"
 
 PGDATABASE="___pgr___test___"
-PGRVERSION="3.4.0 3.3.0 3.2.0 3.1.0 3.0.0"
+PGRVERSION="3.6.2 3.6.0 3.5.0 3.4.0 3.3.0 3.2.0 3.1.0 3.0.0"
 
 
 for v in ${PGRVERSION}
@@ -47,7 +47,7 @@ do
     echo " Running with version ${v}"
     echo "--------------------------"
 
-    dropdb --if-exists "${PGFLAGS}" "${PGDATABASE}"
+    dropdb -f --if-exists "${PGFLAGS}" "${PGDATABASE}"
     createdb "${PGFLAGS}" "${PGDATABASE}"
 
     psql "$PGFLAGS" -d "$PGDATABASE" -X -q --set client_min_messages=WARNING --set ON_ERROR_STOP=1 --pset pager=off \
