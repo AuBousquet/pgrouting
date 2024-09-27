@@ -48,7 +48,7 @@ do
     echo " Running with version ${v}"
     echo "--------------------------"
 
-    dropdb --if-exists "${PGFLAGS}" "${PGDATABASE}"
+    dropdb -f --if-exists "${PGFLAGS}" "${PGDATABASE}"
     createdb "${PGFLAGS}" "${PGDATABASE}"
 
     psql "$PGFLAGS" -d "$PGDATABASE" -X -q --set client_min_messages=WARNING --set ON_ERROR_STOP=1 --pset pager=off \
