@@ -9793,7 +9793,7 @@ msgid ":math:`1`"
 msgstr ""
 
 msgid ""
-"Number of times the contraction operations on ``contraction_order`` will be "
+"Number of times the contraction operations on ``contraction_methods`` will be "
 "performed."
 msgstr ""
 

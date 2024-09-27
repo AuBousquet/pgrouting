@@ -88,7 +88,7 @@ void process_contraction(
         G &graph,
         const std::vector< Edge_t > &edges,
         const std::vector< int64_t > &forbidden_vertices,
-        const std::vector< int64_t > &contraction_order,
+        const std::vector< int64_t > &contraction_methods,
         int64_t max_cycles) {
     graph.insert_edges(edges);
     pgrouting::Identifiers<typename G::V> forbid_vertices;
@@ -105,7 +105,7 @@ void process_contraction(
     Contract result(
             graph,
             forbid_vertices,
-            contraction_order,
+            contraction_methods,
             max_cycles);
 }
 
