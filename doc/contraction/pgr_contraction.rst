@@ -138,7 +138,7 @@ Contraction optional parameters
    * - ``max_cycles``
      - ``INTEGER``
      - :math:`1`
-     - Number of times the contraction operations on ``contraction_order`` will
+     - Number of times the contraction operations on ``methods_sequence`` will
        be performed.
 
 Inner Queries

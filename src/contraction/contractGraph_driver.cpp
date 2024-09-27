@@ -85,11 +85,12 @@ std::vector<typename G::E> get_shortcuts(const G& graph) {
 
 template <typename G>
 void process_contraction(
-        G &graph,
-        const std::vector< Edge_t > &edges,
-        const std::vector< int64_t > &forbidden_vertices,
-        const std::vector< int64_t > &contraction_order,
-        int64_t max_cycles) {
+    G &graph,
+    const std::vector< Edge_t > &edges,
+    const std::vector< int64_t > &forbidden_vertices,
+    const std::vector< int64_t > &methods_sequence,
+    int64_t max_cycles
+) {
     graph.insert_edges(edges);
     pgrouting::Identifiers<typename G::V> forbid_vertices;
     for (const auto &vertex : forbidden_vertices) {
@@ -97,16 +98,15 @@ void process_contraction(
             forbid_vertices += graph.get_V(vertex);
         }
     }
-
     /*
      * Function call to get the contracted graph.
      */
     using Contract = pgrouting::contraction::Pgr_contract<G>;
     Contract result(
-            graph,
-            forbid_vertices,
-            contraction_order,
-            max_cycles);
+        graph,
+        forbid_vertices,
+        methods_sequence,
+        max_cycles);
 }
 
 template <typename G>

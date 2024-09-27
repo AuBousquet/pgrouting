@@ -10448,9 +10448,9 @@ msgid ":math:`1`"
 msgstr ":math:`1`"
 
 msgid ""
-"Number of times the contraction operations on ``contraction_order`` will be "
+"Number of times the contraction operations on ``methods_sequence`` will be "
 "performed."
-msgstr "对 ``contraction_order`` 执行收缩操作的次数。"
+msgstr "对 ``methods_sequence`` 执行收缩操作的次数。"
 
 msgid "The function returns a single row. The columns of the row are:"
 msgstr "该函数返回一行数据。该行的列包括："

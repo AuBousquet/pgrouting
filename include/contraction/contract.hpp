@@ -51,17 +51,17 @@ class Pgr_contract {
 
  public:
     Pgr_contract(
-            G &graph,
-            Identifiers<V> forbidden_vertices,
-            std::vector<int64_t> contraction_order,
-            int64_t max_cycles
-            ) {
+        G &graph,
+        Identifiers<V> forbidden_vertices,
+        std::vector<int64_t> methods_sequence,
+        int64_t max_cycles
+    ) {
         std::deque<int64_t> contract_order;
         //  push -1 to indicate the start of the queue
         contract_order.push_back(-1);
         contract_order.insert(
                 contract_order.end(),
-                contraction_order.begin(), contraction_order.end());
+                methods_sequence.begin(), methods_sequence.end());
         for (int64_t i = 0; i < max_cycles; ++i) {
             int64_t front = contract_order.front();
             contract_order.pop_front();
