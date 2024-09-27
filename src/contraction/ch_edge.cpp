@@ -47,6 +47,10 @@ namespace pgrouting {
         return target;
     }
 
+    double CH_edge::get_cost() {
+        return cost;
+    }
+
     void CH_edge::cp_members(CH_edge& other) {
         cost = other.cost;
         id = other.id;

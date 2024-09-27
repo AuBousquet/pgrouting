@@ -1,5 +1,5 @@
 /*PGR-GNU*****************************************************************
-File: ch_graph.hpp
+File: ch_graphs.hpp
 
 Generated with Template by:
 Copyright (c) 2015 pgRouting developers
@@ -36,17 +36,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <algorithm>
 #include <vector>
 
-#include "contraction/contractionGraph.hpp"
-#include "cpp_common/base_graph.hpp"
 #include "contraction/ch_vertex.hpp"
 #include "contraction/ch_edge.hpp"
+#include "contraction/contractionGraph.hpp"
+#include "cpp_common/base_graph.hpp"
 
 
 namespace pgrouting {
 namespace graph {
 
-using CHUndirectedGraph =  contractionGraph < boost::adjacency_list < boost::listS, boost::vecS, boost::undirectedS, CH_vertex, CH_edge >, false >;
-using CHDirectedGraph = contractionGraph < boost::adjacency_list < boost::listS, boost::vecS, boost::bidirectionalS, CH_vertex, CH_edge >, true >;
+using CHUndirectedGraph = contractionGraph<boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS, CH_vertex, CH_edge>, false>;
+using CHDirectedGraph = contractionGraph<boost::adjacency_list<boost::listS, boost::vecS, boost::bidirectionalS, CH_vertex, CH_edge>, true>;
 
 }  // namespace graph
 }  // namespace pgrouting

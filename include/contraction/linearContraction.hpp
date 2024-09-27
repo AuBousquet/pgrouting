@@ -41,14 +41,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <boost/graph/adjacency_list.hpp>
 
 #include "contraction/ch_edge.hpp"
+#include "contraction/contractionGraph.hpp"
 #include "cpp_common/identifiers.hpp"
+#include "cpp_common/messages.hpp"
+
 
 
 namespace pgrouting {
 namespace contraction {
 
 template < class G >
-class Pgr_linear {
+class Pgr_linear : public Pgr_messages {
 private:
     typedef typename G::V V;
     typedef typename G::V_i V_i;
@@ -59,9 +62,14 @@ public:
     void operator()(G &graph, Identifiers<V>& forbidden_vertices) {
         doContraction(graph, forbidden_vertices);
     }
-
     Pgr_linear():last_edge_id(0) {}
 
+private:
+    int64_t get_next_id() {
+        return --last_edge_id;
+    }
+
+public:
     void setForbiddenVertices(
             Identifiers<V> forbidden_vertices) {
         m_forbiddenVertices = forbidden_vertices;
@@ -80,7 +88,7 @@ public:
             }
         }
     }
-    
+
     void doContraction(G &graph, Identifiers<V> forbidden_vertices) {
         m_forbiddenVertices = forbidden_vertices;
         calculateVertices(graph);
@@ -89,15 +97,14 @@ public:
             V v = m_linearVertices.front();
             m_linearVertices -= v;
             pgassert(is_contractible(graph, v));
-            one_cycle(graph, v);
+            contract_node(graph, v);
         }
     }
 
-    void one_cycle(G &graph, V v) {
+    void contract_node(G &graph, V v) {
         pgassert(is_contractible(graph, v));
 
-        Identifiers<V> adjacent_vertices =
-            graph.find_adjacent_vertices(v);
+        Identifiers<V> adjacent_vertices = graph.find_adjacent_vertices(v);
         pgassert(adjacent_vertices.size() == 2);
 
         V u = adjacent_vertices.front();
@@ -110,34 +117,24 @@ public:
         pgassert(u != w);
 
         if (graph.is_directed()) {
-            /*
-            *  u --> v --> w
-            */
             graph.process_shortcut(u, v, w);
-            /*
-            *  w --> v --> u
-            */
             graph.process_shortcut(w, v, u);
-
         } else {
             pgassert(graph.is_undirected());
-            /*
-            * u - v - w
-            */
             graph.process_shortcut(u, v, w);
         }
 
-        graph[v].get_contracted_vertices().clear();
+        graph[v].clear_contracted_vertices();
         boost::clear_vertex(v, graph.graph);
         m_linearVertices -= v;
 
         if (is_contractible(graph, u)) {
-            one_cycle(graph, u);
+            contract_node(graph, u);
         } else {
             m_linearVertices -= u;
         }
         if (is_contractible(graph, w)) {
-            one_cycle(graph, w);
+            contract_node(graph, w);
         } else {
             m_linearVertices -= w;
         }

@@ -38,7 +38,7 @@ int64_t CH_vertex::get_id() {
     return id;
 }
 
-int64_t CH_vertex::get_metric() {
+double CH_vertex::get_metric() {
     return metric;
 }
 
@@ -50,7 +50,7 @@ void CH_vertex::set_id(int64_t vid) {
     id = vid;
 }
 
-void CH_vertex::set_metric(int64_t m) {
+void CH_vertex::set_metric(double m) {
     metric=m;
 }
 

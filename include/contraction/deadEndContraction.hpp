@@ -45,12 +45,12 @@ namespace pgrouting {
 namespace contraction {
 
 template < class G >
-class Pgr_deadend {
-private:
-    using V = typename G::V;
-    using E = typename G::E;
+class Pgr_deadend : public Pgr_messages {
+ private:
+     using V = typename G::V;
+     using E = typename G::E;
 
-public:
+ public:
     Pgr_deadend() = default;
 
     void setForbiddenVertices(
@@ -102,7 +102,7 @@ public:
                 local += u;
             }
 
-            graph[v].get_contracted_vertices().clear();
+            graph[v].clear_contracted_vertices();
             boost::clear_vertex(v, graph.graph);
 
             /* abort in case of an interruption occurs (e.g. the query is being cancelled) */
@@ -118,7 +118,7 @@ public:
         }
     }
 
-private:
+ private:
     Identifiers<V> deadendVertices;
     Identifiers<V> forbiddenVertices;
 };

@@ -41,7 +41,7 @@ class CH_vertex {
 public:
     int64_t id;
     int64_t vertex_order=-1;
-    int64_t metric=-1;
+    double metric=-1.;
     Identifiers<int64_t> m_contracted_vertices;
 
 public: 
@@ -51,10 +51,10 @@ public:
         id(is_source? other.source : other.target) {}
 
     int64_t get_id();
-    int64_t get_metric();
+    double get_metric();
     int64_t get_vertex_order();
     void set_id(int64_t);
-    void set_metric(int64_t);
+    void set_metric(double);
     void set_vertex_order(int64_t);
 
     void cp_members(const CH_vertex &other);

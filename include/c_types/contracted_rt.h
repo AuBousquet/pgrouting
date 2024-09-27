@@ -44,6 +44,8 @@ struct contracted_rt {
     int64_t source;
     int64_t target;
     double cost;
+    int64_t vertex_order;
+    double metric;
     int contracted_vertices_size;
 };
 

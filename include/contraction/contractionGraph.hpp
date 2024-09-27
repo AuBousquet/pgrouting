@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #define INCLUDE_CONTRACTION_CONTRACTIONGRAPH_HPP_
 #pragma once
 
+#include <queue>
 #include <limits>
 #include <algorithm>
 #include <vector>
@@ -53,9 +54,11 @@ class contractionGraph : public Pgr_base_graph<G, CH_vertex, CH_edge, t_directed
 public:
     typedef typename boost::graph_traits < G >::vertex_descriptor V;
     typedef typename boost::graph_traits < G >::edge_descriptor E;
-    typedef typename boost::graph_traits < G >::edge_iterator E_i;
     typedef typename boost::graph_traits < G >::out_edge_iterator EO_i;
     typedef typename boost::graph_traits < G >::in_edge_iterator EI_i;
+    typedef typename boost::graph_traits < G >::edge_iterator E_i;
+    typedef typename std::pair< double, V > V_p;
+    typedef typename std::priority_queue< V_p, std::vector<V_p>, std::greater<V_p> > PQ;
 
     /*!
         Prepares the _graph_ to be of type *directed*
@@ -66,6 +69,46 @@ public:
 
     int64_t get_next_id() {
         return --min_edge_id;
+    }
+
+    /*!
+        @brief for C calls: to get the metric of a node, directly from the graph
+        @param [in] v vertex_descriptor
+        @return int64_t: the value of the metric for node v
+    */
+    double get_M(int64_t vertex_id) {
+        return (this->graph[this->vertices_map[vertex_id]]).get_metric();
+    }
+
+    /*!
+        @brief for C calls: to get the order of a node, directly from the graph
+        @param [in] v vertex_descriptor
+        @return int64_t: the order of node v
+    */
+    int64_t get_O(int64_t vertex_id) {
+        return (this->graph[this->vertices_map[vertex_id]]).get_vertex_order();
+    }
+
+    /*!
+        @brief defines the metric and hierarchy at the level of the nodes, from a given priority queue
+        @param [in] PQ priority_queue
+        @return void
+    */
+    void set_vertices_metric_and_hierarchy(
+        PQ priority_queue,
+        std::ostringstream &log
+    ) {
+        int64_t i = 0;
+        while (!priority_queue.empty()) {
+            i++;
+            std::pair< double, V > ordered_vertex = priority_queue.top();
+            priority_queue.pop();
+            (this->graph[ordered_vertex.second]).add_contracted_vertex(this->graph[ordered_vertex.second]);
+            log << "(" << ordered_vertex.first << ", " << (this->graph[ordered_vertex.second]).id << ")" << std::endl;
+            (this->graph[ordered_vertex.second]).set_metric(ordered_vertex.first);
+            (this->graph[ordered_vertex.second]).set_vertex_order(i);
+            log << get_M((this->graph[ordered_vertex.second]).id) << " " << get_O((this->graph[ordered_vertex.second]).id) << std::endl;
+        }
     }
 
     /*!
@@ -88,6 +131,44 @@ public:
         for (
             boost::tie(in, in_end) = in_edges(v, this->graph);
             in != in_end;
+            ++in
+        )
+        adjacent_vertices += this->adjacent(v, *in);
+        
+        return adjacent_vertices;
+    }
+
+    /*!
+        @brief get the vertex descriptors of adjacent vertices of *v*
+        @param [in] v vertex_descriptor
+        @return set<V>: The set of out vertex descriptors adjacent to the given vertex *v*
+    */
+    Identifiers<V> find_adjacent_out_vertices(V v) const {
+        EO_i out, out_end;
+        Identifiers<V> adjacent_vertices;
+
+        for (
+            boost::tie(out, out_end) = out_edges(v, this->graph);
+            out != out_end;
+            ++out
+        )
+        adjacent_vertices += this->adjacent(v, *out);
+        
+        return adjacent_vertices;
+    }
+
+    /*!
+        @brief get the vertex descriptors of adjacent vertices of *v*
+        @param [in] v vertex_descriptor
+        @return Identifiers<V>: The set of in vertex descriptors adjacent to the given vertex *v*
+    */
+    Identifiers<V> find_adjacent_in_vertices(V v) const {
+        EI_i in, in_end;
+        Identifiers<V> adjacent_vertices;
+
+        for (
+            boost::tie(in, in_end) = in_edges(v, this->graph);
+            in != in_end; 
             ++in
         )
         adjacent_vertices += this->adjacent(v, *in);
@@ -133,6 +214,24 @@ public:
             }
         }
         return vids;
+    }
+
+    /*!
+        @brief copies shortcuts and modified vertices from another graph
+        @result void
+    */
+    void copy_shortcuts(
+        std::vector<pgrouting::CH_edge> &shortcuts,
+        std::ostringstream &log
+    ) {
+        for (auto it = shortcuts.begin(); it != shortcuts.end(); it++)
+        {
+            V u, v;
+            u = this->vertices_map[it->get_source()];
+            v = this->vertices_map[it->get_target()];
+            log << "Shortcut " << it->get_id() << "(" << it->get_source() << ", " << it->get_target() << ")" << std::endl;
+            add_shortcut(*it, u, v);
+        }
     }
 
     /*!
@@ -249,6 +348,37 @@ public:
             shortcut.set_contracted_vertices(contracted_vertices);
             add_shortcut(shortcut, u, w);
         }
+    }
+
+    /*! 
+        @brief builds the shortcut information and adds it during contraction or afterwards to copy them to the source graph
+    */
+    CH_edge process_shortcut_from_shortest_path(
+        V u, 
+        V v, 
+        V w, 
+        double cost, 
+        std::ostringstream &log
+    ) {
+        auto e1 = get_min_cost_edge(u, v);
+        auto e2 = get_min_cost_edge(v, w);
+
+        // Create shortcut
+        CH_edge shortcut (
+            get_next_id(),
+            (this->graph[u]).get_id(),
+            (this->graph[w]).get_id(),
+            cost
+        );
+        shortcut.add_contracted_vertex(this->graph[v]);
+
+        log << "    Shortcut edge " << shortcut.id << ": (" << (this->graph[u]).id << ", " << (this->graph[w]).id << ") added, of cost " << cost << "." << std::endl;
+        
+        // Add shortcut in the current graph (to go on the process)
+        add_shortcut(shortcut, u, w);
+
+        // Return shortcut to store and reuse in the final graph
+        return shortcut;
     }
 
     /*! 

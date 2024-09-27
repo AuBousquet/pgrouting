@@ -51,6 +51,7 @@ class CH_edge {
         int64_t get_id();
         int64_t get_source();
         int64_t get_target();
+        double get_cost();
         void cp_members(CH_edge &);
 
         void set_contracted_vertices(Identifiers<int64_t>&);

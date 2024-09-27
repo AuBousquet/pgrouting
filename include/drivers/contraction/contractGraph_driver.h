@@ -60,12 +60,16 @@ extern "C" {
 
 void pgr_do_contractGraph(
         char*,
-        ArrayType*, ArrayType*,
-
-        int64_t, bool,
-
-        contracted_rt**, size_t*,
-        char**, char**, char**);
+        ArrayType*, 
+        ArrayType*,
+        int64_t, 
+        bool,
+        contracted_rt**, 
+        size_t*,
+        char**, 
+        char**, 
+        char**
+);
 
 #ifdef __cplusplus
 }

@@ -75,8 +75,10 @@ void process_contraction(
         graph,
         forbid_vertices,
         contraction_methods,
-        max_cycles
+        max_cycles,
+        log
     );
+
     log << "Contraction processed" << std::endl;
 }
 
@@ -98,6 +100,8 @@ void get_postgres_result(
 
     for (const auto id : modified_vertices) {
         auto v = graph.get_V(id); // vertex id
+        int64_t o = graph.get_O(id); // order
+        int64_t m = graph.get_M(id); // metric
         int64_t* contracted_vertices = NULL;
         auto vids = graph[v].get_contracted_vertices();
 
@@ -114,6 +118,8 @@ void get_postgres_result(
             -1, 
             -1, 
             -1.00, 
+            o,
+            m, 
             count
         };
         ++sequence;
@@ -139,6 +145,8 @@ void get_postgres_result(
             edge.source, 
             edge.target, 
             edge.cost,
+            -1,
+            -1,
             count
         };
         ++sequence;
@@ -195,8 +203,6 @@ pgr_do_contractGraph(
         auto ordering = get_intArray(order, false);
 
         for (const auto kind : ordering) {
-            log << "Contraction type " << kind << std::endl;
-            *log_msg = pgr_msg(log.str().c_str());
             if (!pgrouting::contraction::is_valid_contraction(static_cast<int>(kind))) {
                 *err_msg = pgr_msg("Invalid contraction type found");
                 log << "Contraction type " << kind << " not valid";
