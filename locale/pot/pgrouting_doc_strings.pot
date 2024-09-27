@@ -8518,7 +8518,7 @@ msgstr ""
 msgid ":math:`1`"
 msgstr ""
 
-msgid "Number of times the contraction operations on ``contraction_order`` will be performed."
+msgid "Number of times the contraction operations on ``contraction_methods`` will be performed."
 msgstr ""
 
 msgid "The function returns a single row. The columns of the row are:"
