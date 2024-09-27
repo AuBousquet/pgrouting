@@ -244,7 +244,7 @@ SELECT throws_ok('q1', 'XX000', 'One dimension expected',
 'Throws because forbidden_vertices is BIGINT[][]');
 
 SELECT throws_ok('q2', 'XX000', 'One dimension expected',
-'Throws because contraction_order is ARRAY[]');
+'Throws because contraction_methods is ARRAY[]');
 
 
 SELECT lives_ok('q3');
