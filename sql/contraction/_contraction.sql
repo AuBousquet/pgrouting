@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 --v3.0
 CREATE FUNCTION _pgr_contraction(
     edges_sql TEXT,
-    contraction_order BIGINT[],
+    methods_sequence BIGINT[],
     max_cycles INTEGER DEFAULT 1,
     forbidden_vertices BIGINT[] DEFAULT ARRAY[]::BIGINT[],
     directed BOOLEAN DEFAULT true,
