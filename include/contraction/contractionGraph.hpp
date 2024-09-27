@@ -82,6 +82,35 @@ class Pgr_contractionGraph : public Pgr_base_graph<G, CH_vertex, CH_edge, t_dire
          return adjacent_vertices;
      }
 
+     /*! @brief get the vertex descriptors of adjacent vertices of *v*
+       @param [in] v vertex_descriptor
+       @return Identifiers<V>: The set of out vertex descriptors adjacent to the given vertex *v*
+       */
+     Identifiers<V> find_adjacent_out_vertices(V v) const {
+         EO_i out, out_end;
+         Identifiers<V> adjacent_vertices;
+
+         for (boost::tie(out, out_end) = out_edges(v, this->graph);
+                 out != out_end; ++out) {
+             adjacent_vertices += this->adjacent(v, *out);
+         }
+         return adjacent_vertices;
+     }
+
+     /*! @brief get the vertex descriptors of adjacent vertices of *v*
+       @param [in] v vertex_descriptor
+       @return Identifiers<V>: The set of in vertex descriptors adjacent to the given vertex *v*
+       */
+     Identifiers<V> find_adjacent_in_vertices(V v) const {
+         EO_i in, in_end;
+         Identifiers<V> adjacent_vertices;
+
+         for (boost::tie(in, in_end) = out_edges(v, this->graph);
+                 in != in_end; ++in) {
+             adjacent_vertices += this->adjacent(v, *in);
+         }
+         return adjacent_vertices;
+     }
 
      /*! @brief get the edge with minimum cost between two vertices
        @param [in] u vertex_descriptor of source vertex
@@ -178,7 +207,7 @@ class Pgr_contractionGraph : public Pgr_base_graph<G, CH_vertex, CH_edge, t_dire
 
 
      bool has_u_v_w(V u, V v, V w) const {
-         return boost::edge(u, v, this->graph).second &&  boost::edge(v, w, this->graph).second;
+         return boost::edge(u, v, this->graph).second && boost::edge(v, w, this->graph).second;
      }
 
      /**
