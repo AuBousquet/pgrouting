@@ -41,7 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 --v3.0
 CREATE FUNCTION pgr_contraction(
     TEXT,     -- edges_sql (required)
-    BIGINT[], -- contraction_order (required)
+    BIGINT[], -- contraction_methods (required)
 
     max_cycles INTEGER DEFAULT 1,
     forbidden_vertices BIGINT[] DEFAULT ARRAY[]::BIGINT[],
@@ -66,7 +66,7 @@ COMMENT ON FUNCTION pgr_contraction(TEXT, BIGINT[], INTEGER, BIGINT[], BOOLEAN)
 IS 'pgr_contraction
 - Parameters:
     - Edges SQL with columns: id, source, target, cost [,reverse_cost]
-    - ARRAY [Contraction order]
+    - ARRAY [Contraction methods]
 - Optional Parameters
     - max_cycles := 1
     - forbidden_vertices := ARRAY[]::BIGINT[]

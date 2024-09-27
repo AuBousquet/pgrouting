@@ -1,5 +1,5 @@
 /*PGR-GNU*****************************************************************
-File: _contraction.sql
+File: pgr_contractionsHierarchy.hpp
 
 Generated with Template by:
 Copyright (c) 2015 pgRouting developers
@@ -27,31 +27,36 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
  ********************************************************************PGR-GNU*/
 
---------------------
---------------------
--- contraction
---------------------
---------------------
+#ifndef INCLUDE_CONTRACTION_PGR_CHDIJKSTRA_HPP_
+#define INCLUDE_CONTRACTION_PGR_CHDIJKSTRA_HPP_
+#pragma once
 
---v3.0
-CREATE FUNCTION _pgr_contraction(
-    edges_sql TEXT,
-    contraction_methods BIGINT[],
-    max_cycles INTEGER DEFAULT 1,
-    forbidden_vertices BIGINT[] DEFAULT ARRAY[]::BIGINT[],
-    directed BOOLEAN DEFAULT true,
 
-    OUT type TEXT,
-    OUT id BIGINT,
-    OUT contracted_vertices BIGINT[],
-    OUT source BIGINT,
-    OUT target BIGINT,
-    OUT cost FLOAT)
-RETURNS SETOF RECORD AS
-'MODULE_PATHNAME'
-LANGUAGE C VOLATILE STRICT;
+#include <queue>
+#include <functional>
+#include <string>
+#include <vector>
+#include <utility>
 
--- COMMENTS
+#include <boost/graph/dijkstra_shortest_paths.hpp>
+#include <boost/graph/iteration_macros.hpp>
+#include <boost/graph/filtered_graph.hpp>
 
-COMMENT ON FUNCTION _pgr_contraction(TEXT, BIGINT[], INTEGER, BIGINT[], BOOLEAN)
-IS 'pgRouting internal function';
+#include "cpp_common/identifiers.hpp"
+#include "cpp_common/pgr_alloc.hpp"
+
+#include "c_common/e_report.h"
+
+#include "visitors/dijkstra_visitors.hpp"
+
+namespace pgrouting {
+namespace contraction {
+
+    
+
+}  // namespace contraction
+}  // namespace pgrouting
+
+#endif  // INCLUDE_CONTRACTION_PGR_LINEARCONTRACTION_HPP_
+
+

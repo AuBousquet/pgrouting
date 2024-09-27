@@ -87,7 +87,7 @@ void process_contraction(
         G &graph,
         const std::vector< Edge_t > &edges,
         const std::vector< int64_t > &forbidden_vertices,
-        const std::vector< int64_t > &contraction_order,
+        const std::vector< int64_t > &contraction_methods,
         int64_t max_cycles) {
     graph.insert_edges(edges);
     pgrouting::Identifiers<typename G::V> forbid_vertices;
@@ -104,7 +104,7 @@ void process_contraction(
     Contract result(
             graph,
             forbid_vertices,
-            contraction_order,
+            contraction_methods,
             max_cycles);
 }
 
@@ -170,7 +170,7 @@ void get_postgres_result(
 
 /************************************************************
   edges_sql TEXT,
-  contraction_order BIGINT[],
+  contraction_methods BIGINT[],
   forbidden_vertices BIGINT[] DEFAULT ARRAY[]::BIGINT[],
   max_cycles integer DEFAULT 1,
   directed BOOLEAN DEFAULT true
@@ -181,8 +181,8 @@ do_pgr_contractGraph(
         size_t total_edges,
         int64_t *forbidden_vertices,
         size_t size_forbidden_vertices,
-        int64_t *contraction_order,
-        size_t size_contraction_order,
+        int64_t *contraction_methods,
+        size_t size_contraction_methods,
         int64_t max_cycles,
         bool directed,
         contracted_rt **return_tuples,
@@ -199,7 +199,7 @@ do_pgr_contractGraph(
     std::ostringstream err;
     try {
         pgassert(total_edges != 0);
-        pgassert(size_contraction_order != 0);
+        pgassert(size_contraction_methods != 0);
         pgassert(max_cycles != 0);
         pgassert(!(*log_msg));
         pgassert(!(*notice_msg));
@@ -215,8 +215,8 @@ do_pgr_contractGraph(
                 forbidden_vertices,
                 forbidden_vertices + size_forbidden_vertices);
         std::vector<int64_t> ordering(
-                contraction_order,
-                contraction_order + size_contraction_order);
+                contraction_methods,
+                contraction_methods + size_contraction_methods);
 
         for (const auto kind : ordering) {
             if (!pgrouting::contraction::is_valid_contraction(static_cast<int>(kind))) {

@@ -50,7 +50,7 @@ extern "C" {
 
     /*********************************************************
         edges_sql TEXT,
-        contraction_order BIGINT[],
+        contraction_methods BIGINT[],
         forbidden_vertices BIGINT[] DEFAULT ARRAY[]::BIGINT[],
         max_cycles integer DEFAULT 1,
         directed BOOLEAN DEFAULT true
@@ -61,8 +61,8 @@ extern "C" {
         size_t total_tuples,
         int64_t *forbidden_vertices,
         size_t size_forbidden_vertices,
-        int64_t *contraction_order,
-        size_t size_contraction_order,
+        int64_t *contraction_methods,
+        size_t size_contraction_methods,
         int64_t max_cycles,
         bool directed,
         contracted_rt **return_tuples,

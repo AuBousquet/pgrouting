@@ -114,6 +114,39 @@ class dijkstra_distance_visitor : public boost::default_dijkstra_visitor {
      std::vector<double> &m_dist;
 };
 
+template <typename V>
+class dijkstra_distance_with_forbidden_node_visitor : public boost::default_dijkstra_visitor {
+ public:
+     explicit dijkstra_distance_with_forbidden_node_visitor(
+             double distance_goal,
+             std::deque<V> &nodesInDistance,
+             std::vector<double> &distances, 
+             V &forbidden_node) :
+         m_distance_goal(distance_goal),
+         m_nodes(nodesInDistance),
+         m_dist(distances),
+         m_forbidden_node(forbidden_node) 
+         {
+             pgassert(m_nodes.empty());
+             pgassert(m_distance_goal > 0);
+         }
+     template <class B_G>
+         void examine_vertex(V u, B_G &) {
+             if (m_dist[u] > m_distance_goal) {
+                 throw found_goals();
+             }
+             else if (u != m_forbidden_node) {
+                 m_nodes.push_back(u);
+             }
+         }
+
+ private:
+     double m_distance_goal;
+     std::deque<V> &m_nodes;
+     std::vector<double> &m_dist;
+     V m_forbidden_node;
+};
+
 template <typename V, typename E>
 class dijkstra_distance_visitor_no_init : public boost::default_dijkstra_visitor {
  public:

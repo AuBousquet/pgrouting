@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "contraction/ch_graphs.hpp"
 #include "contraction/pgr_linearContraction.hpp"
 #include "contraction/pgr_deadEndContraction.hpp"
+#include "contraction/pgr_contractionsHierarchy.hpp"
 
 namespace pgrouting {
 namespace contraction {
@@ -53,7 +54,7 @@ class Pgr_contract {
     Pgr_contract(
             G &graph,
             Identifiers<V> forbidden_vertices,
-            std::vector<int64_t> contraction_order,
+            std::vector<int64_t> contraction_methods,
             int64_t max_cycles
             ) {
         std::deque<int64_t> contract_order;
@@ -61,7 +62,7 @@ class Pgr_contract {
         contract_order.push_back(-1);
         contract_order.insert(
                 contract_order.end(),
-                contraction_order.begin(), contraction_order.end());
+                contraction_methods.begin(), contraction_methods.end());
         for (int64_t i = 0; i < max_cycles; ++i) {
             int64_t front = contract_order.front();
             contract_order.pop_front();
@@ -95,6 +96,11 @@ class Pgr_contract {
             case 2:
                 perform_linear(graph, forbidden_vertices);
                 break;
+
+            case 3:
+                perform_hierarchy(graph, forbidden_vertices);
+                break;
+            
             default:
                 pgassert(false);
                 break;
@@ -121,6 +127,20 @@ class Pgr_contract {
         Pgr_linear<G> linearContractor;
         try {
             linearContractor(graph, forbidden_vertices);
+        }
+        catch ( ... ) {
+            throw;
+        }
+    }
+
+    
+    void perform_hierarchy(G &graph,
+            Identifiers<V> forbidden_vertices) {
+        Pgr_hierarchy<G> hierarchyContractor;
+        hierarchyContractor.setForbiddenVertices(forbidden_vertices);
+
+        try {
+            hierarchyContractor.doContraction(graph);
         }
         catch ( ... ) {
             throw;
