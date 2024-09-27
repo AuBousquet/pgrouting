@@ -10098,9 +10098,9 @@ msgid ":math:`1`"
 msgstr ":math:`1`"
 
 msgid ""
-"Number of times the contraction operations on ``contraction_order`` will be "
+"Number of times the contraction operations on ``contraction_methods`` will be "
 "performed."
-msgstr "对 ``contraction_order`` 执行收缩操作的次数。"
+msgstr "对 ``contraction_methods`` 执行收缩操作的次数。"
 
 msgid "Returns set of  |result-contract|"
 msgstr "返回集合 |result-contract|"

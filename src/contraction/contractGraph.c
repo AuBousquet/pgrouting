@@ -73,10 +73,10 @@ process(char* edges_sql,
     throw_error(err_msg, "While getting forbidden_vertices");
     PGR_DBG("size_forbidden_vertices %ld", size_forbidden_vertices);
 
-    size_t size_contraction_order = 0;
-    int64_t* contraction_order = pgr_get_bigIntArray(&size_contraction_order, order, false, &err_msg);
+    size_t size_contraction_methods = 0;
+    int64_t* contraction_methods = pgr_get_bigIntArray(&size_contraction_methods, order, false, &err_msg);
     throw_error(err_msg, "While getting contraction order");
-    PGR_DBG("size_contraction_order %ld ", size_contraction_order);
+    PGR_DBG("size_contraction_methods %ld ", size_contraction_methods);
 
 
     size_t total_edges = 0;
@@ -85,7 +85,7 @@ process(char* edges_sql,
     throw_error(err_msg, edges_sql);
     if (total_edges == 0) {
         if (forbidden_vertices) pfree(forbidden_vertices);
-        if (contraction_order) pfree(contraction_order);
+        if (contraction_methods) pfree(contraction_methods);
         pgr_SPI_finish();
         return;
     }
@@ -95,7 +95,7 @@ process(char* edges_sql,
     do_pgr_contractGraph(
             edges, total_edges,
             forbidden_vertices, size_forbidden_vertices,
-            contraction_order, size_contraction_order,
+            contraction_methods, size_contraction_methods,
             num_cycles,
             directed,
             result_tuples, result_count,
@@ -119,7 +119,7 @@ process(char* edges_sql,
     if (err_msg) pfree(err_msg);
     if (edges) pfree(edges);
     if (forbidden_vertices) pfree(forbidden_vertices);
-    if (contraction_order) pfree(contraction_order);
+    if (contraction_methods) pfree(contraction_methods);
     pgr_SPI_finish();
 }
 
@@ -140,7 +140,7 @@ _pgr_contraction(PG_FUNCTION_ARGS) {
         /**********************************************************************/
         /*
            edges_sql TEXT,
-           contraction_order BIGINT[],
+           contraction_methods BIGINT[],
            max_cycles integer DEFAULT 1,
            forbidden_vertices BIGINT[] DEFAULT ARRAY[]::BIGINT[],
            directed BOOLEAN DEFAULT true,
