@@ -82,20 +82,23 @@ class Pgr_contractionGraph : public Pgr_base_graph<G, CH_vertex, CH_edge, t_dire
          return adjacent_vertices;
      }
 
-     /*! @brief get the vertex descriptors of adjacent vertices of *v*
+    /*! @brief get the vertex descriptors of adjacent vertices of *v*
        @param [in] v vertex_descriptor
-       @return Identifiers<V>: The set of out vertex descriptors adjacent to the given vertex *v*
+       @return set<V>: The set of out vertex descriptors adjacent to the given vertex *v*
        */
-     Identifiers<V> find_adjacent_out_vertices(V v) const {
-         EO_i out, out_end;
-         Identifiers<V> adjacent_vertices;
+    Identifiers<V> find_adjacent_out_vertices(V v) const {
+        EO_i out, out_end;
+        Identifiers<V> adjacent_vertices;
 
-         for (boost::tie(out, out_end) = out_edges(v, this->graph);
-                 out != out_end; ++out) {
-             adjacent_vertices += this->adjacent(v, *out);
-         }
-         return adjacent_vertices;
-     }
+        for (
+            boost::tie(out, out_end) = out_edges(v, this->graph);
+            out != out_end;
+            ++out
+        )
+        adjacent_vertices+=this->adjacent(v, *out);
+        
+        return adjacent_vertices;
+    }
 
      /*! @brief get the vertex descriptors of adjacent vertices of *v*
        @param [in] v vertex_descriptor

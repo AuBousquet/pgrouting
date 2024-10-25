@@ -89,6 +89,13 @@ class Identifiers {
     std::set<T> m_ids;
 
  public:
+    //! \brief get ids
+    /*!
+     */
+    std::set<T> get_ids() const {
+        return (m_ids);
+    }
+    
     //! \brief true ids() has element
     /*!
      * @param [in] other Identifier of type *T*

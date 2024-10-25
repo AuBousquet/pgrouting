@@ -45,7 +45,7 @@ namespace pgrouting {
 namespace contraction {
 
 template < class G >
-class Pgr_deadend {
+class Pgr_deadend : public Pgr_messages {
  private:
      using V = typename G::V;
      using E = typename G::E;

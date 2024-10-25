@@ -42,13 +42,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include "cpp_common/ch_edge.hpp"
 #include "cpp_common/identifiers.hpp"
+#include "cpp_common/messages.hpp"
+
 
 
 namespace pgrouting {
 namespace contraction {
 
 template < class G >
-class Pgr_linear {
+class Pgr_linear : public Pgr_messages {
  private:
      typedef typename G::V V;
      typedef typename G::V_i V_i;
@@ -98,11 +100,11 @@ class Pgr_linear {
              V v = m_linearVertices.front();
              m_linearVertices -= v;
              pgassert(is_contractible(graph, v));
-             one_cycle(graph, v);
+             contract_node(graph, v);
          }
      }
 
-     void one_cycle(G &graph, V v) {
+     void contract_node(G &graph, V v) {
          pgassert(is_contractible(graph, v));
 
          Identifiers<V> adjacent_vertices =
@@ -141,12 +143,12 @@ class Pgr_linear {
          m_linearVertices -= v;
 
          if (is_contractible(graph, u)) {
-             one_cycle(graph, u);
+            contract_node(graph, u);
          } else {
              m_linearVertices -= u;
          }
          if (is_contractible(graph, w)) {
-             one_cycle(graph, w);
+            contract_node(graph, w);
          } else {
              m_linearVertices -= w;
          }

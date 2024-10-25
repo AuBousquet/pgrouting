@@ -61,7 +61,7 @@ class dijkstra_many_goal_visitor : public boost::default_dijkstra_visitor {
              std::set<V> &f_goals) :
          m_goals(goals),
          m_n_goals(n_goals),
-         m_found_goals(f_goals)   {
+         m_found_goals(f_goals) {
          }
      template <class B_G>
          void examine_vertex(V u, B_G &) {
