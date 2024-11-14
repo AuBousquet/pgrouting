@@ -36,16 +36,23 @@ edges and, for example, might add edges that represent a sequence of original
 edges decreasing the total time and space used in graph algorithms.
 
 This implementation gives a flexible framework for adding contraction algorithms
-in the future, currently, it supports two algorithms:
+in the future, currently, it supports three algorithms:
 
 1. Dead end contraction
 2. Linear contraction
+3. Contractions hierarchy
 
 Allowing the user to:
 
 - Forbid contraction on a set of nodes.
 - Decide the order of the contraction algorithms and set the maximum number of
   times they are to be executed.
+
+These two points are mostly relevant to combine together the two first methods, 
+since the third one is normally used on a stand-alone basis. 
+However, the implementation of contractions hierarchy, done afterwards, 
+was done on the same principle than the two first methods 
+for clarity and homogeneity sake of the library.
 
 Dead end contraction
 -------------------------------------------------------------------------------
@@ -399,6 +406,158 @@ Contracting :math:`v`:
 Edge :math:`u \rightarrow z` has the information of nodes that were contracted.
 
 
+Contractions hierarchy
+-------------------------------------------------------------------------------
+
+Contraction of edges and nodes ordering by importance.
+
+
+Importance of the nodes and hierarchy building
+..............................................................................
+
+A total node order is given. If u < v, then u is less important than v. 
+A hierarchy is now constructed by contracting the nodes in this order. 
+
+A node v is contracted by removing from the graph and adding shortcuts by replacing 
+former paths of the form (u, v, w) by an edge (u, w). The shortcut (u, w) is only 
+needed when (u, v, w) is the only shortest path between u and w.
+
+The contraction process adds all discovered shortcuts to the edge set E, giving 
+a "contraction hierarchy". Finding an optimal node ordering is a difficult problem.
+Nevertheless, very simple local heuristics work quite well, according to Geisberger 
+et al. [2].
+
+The basic idea is to keep the nodes in a priority queue sorted by some estimate of how 
+attractive is their contraction. We estimate that with the "edge difference" given by 
+the difference between the number of shortcuts produced by the node contraction minus
+the number of incident edges in the original graph. Finally, the aim is to reduce 
+with cleverness the size of the graph, without loosing optimality. 
+
+Contractions hierarchy on directed graph
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+- Build contraction of node v.
+
+.. graphviz::
+
+    graph G {
+        p, r, u, w [shape=circle;style=filled;width=.4;color=deepskyblue];
+        v [style=filled; color=green];
+
+        rankdir=LR;
+        v -- p [dir=both, weight=10];
+        v -- r [dir=both, weight=3];
+        v -- u [dir=both, weight=6];
+        r -- w [dir=both, weight=5];
+        u -- w [dir=both, weight=5];
+    }
+
+.. list-table::
+   :width: 80
+   :widths: auto
+   :header-rows: 1
+
+   * - Node
+     - Adjacent nodes
+   * - :math:`v`
+     - :math:`\{p, r, u, w\}`
+   * - :math:`p`
+     - :math:`\{v\}`
+   * - :math:`u`
+     - :math:`\{v, w\}`
+   * - :math:`r`
+     - :math:`\{v, w\}`
+   * - :math:`w`
+     - :math:`\{r, u\}`
+
+Remove adjacent edges and keep shortcuts
+if and only if they correspond to the only
+shortest path between the predecessor
+and the successor of v in the graph.
+
+.. graphviz::
+
+    graph G {
+        p, r, u, w [shape=circle;style=filled;width=.4;color=deepskyblue];
+        v [style=filled; color=green];
+
+        rankdir=LR;
+        r -- w [dir=both, weight=5];
+        u -- w [dir=both, weight=5];
+    }
+
+.. graphviz::
+
+    graph G {
+        p, r, u, w [shape=circle;style=filled;width=.4;color=deepskyblue];
+        v [style=filled; color=green];
+
+        rankdir=LR;
+        u -- p [dir=both, weight=16];
+        p -- r [dir=both, weight=13];
+        u -- r [dir=both, weight=9];
+        r -- w [dir=both, weight=5];
+        u -- w [dir=both, weight=5];
+    }
+
+
+Operation: Dead End Contraction
+...............................................................................
+
+The dead end contraction will stop until there are no more dead end nodes.
+For example from the following graph where :math:`w` is the `dead end`_ node:
+
+.. graphviz::
+
+    digraph G {
+        u, v [shape=circle;style=filled;width=.4;color=deepskyblue];
+        w [style=filled; color=green];
+        "G" [shape=tripleoctagon;style=filled;
+        color=deepskyblue; label = "Rest of the Graph"];
+
+        rankdir=LR;
+        G -> u [dir=none, weight=1, penwidth=3];
+        u -> v -> w;
+    }
+
+
+After contracting :math:`w`, node :math:`v` is now a `dead end`_ node and is
+contracted:
+
+.. graphviz::
+
+    digraph G {
+        u [shape=circle;style=filled;width=.4;color=deepskyblue];
+        v [style=filled; color=green, label="v{w}"];
+        "G" [shape=tripleoctagon;style=filled;
+            color=deepskyblue; label = "Rest of the Graph"];
+
+        rankdir=LR;
+        G -> u [dir=none, weight=1, penwidth=3];
+        u -> v;
+    }
+
+After contracting :math:`v`, stop. Node :math:`u` has the information of nodes
+that were contrcted.
+
+.. graphviz::
+
+    digraph G {
+        u [style=filled; color=green, label="u{v,w}"];
+        "G" [shape=tripleoctagon;style=filled;
+             color=deepskyblue; label = "Rest of the Graph"];
+
+        rankdir=LR;
+        G -> u [dir=none, weight=1, penwidth=3];
+    }
+
+Node :math:`u` has the information of nodes that were contracted.
+
+
+
+
+
+
 The cycle
 -------------------------------------------------------------------------------
 
@@ -725,7 +884,7 @@ See Also
 * :doc:`pgr_contraction`
 * :doc:`sampledata`
 * https://www.cs.cmu.edu/afs/cs/academic/class/15210-f12/www/lectures/lecture16.pdf
-* https://algo2.iti.kit.edu/documents/routeplanning/geisberger_dipl.pdf
+* https://ae.iti.kit.edu/download/diploma_thesis_geisberger.pdf
 
 .. rubric:: Indices and tables
 

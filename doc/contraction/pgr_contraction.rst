@@ -52,8 +52,9 @@ The main Characteristics are:
 
 - Currnetly there are two types of contraction methods
 
-  - Dead End Contraction
-  - Linear Contraction
+  - 1 : Dead End Contraction
+  - 2 : Linear Contraction
+  - 3 : Contractions Hierarchy
 
 - The returned values include
 
@@ -111,6 +112,7 @@ Parameters
 
        - 1 = Dead end contraction
        - 2 = Linear contraction
+       - 3 = Contractions hierarchy
 
 Optional parameters
 ...............................................................................
@@ -191,7 +193,9 @@ The function returns a single row. The columns of the row are:
            original edges.
    * - ``contracted_vertices``
      - ``ARRAY[BIGINT]``
-     - Array of contracted vertex identifiers.
+     - Array of contracted vertex identifiers. For contractions hierarchy, 
+      the contracted vertices are equal to the vertex itself. 
+      These information are then useless. 
    * - ``source``
      - ``BIGINT``
      - * When ``type`` = **'v'**: :math:`-1`
@@ -207,6 +211,14 @@ The function returns a single row. The columns of the row are:
      - * When ``type`` = **'v'**: :math:`-1`
        * When ``type`` = **'e'**: Weight of the current edge (``source``,
          ``target``).
+   * - ``vertex_order``
+     - ``BIGINT``
+     - * When ``type`` = **'v'**: Vertex order in the built hierarchy
+       * When ``type`` = **'e'**: :math:`-1`
+   * - ``metric``
+     - ``BIGINT``
+     - * When ``type`` = **'v'**: Metric used to build the hierarchy
+       * When ``type`` = **'e'**: :math:`-1`
 
 Additional Examples
 -------------------------------------------------------------------------------
