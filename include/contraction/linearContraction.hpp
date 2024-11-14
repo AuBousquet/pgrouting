@@ -42,157 +42,141 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include "cpp_common/ch_edge.hpp"
 #include "cpp_common/identifiers.hpp"
+#include "cpp_common/messages.hpp"
+
 
 
 namespace pgrouting {
 namespace contraction {
 
 template < class G >
-class Pgr_linear {
- private:
-     typedef typename G::V V;
-     typedef typename G::V_i V_i;
-     typedef typename G::B_G B_G;
+class Pgr_linear : public Pgr_messages {
+private:
+    typedef typename G::V V;
+    typedef typename G::V_i V_i;
+    typedef typename G::B_G B_G;
 
 
- public:
-     void operator()(G &graph, Identifiers<V>& forbidden_vertices) {
-         doContraction(graph, forbidden_vertices);
-     }
+public:
+    void operator()(G &graph, Identifiers<V>& forbidden_vertices) {
+        doContraction(graph, forbidden_vertices);
+    }
+    Pgr_linear():last_edge_id(0) {}
 
-     Pgr_linear():last_edge_id(0) {}
+private:
+    int64_t get_next_id() {
+        return --last_edge_id;
+    }
 
- private:
-     int64_t get_next_id() {
-         return --last_edge_id;
-     }
+public:
+    void setForbiddenVertices(
+            Identifiers<V> forbidden_vertices) {
+        m_forbiddenVertices = forbidden_vertices;
+    }
 
+    bool is_contractible(G &graph, V v) {
+        return graph.is_linear(v) && !m_forbiddenVertices.has(v);
+    }
 
- public:
-     void setForbiddenVertices(
-             Identifiers<V> forbidden_vertices) {
-         m_forbiddenVertices = forbidden_vertices;
-     }
+    void calculateVertices(G &graph) {
+        m_linearVertices.clear();
+        V_i vi;
+        BGL_FORALL_VERTICES_T(v, graph.graph, B_G) {
+            if (is_contractible(graph, v)) {
+                m_linearVertices += v;
+            }
+        }
+    }
 
-     bool is_contractible(G &graph, V v) {
-         return graph.is_linear(v) && !m_forbiddenVertices.has(v);
-     }
+    void doContraction(G &graph, Identifiers<V> forbidden_vertices) {
+        m_forbiddenVertices = forbidden_vertices;
+        calculateVertices(graph);
 
-     void calculateVertices(G &graph) {
-         m_linearVertices.clear();
-         V_i vi;
-         BGL_FORALL_VERTICES_T(v, graph.graph, B_G) {
-             if (is_contractible(graph, v)) {
-                 m_linearVertices += v;
-             }
-         }
-     }
+        while (!m_linearVertices.empty()) {
+            V v = m_linearVertices.front();
+            m_linearVertices -= v;
+            pgassert(is_contractible(graph, v));
+            contract_node(graph, v);
+        }
+    }
 
+    void contract_node(G &graph, V v) {
+        pgassert(is_contractible(graph, v));
 
+        Identifiers<V> adjacent_vertices =
+            graph.find_adjacent_vertices(v);
+        pgassert(adjacent_vertices.size() == 2);
 
-     void doContraction(G &graph, Identifiers<V> forbidden_vertices) {
-         m_forbiddenVertices = forbidden_vertices;
-         calculateVertices(graph);
+        V u = adjacent_vertices.front();
+        adjacent_vertices.pop_front();
+        V w = adjacent_vertices.front();
+        adjacent_vertices.pop_front();
 
-         while (!m_linearVertices.empty()) {
-             V v = m_linearVertices.front();
-             m_linearVertices -= v;
-             pgassert(is_contractible(graph, v));
-             one_cycle(graph, v);
-         }
-     }
+        pgassert(v != u);
+        pgassert(v != w);
+        pgassert(u != w);
 
-     void one_cycle(G &graph, V v) {
-         pgassert(is_contractible(graph, v));
+        if (graph.is_directed()) {
+            process_shortcut(graph, u, v, w);
+            process_shortcut(graph, w, v, u);
+        } else {
+            pgassert(graph.is_undirected());
+            process_shortcut(graph, u, v, w);
+        }
 
-         Identifiers<V> adjacent_vertices =
-             graph.find_adjacent_vertices(v);
-         pgassert(adjacent_vertices.size() == 2);
+        graph[v].contracted_vertices().clear();
+        boost::clear_vertex(v, graph.graph);
+        m_linearVertices -= v;
 
-         V u = adjacent_vertices.front();
-         adjacent_vertices.pop_front();
-         V w = adjacent_vertices.front();
-         adjacent_vertices.pop_front();
+        if (is_contractible(graph, u)) {
+            contract_node(graph, u);
+        } else {
+            m_linearVertices -= u;
+        }
+        if (is_contractible(graph, w)) {
+            contract_node(graph, w);
+        } else {
+            m_linearVertices -= w;
+        }
+    }
 
-         pgassert(v != u);
-         pgassert(v != w);
-         pgassert(u != w);
+    /*
+     *
+     * u ----e1{v1}----> v ----e2{v2}----> w
+     *
+     * e1: min cost edge from u to v
+     * e2: min cost edge from v to w
+     *
+     * result:
+     * u ---{v+v1+v2}---> w
+     *
+     */
+    void process_shortcut(G &graph, V u, V v, V w) {
+        auto e1 = graph.get_min_cost_edge(u, v);
+        auto e2 = graph.get_min_cost_edge(v, w);
 
-         if (graph.is_directed()) {
-             /*
-              *  u --> v --> w
-              */
-             process_shortcut(graph, u, v, w);
-             /*
-              *  w --> v --> u
-              */
-             process_shortcut(graph, w, v, u);
+        if (std::get<2>(e1) && std::get<2>(e2)) {
+            auto contracted_vertices = std::get<1>(e1) + std::get<1>(e2);
+            double cost = std::get<0>(e1) + std::get<0>(e2);
+            contracted_vertices += graph[v].id;
+            contracted_vertices += graph[v].contracted_vertices();
 
-         } else {
-             pgassert(graph.is_undirected());
-             /*
-              * u - v - w
-              */
-             process_shortcut(graph, u, v, w);
-         }
+            // Create shortcut
+            CH_edge shortcut(
+                get_next_id(),
+                graph[u].id,
+                graph[w].id,
+                cost
+            );
+            shortcut.contracted_vertices() = contracted_vertices;
+            graph.add_shortcut(shortcut, u, w);
+        }
+    }
 
-         graph[v].contracted_vertices().clear();
-         boost::clear_vertex(v, graph.graph);
-         m_linearVertices -= v;
-
-         if (is_contractible(graph, u)) {
-             one_cycle(graph, u);
-         } else {
-             m_linearVertices -= u;
-         }
-         if (is_contractible(graph, w)) {
-             one_cycle(graph, w);
-         } else {
-             m_linearVertices -= w;
-         }
-     }
-
-
-
-     /**
-      *
-      * u ----e1{v1}----> v ----e2{v2}----> w
-      *
-      * e1: min cost edge from u to v
-      * e2: min cost edge from v to w
-      *
-      * result:
-      * u ---{v+v1+v2}---> w
-      *
-      */
-     void process_shortcut(G &graph, V u, V v, V w) {
-         auto e1 = graph.get_min_cost_edge(u, v);
-         auto e2 = graph.get_min_cost_edge(v, w);
-
-         if (std::get<2>(e1) && std::get<2>(e2)) {
-             auto contracted_vertices = std::get<1>(e1) + std::get<1>(e2);
-             double cost = std::get<0>(e1) + std::get<0>(e2);
-             contracted_vertices += graph[v].id;
-             contracted_vertices += graph[v].contracted_vertices();
-
-             // Create shortcut
-             CH_edge shortcut(
-                     get_next_id(),
-                     graph[u].id,
-                     graph[w].id,
-                     cost);
-             shortcut.contracted_vertices() = contracted_vertices;
-
-             graph.add_shortcut(shortcut, u, w);
-         }
-     }
-
-
- private:
-     Identifiers<V> m_linearVertices;
-     Identifiers<V> m_forbiddenVertices;
-
-     int64_t last_edge_id;
+private:
+    Identifiers<V> m_linearVertices;
+    Identifiers<V> m_forbiddenVertices;
+    int64_t last_edge_id;
 };
 
 }  // namespace contraction
