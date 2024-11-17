@@ -89,10 +89,18 @@ class Identifiers {
     std::set<T> m_ids;
 
  public:
-    //! \brief get ids
-    /*!
+    
+    /*! 
+    \brief define ids
+     */    
+    void set_ids(std::set<T> ids) {
+        m_ids = ids;
+    }
+    
+    /*! 
+    \brief get ids
      */
-    std::set<T> get_ids() const {
+    std::set<T>& get_ids() {
         return (m_ids);
     }
     

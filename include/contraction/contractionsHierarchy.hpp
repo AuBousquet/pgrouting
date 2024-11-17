@@ -50,8 +50,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include "visitors/dijkstra_visitors.hpp"
 
-
-
 namespace pgrouting {
 namespace contraction {
 
@@ -67,49 +65,8 @@ private:
     typedef typename std::priority_queue< V_p, std::vector<V_p>, std::greater<V_p> > PQ;
 
 public:
-    void setForbiddenVertices(
-        Identifiers<V> forbidden_vertices) {
-    forbiddenVertices = forbidden_vertices;
-    }
-    Pgr_contractionsHierarchy():min_edge_id(0) {}
-
-private:
-    int64_t get_next_id() {
-        return --min_edge_id;
-    }
-
-public:
-    bool process_shortcut (
-        G &graph, 
-        V u, 
-        V v, 
-        V w, 
-        double cost,
-        bool simulation,
-        std::ostringstream &log,
-        std::ostringstream &err
-    ) 
-    {
-        if ( u!=w ) {
-            auto e1 = graph.get_min_cost_edge(u, v);
-            auto e2 = graph.get_min_cost_edge(v, w);
-
-            if ((!simulation) && (std::get<2>(e1) && std::get<2>(e2))) {
-                // Create shortcut
-                CH_edge shortcut (
-                    get_next_id(),
-                    graph[u].id,
-                    graph[w].id,
-                    cost
-                );
-                shortcut.add_contracted_vertex(graph[v]);
-                log << "  Shortcut edge " << shortcut.id << ": (" << graph[u].id << ", " << graph[w].id << ") added, of cost " << cost << "." << std::endl;
-                graph.add_shortcut(shortcut, u, w);
-
-                return true;
-            }
-        }
-        return false;
+    void setForbiddenVertices(Identifiers<V> forbidden_vertices) {
+        forbiddenVertices = forbidden_vertices;
     }
 
     double find_pmax(
@@ -143,12 +100,13 @@ public:
         return p_max;
     }
 
-    /*! @brief contracts vertex *v* 
-        @param [in] G graph
-        @param [in] v vertex_descriptor
-        @param [in] log log output
-        @param [in] err err output
-        @return contraction order: the node-contraction associated metrics
+    /*! 
+    @brief contracts vertex *v* 
+    @param [in] G graph
+    @param [in] v vertex_descriptor
+    @param [in] log log output
+    @param [in] err err output
+    @return contraction order: the node-contraction associated metrics
     */
     int64_t process_vertex_contraction(
         G &graph, 
@@ -171,6 +129,7 @@ public:
                 adjacent_in_vertices.pop_front();
                 std::vector<V> predecessors(graph.num_vertices());
                 std::vector<double> distances(graph.num_vertices());
+                const std::set<V> goals = adjacent_out_vertices.get_ids(); 
                 V_i out_i, out_end;
 
                 // Calculation of p_max
@@ -185,7 +144,6 @@ public:
                         .weight_map(get(&G::G_T_E::cost, graph.graph))
                         .distance_map(&distances[0])
                         .distance_inf(std::numeric_limits<double>::infinity())
-                        .visitor(pgrouting::visitors::dijkstra_distance_visitor<V>(p_max, distances))
                     );
                     log << "  first labelling done for node " << graph[v].id << std::endl;
 
@@ -205,7 +163,7 @@ public:
                                 c = graph[e].cost + graph[f].cost;
                                 if (distances[w] < c) { 
                                     // The shortest path from u to w was by v
-                                    if (process_shortcut(graph, u, v, w, distances[w], simulation, log, err)) {
+                                    if (graph.process_shortcut_(u, v, w, simulation, distances[w], log)) {
                                         shortcuts++;
                                     }
                                 }
@@ -213,8 +171,8 @@ public:
                         }
                     }
                 } // p_max > 0
-            } catch ( std::exception &except ) {
-                log << std::endl << "Vertex contraction exception: " << except.what() << std::endl;
+            } catch ( boost::exception const &except ) {
+                log << std::endl << "Vertex contraction exception: " << dynamic_cast<std::exception const &>(except).what() << std::endl;
             } catch ( ... ) {
                 log << std::endl << "Unknown vertex contraction error" << std::endl;
             }
@@ -227,12 +185,11 @@ public:
             for (auto &u : adjacent_in_vertices) {
                 boost::remove_edge(u, v, graph.graph);
             }
-            graph[v].contracted_vertices().clear();            
+            (graph[v]).clear_contracted_vertices(); 
         }
 
-        if (shortcuts > 0) {
+        if (shortcuts > 0) 
             log << shortcuts << " shortcuts created, " << old_edges << " old edges, edge difference = " << shortcuts - old_edges << ".";
-        }
         log << std::endl;
 
         return shortcuts - old_edges;
@@ -245,7 +202,7 @@ public:
     )
     {
         // First iteration over vertices
-        G graph_before_contraction = graph;
+        G contracted_graph=graph;
         // Fill the priority queue with a first search
         log << "Do contraction" << std::endl;
 
@@ -258,7 +215,6 @@ public:
 
         // Second iteration: lazy heuristics 
         // The graph is reinitialized
-        graph = graph_before_contraction;
         while (!minPQ.empty()) {
             std::pair< int64_t, V > ordered_vertex = minPQ.top();
             minPQ.pop();
@@ -270,21 +226,18 @@ public:
                 minPQ.push(std::make_pair(corrected_order, ordered_vertex.second));
             }
             else {
-                log << "Vertex endly contracted" << std::endl;
                 std::pair< int64_t, V > contracted_vertex;
-                contracted_vertex.first = process_vertex_contraction(graph, ordered_vertex.second, false, log, err);
+                contracted_vertex.first = process_vertex_contraction(contracted_graph, ordered_vertex.second, false, log, err);
                 contracted_vertex.second = ordered_vertex.second;
+                log << "Vertex endly contracted" << std::endl;
                 priority_queue.push(contracted_vertex);
             }
         }
-
-        log << "Graph edges ids" << std::endl;
 
         E_i e, e_end;
         for (boost::tie(e, e_end) = edges(graph.graph); e != e_end; ++e) {
             log << graph.graph[*e].id << std::endl;
         }
-
         BGL_FORALL_EDGES_T(e_, graph.graph, B_G) {
             log << graph.graph[e_].id << std::endl;
         }
@@ -294,7 +247,6 @@ public:
 private:
     PQ priority_queue;
     Identifiers<V> forbiddenVertices;
-    int64_t min_edge_id;
 };
 
 }  // namespace contraction

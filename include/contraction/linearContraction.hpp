@@ -40,7 +40,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <boost/graph/filtered_graph.hpp>
 #include <boost/graph/adjacency_list.hpp>
 
-#include "cpp_common/ch_edge.hpp"
+#include "contraction/ch_edge.hpp"
+#include "contraction/contractionGraph.hpp"
 #include "cpp_common/identifiers.hpp"
 #include "cpp_common/messages.hpp"
 
@@ -103,8 +104,7 @@ public:
     void contract_node(G &graph, V v) {
         pgassert(is_contractible(graph, v));
 
-        Identifiers<V> adjacent_vertices =
-            graph.find_adjacent_vertices(v);
+        Identifiers<V> adjacent_vertices = graph.find_adjacent_vertices(v);
         pgassert(adjacent_vertices.size() == 2);
 
         V u = adjacent_vertices.front();
@@ -117,14 +117,14 @@ public:
         pgassert(u != w);
 
         if (graph.is_directed()) {
-            process_shortcut(graph, u, v, w);
-            process_shortcut(graph, w, v, u);
+            graph.process_shortcut(u, v, w);
+            graph.process_shortcut(w, v, u);
         } else {
             pgassert(graph.is_undirected());
-            process_shortcut(graph, u, v, w);
+            graph.process_shortcut(u, v, w);
         }
 
-        graph[v].contracted_vertices().clear();
+        graph[v].clear_contracted_vertices();
         boost::clear_vertex(v, graph.graph);
         m_linearVertices -= v;
 
@@ -137,39 +137,6 @@ public:
             contract_node(graph, w);
         } else {
             m_linearVertices -= w;
-        }
-    }
-
-    /*
-     *
-     * u ----e1{v1}----> v ----e2{v2}----> w
-     *
-     * e1: min cost edge from u to v
-     * e2: min cost edge from v to w
-     *
-     * result:
-     * u ---{v+v1+v2}---> w
-     *
-     */
-    void process_shortcut(G &graph, V u, V v, V w) {
-        auto e1 = graph.get_min_cost_edge(u, v);
-        auto e2 = graph.get_min_cost_edge(v, w);
-
-        if (std::get<2>(e1) && std::get<2>(e2)) {
-            auto contracted_vertices = std::get<1>(e1) + std::get<1>(e2);
-            double cost = std::get<0>(e1) + std::get<0>(e2);
-            contracted_vertices += graph[v].id;
-            contracted_vertices += graph[v].contracted_vertices();
-
-            // Create shortcut
-            CH_edge shortcut(
-                get_next_id(),
-                graph[u].id,
-                graph[w].id,
-                cost
-            );
-            shortcut.contracted_vertices() = contracted_vertices;
-            graph.add_shortcut(shortcut, u, w);
         }
     }
 

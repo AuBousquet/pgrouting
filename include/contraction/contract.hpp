@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "cpp_common/assert.hpp"
 
 #include "contraction/contractionGraph.hpp"
-#include "contraction/ch_graphs.hpp"
+#include "contraction/ch_graph.hpp"
 #include "contraction/linearContraction.hpp"
 #include "contraction/deadEndContraction.hpp"
 #include "contraction/contractionsHierarchy.hpp"

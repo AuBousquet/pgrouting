@@ -1,5 +1,5 @@
 /*PGR-GNU*****************************************************************
-File: ch_vertex.hpp
+File: ch_edge.hpp
 
 Generated with Template by:
 Copyright (c) 2015 pgRouting developers
@@ -26,42 +26,53 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
  ********************************************************************PGR-GNU*/
-#ifndef INCLUDE_CPP_COMMON_CH_VERTEX_HPP_
-#define INCLUDE_CPP_COMMON_CH_VERTEX_HPP_
+
+#ifndef INCLUDE_CPP_COMMON_CH_EDGE_HPP_
+#define INCLUDE_CPP_COMMON_CH_EDGE_HPP_
+#pragma once
+
 #include <iostream>
 #include <sstream>
-#include <vector>
-
-#include "cpp_common/edge_t.hpp"
-#include "cpp_common/identifiers.hpp"
+#include "contraction/ch_vertex.hpp"
 
 namespace pgrouting {
 
-class CH_vertex {
- public:
+class CH_edge {
+public:
+    CH_edge() = default;
+
+    CH_edge(int64_t eid, int64_t source, int64_t target, double cost):
+        id(eid), 
+        source(source),
+        target(target), 
+        cost(cost) 
+    {}
+
+    void cp_members(CH_edge &);
+
+    void set_contracted_vertices(Identifiers<int64_t>&);
+    Identifiers<int64_t>& get_contracted_vertices();
+    std::set<int64_t>& get_contracted_vertices_();
+
+    void add_contracted_vertex(CH_vertex &);
+    void add_contracted_vertices_from_edge(CH_edge &);
+    void add_contracted_vertices(Identifiers<int64_t>&);
+
+    bool has_contracted_vertices();
+    void clear_contracted_vertices();
+
+    friend std::ostream& operator << (std::ostream, CH_edge&);
+
+public:
     int64_t id;
-    CH_vertex() = default;
-    CH_vertex(const CH_vertex &) = default;
-    CH_vertex(const Edge_t &other, bool is_source) :
-      id(is_source? other.source : other.target)
-      {}
-    void cp_members(const CH_vertex &other) {
-        this->id = other.id;
-    }
-    void add_contracted_vertex(CH_vertex& v);
-    void add_vertex_id(int64_t vid) {m_contracted_vertices += vid;}
-    const Identifiers<int64_t>& contracted_vertices() const;
-    Identifiers<int64_t>& contracted_vertices();
-    bool has_contracted_vertices() const;
-    void clear_contracted_vertices() {m_contracted_vertices.clear();}
-    friend std::ostream& operator <<(std::ostream& os, const CH_vertex& v);
- private:
+    int64_t source;
+    int64_t target;
+    double cost;
+
+private:
     Identifiers<int64_t> m_contracted_vertices;
 };
 
-size_t
-check_vertices(std::vector < CH_vertex > vertices);
-
 }  // namespace pgrouting
 
-#endif  // INCLUDE_CPP_COMMON_CH_VERTEX_HPP_
+#endif  // INCLUDE_CPP_COMMON_CH_EDGE_HPP_

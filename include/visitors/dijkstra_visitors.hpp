@@ -42,14 +42,31 @@ namespace visitors {
 
 template <typename V>
 class dijkstra_one_goal_visitor : public boost::default_dijkstra_visitor {
- public:
-     explicit dijkstra_one_goal_visitor(V goal) : m_goal(goal) {}
-     template <class B_G>
-         void examine_vertex(V &u, B_G &) {
-             if (u == m_goal) throw found_goals();
-         }
- private:
-     V m_goal;
+public:
+    explicit dijkstra_one_goal_visitor(V goal) :
+        m_goal(goal) {}
+    template <class B_G>
+        void examine_vertex(V &u, B_G &) {
+            if (u == m_goal) throw found_goals();
+        }
+private:
+    V m_goal;
+};
+
+template <typename V>
+class dijkstra_many_goals_visitor : public boost::default_dijkstra_visitor {
+public:
+    dijkstra_many_goals_visitor(std::set<V> goals):
+        m_goals(goals) {}
+    
+    template <class B_G>
+        void examine_vertex(V u, B_G g) {
+            auto s_it = m_goals.find(u);
+            if (s_it != m_goals.end()) m_goals.erase(s_it);
+            if (m_goals.empty()) throw found_goals();            
+        }
+private:
+    std::set<V> m_goals;
 };
 
 template <typename V>
@@ -61,7 +78,7 @@ class dijkstra_many_goal_visitor : public boost::default_dijkstra_visitor {
              std::set<V> &f_goals) :
          m_goals(goals),
          m_n_goals(n_goals),
-         m_found_goals(f_goals) {
+         m_found_goals(f_goals)   {
          }
      template <class B_G>
          void examine_vertex(V u, B_G &) {
@@ -107,36 +124,6 @@ public:
         }
 
 private:
-    double m_distance_goal;
-    std::vector<double> &m_dist;
-};
-
-template <typename V>
-class dijkstra_distance_with_goals_visitor: public boost::default_dijkstra_visitor {
-public:
-    explicit dijkstra_distance_with_goals_visitor(
-            double distance_goal,
-            std::vector<double> &distances,
-            const std::set<V> &goals
-    ):
-        m_distance_goal(distance_goal),
-        m_dist(distances),
-        m_goals(goals) {
-            pgassert(m_distance_goal > 0);
-        }
-    template <class B_G>
-        void examine_vertex(V u, B_G &) {
-            auto s_it = m_goals.find(u);
-            if (s_it != m_goals.end()) {
-                m_goals.erase(s_it);
-            }
-            if ((m_dist[u] > m_distance_goal) || (m_goals.size() == 0)) {
-                throw found_goals();
-            }
-        }
-
-private:
-    std::set<V> m_goals;
     double m_distance_goal;
     std::vector<double> &m_dist;
 };

@@ -40,12 +40,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <boost/graph/iteration_macros.hpp>
 
 #include "cpp_common/base_graph.hpp"
-#include "cpp_common/ch_vertex.hpp"
-#include "cpp_common/ch_edge.hpp"
+#include "contraction/ch_vertex.hpp"
+#include "contraction/ch_edge.hpp"
 
 
 namespace pgrouting {
 namespace graph {
+
 
 template <class G, bool t_directed>
 class Pgr_contractionGraph : public Pgr_base_graph<G, CH_vertex, CH_edge, t_directed> {
@@ -57,35 +58,48 @@ public:
     typedef typename boost::graph_traits < G >::edge_iterator E_i;
 
     /*!
-    Prepares the _graph_ to be of type *directed*
+        Prepares the _graph_ to be of type *directed*
     */
     explicit Pgr_contractionGraph<G, t_directed>(): Pgr_base_graph<G, CH_vertex, CH_edge, t_directed>() {
+        min_edge_id=0;
     }
 
-    /*! @brief get the vertex descriptors of adjacent vertices of *v*
-    @param [in] v vertex_descriptor
-    @return Identifiers<V>: The set of vertex descriptors adjacent to the given vertex *v*
+    int64_t get_next_id() {
+        return --min_edge_id;
+    }
+
+    /*!
+        @brief get the vertex descriptors of adjacent vertices of *v*
+        @param [in] v vertex_descriptor
+        @return Identifiers<V>: The set of vertex descriptors adjacent to the given vertex *v*
     */
     Identifiers<V> find_adjacent_vertices(V v) const {
         EO_i out, out_end;
         EI_i in, in_end;
         Identifiers<V> adjacent_vertices;
 
-        for (boost::tie(out, out_end) = out_edges(v, this->graph);
-                out != out_end; ++out) {
-            adjacent_vertices += this->adjacent(v, *out);
-        }
-        for (boost::tie(in, in_end) = in_edges(v, this->graph);
-                in != in_end; ++in) {
-            adjacent_vertices += this->adjacent(v, *in);
-        }
+        for (
+            boost::tie(out, out_end) = out_edges(v, this->graph);
+            out != out_end; 
+            ++out
+        ) 
+        adjacent_vertices += this->adjacent(v, *out);
+
+        for (
+            boost::tie(in, in_end) = in_edges(v, this->graph);
+            in != in_end;
+            ++in
+        )
+        adjacent_vertices += this->adjacent(v, *in);
+        
         return adjacent_vertices;
     }
 
-    /*! @brief get the vertex descriptors of adjacent vertices of *v*
-       @param [in] v vertex_descriptor
-       @return set<V>: The set of out vertex descriptors adjacent to the given vertex *v*
-       */
+    /*!
+        @brief get the vertex descriptors of adjacent vertices of *v*
+        @param [in] v vertex_descriptor
+        @return set<V>: The set of out vertex descriptors adjacent to the given vertex *v*
+    */
     Identifiers<V> find_adjacent_out_vertices(V v) const {
         EO_i out, out_end;
         Identifiers<V> adjacent_vertices;
@@ -100,9 +114,10 @@ public:
         return adjacent_vertices;
     }
 
-    /*! @brief get the vertex descriptors of adjacent vertices of *v*
-    @param [in] v vertex_descriptor
-    @return Identifiers<V>: The set of in vertex descriptors adjacent to the given vertex *v*
+    /*!
+        @brief get the vertex descriptors of adjacent vertices of *v*
+        @param [in] v vertex_descriptor
+        @return Identifiers<V>: The set of in vertex descriptors adjacent to the given vertex *v*
     */
     Identifiers<V> find_adjacent_in_vertices(V v) const {
         EI_i in, in_end;
@@ -118,20 +133,20 @@ public:
         return adjacent_vertices;
     }
 
-    /*! @brief vertices with at least one contracted vertex
-    @result The vids Identifiers with at least one contracted vertex
+    /*!
+        @brief vertices with at least one contracted vertex
+        @result The vids Identifiers with at least one contracted vertex
     */
-    std::vector<E> get_shortcuts(std::ostringstream &log) 
+    std::vector<E> get_shortcuts() 
     {
         pgrouting::Identifiers<E> eids;
         E_i e, e_end;
         for (boost::tie(e, e_end) = edges(this->graph); e != e_end; ++e) {
-            log << this->graph[*e].id << std::endl;
             if (this->graph[*e].id < 0) {
                 eids += *e;
-                pgassert(!this->graph[*e].contracted_vertices().empty());
+                pgassert(!(this->graph[*e]).get_contracted_vertices().empty());
             } else {
-                pgassert(this->graph[*e].contracted_vertices().empty());
+                pgassert((this->graph[*e]).get_contracted_vertices().empty());
             }
         }
         std::vector<E> o_eids(eids.begin(), eids.end());
@@ -143,23 +158,44 @@ public:
         return o_eids;
     }
 
-    /*! @brief vertices with at least one contracted vertex
-    @result The vids Identifiers with at least one contracted vertex
+    /*!
+        @brief vertices with at least one contracted vertex
+        @result The vids Identifiers with at least one contracted vertex
     */
-    Identifiers<int64_t> get_modified_vertices() {
-        Identifiers<int64_t> vids;
+    Identifiers<V> get_modified_vertices() {
+        Identifiers<V> vids;
         for (auto v : boost::make_iterator_range(boost::vertices(this->graph))) {
-            if (this->graph[v].has_contracted_vertices()) {
-                vids += this->graph[v].id;
+            if ((this->graph[v]).has_contracted_vertices()) {
+                vids += (this->graph[v]).get_id();
             }
         }
         return vids;
     }
 
-    /*! @brief get the edge with minimum cost between two vertices
-      @param [in] u vertex_descriptor of source vertex
-      @param [in] v vertex_descriptor of target vertex
-      @return E: The edge descriptor of the edge with minimum cost
+    /*!
+        @brief copies shortcuts and modified vertices from another graph
+        @result void
+    */
+    void copy_shortcuts(G& contracted_graph) {
+        E e;
+        for (const E& e: contracted_graph.get_shortcuts())
+        {
+            CH_edge shortcut (
+                get_next_id(),
+                (source(e, contracted_graph)).id,
+                (target(e, contracted_graph)).id,
+                contracted_graph[e].cost
+            );
+            shortcut.add_contracted_vertices((this->graph[e]).get_contracted_vertices());
+            add_shortcut(shortcut, source(e, contracted_graph), target(e, contracted_graph));
+        }
+    }
+
+    /*!
+        @brief get the edge with minimum cost between two vertices
+        @param [in] u vertex_descriptor of source vertex
+        @param [in] v vertex_descriptor of target vertex
+        @return E: The edge descriptor of the edge with minimum cost
     */
     std::tuple<double, Identifiers<int64_t>, bool>
     get_min_cost_edge(V u, V v) {
@@ -170,10 +206,10 @@ public:
 
         if (this->is_directed()) {
             BGL_FORALL_OUTEDGES_T(u, e, this->graph, G) {
-                if (this->target(e) == v) {
-                    contracted_vertices += this->graph[e].contracted_vertices();
-                    if (this->graph[e].cost < min_cost) {
-                        min_cost = this->graph[e].cost;
+                if (target(e, this->graph) == v) {
+                    contracted_vertices += (this->graph[e]).get_contracted_vertices();
+                    if ((this->graph[e]).cost < min_cost) {
+                        min_cost = (this->graph[e]).cost;
                         min_edge = e;
                         found = true;
                     }
@@ -185,9 +221,9 @@ public:
         pgassert(this->is_undirected());
         BGL_FORALL_OUTEDGES_T(u, e, this->graph, G) {
             if (this->adjacent(u, e) == v) {
-                contracted_vertices += this->graph[e].contracted_vertices();
-                if (this->graph[e].cost < min_cost) {
-                    min_cost = this->graph[e].cost;
+                contracted_vertices += (this->graph[e]).get_contracted_vertices();
+                if ((this->graph[e]).cost < min_cost) {
+                    min_cost = (this->graph[e]).cost;
                     min_edge = e;
                     found = true;
                 }
@@ -196,11 +232,11 @@ public:
         return std::make_tuple(min_cost, contracted_vertices, found);
     }
 
-    /*! @brief print the graph with contracted vertices of
-    all vertices and edges
+    /*!
+        @brief print the graph with contracted vertices of all vertices and edges
     */
     friend
-    std::ostream& operator <<(
+    std::ostream& operator << (
             std::ostream &os,
             const Pgr_contractionGraph &g) {
         EO_i out, out_end;
@@ -223,50 +259,118 @@ public:
         return os;
     }
 
-    /*! @brief add_shortuct to the graph during contraction
-    @param [in] edge of type *CH_edge* is to be added
-    @param [in] u vertex
-    @param [in] v vertex
-    u -> w -> v
-    u -> v
-    edge (u, v) is a new edge e
-    contracted_vertices = w + contracted vertices
+    /*!
+        @brief add a shortcut to the graph during contraction
+        @param [in] edge of type *CH_edge* is to be added
+        @param [in] u vertex
+        @param [in] v vertex
+        u -> w -> v
+        u -> v
+        edge (u, v) is a new edge e
+        contracted_vertices = w + contracted vertices
     */
     void add_shortcut(const CH_edge &edge, V u, V v) {
         bool inserted;
         E e;
         if (edge.cost < 0) return;
-
         boost::tie(e, inserted) = boost::add_edge(u, v, this->graph);
-
         this->graph[e]= edge;
     }
 
+    /*
+     *
+     * u ----e1{v1}----> v ----e2{v2}----> w
+     *
+     * e1: min cost edge from u to v
+     * e2: min cost edge from v to w
+     *
+     * result:
+     * u ---{v+v1+v2}---> w
+     *
+     */
+    void process_shortcut(V u, V v, V w) {
+        auto e1 = get_min_cost_edge(u, v);
+        auto e2 = get_min_cost_edge(v, w);
+
+        if (std::get<2>(e1) && std::get<2>(e2)) {
+            auto contracted_vertices = std::get<1>(e1) + std::get<1>(e2);
+            double cost = std::get<0>(e1) + std::get<0>(e2);
+            contracted_vertices += (this->graph[v]).id;
+            contracted_vertices += (this->graph[v]).get_contracted_vertices();
+
+            // Create shortcut
+            CH_edge shortcut(
+                get_next_id(),
+                (this->graph[u]).id,
+                (this->graph[w]).id,
+                cost
+            );
+            shortcut.set_contracted_vertices(contracted_vertices);
+            add_shortcut(shortcut, u, w);
+        }
+    }
+
+    /*! 
+        @brief builds the shortcut information and adds it during contraction or afterwards to copy them to the source graph
+    */
+    bool process_shortcut_(
+        V u, 
+        V v, 
+        V w, 
+        bool simulation,
+        double cost,
+        std::ostringstream &log
+    ) 
+    {
+        if ( is_shortcut_possible(u, v, w) ) {
+            auto e1 = get_min_cost_edge(u, v);
+            auto e2 = get_min_cost_edge(v, w);
+
+            if ((!simulation) && (std::get<2>(e1) && std::get<2>(e2))) {
+                // Create shortcut
+                CH_edge shortcut (
+                    get_next_id(),
+                    (this->graph[u]).get_id(),
+                    (this->graph[w]).get_id(),
+                    cost
+                );
+                shortcut.add_contracted_vertex(this->graph[v]);
+                log << "  Shortcut edge " << shortcut.id << ": (" << (this->graph[u]).id << ", " << (this->graph[w]).id << ") added, of cost " << cost << "." << std::endl;
+                add_shortcut(shortcut, u, w);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*! 
+        @brief tests if the edges sequence (u, v), (v, w) exists in the graph
+    */
     bool has_u_v_w(V u, V v, V w) const {
         return boost::edge(u, v, this->graph).second && boost::edge(v, w, this->graph).second;
     }
 
-    /**
-    Possibility of a shortcut from left vertex to right vertex
-    *v* should be a linear vertex
-    u <-> v -> w: v not considered linear
-    @dot
-    graph G {
-    graph [rankdir=LR];
-    subgraph cluster0 {
-    node [shape=point,height=0.2,style=filled,color=black];
-    style=filled;
-    color=lightgrey;
-    a0; a1; a2;
-    label = "rest of graph";
-    }
-    v [color=green];
-    v -- left;
-    v -- right;
-    u -- a0;
-    w -- a1;
-    }
-    @enddot
+    /*
+        Possibility of a shortcut from left vertex to right vertex
+        *v* should be a linear vertex
+        u <-> v -> w: v not considered linear
+        @dot
+        graph G {
+        graph [rankdir=LR];
+        subgraph cluster0 {
+        node [shape=point,height=0.2,style=filled,color=black];
+        style=filled;
+        color=lightgrey;
+        a0; a1; a2;
+        label = "rest of graph";
+        }
+        v [color=green];
+        v -- left;
+        v -- right;
+        u -- a0;
+        w -- a1;
+        }
+        @enddot
     */
     bool is_shortcut_possible(
             V u,
@@ -300,6 +404,9 @@ public:
             (has_u_v_w(w, v, u) && !(boost::edge(v, w, this->graph).second || boost::edge(u, v, this->graph).second));
     }
 
+    /*! 
+        @brief tests if v is in the middle of two edges with no possible bifurcation in v
+    */
     bool is_linear(V v) {
         // Checking adjacent vertices constraint
         auto adjacent_vertices = find_adjacent_vertices(v);
@@ -316,6 +423,9 @@ public:
         }
         return false;
     }
+
+private:
+    int64_t min_edge_id;
 };
 
 }  // namespace graph
