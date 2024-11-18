@@ -56,8 +56,7 @@ public:
         Identifiers<V> forbidden_vertices,
         std::vector<int64_t> contraction_methods,
         int64_t max_cycles,
-        std::ostringstream &log,
-        std::ostringstream &err
+        std::ostringstream &log
     ) 
     {
         std::deque<int64_t> contraction_methods_deque;
@@ -82,8 +81,7 @@ public:
                     graph, 
                     kind, 
                     forbidden_vertices,
-                    log,
-                    err
+                    log
                 );
                 contraction_methods_deque.pop_front();
                 contraction_methods_deque.push_back(front);
@@ -97,8 +95,7 @@ private:
         G &graph,
         int64_t kind,
         Identifiers<V> &forbidden_vertices,
-        std::ostringstream &log,
-        std::ostringstream &err
+        std::ostringstream &log
     )
     {
         switch (kind) {
@@ -108,17 +105,17 @@ private:
 
             case 1:
                 log << "Dead-end contractions" << std::endl;
-                perform_dead_end_contraction(graph, forbidden_vertices, log, err);
+                perform_dead_end_contraction(graph, forbidden_vertices);
                 break;
 
             case 2:
                 log << "Linear contractions" << std::endl;
-                perform_linear_contraction(graph, forbidden_vertices, log, err);
+                perform_linear_contraction(graph, forbidden_vertices);
                 break;
 
             case 3:
                 log << "Contractions hierarchy" << std::endl;
-                perform_contractions_hierarchy(graph, forbidden_vertices, log, err);
+                perform_contractions_hierarchy(graph, forbidden_vertices, log);
                 break;
             
             default:
@@ -129,9 +126,7 @@ private:
 
     void perform_dead_end_contraction(
         G &graph,
-        Identifiers<V> forbidden_vertices,
-        std::ostringstream &log,
-        std::ostringstream &err
+        Identifiers<V> forbidden_vertices
     )
     {
         Pgr_deadend<G> deadendContractor;
@@ -148,9 +143,7 @@ private:
 
     void perform_linear_contraction(
         G &graph,
-        Identifiers<V>& forbidden_vertices,
-        std::ostringstream &log,
-        std::ostringstream &err
+        Identifiers<V>& forbidden_vertices
     ) 
     {
         Pgr_linear<G> linearContractor;
@@ -165,15 +158,14 @@ private:
     void perform_contractions_hierarchy(
         G &graph,
         Identifiers<V> forbidden_vertices,
-        std::ostringstream &log,
-        std::ostringstream &err
+        std::ostringstream &log
     ) 
     {
         Pgr_contractionsHierarchy<G> CH;
         CH.setForbiddenVertices(forbidden_vertices);
 
         try {
-            CH.doContraction(graph, log, err);
+            CH.doContraction(graph, log);
         }
         catch ( ... ) {
             throw;

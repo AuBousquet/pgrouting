@@ -53,8 +53,7 @@ void process_contraction(
     const std::vector< int64_t > &forbidden_vertices,
     const std::vector< int64_t > &contraction_methods,
     int64_t max_cycles,
-    std::ostringstream &log,
-    std::ostringstream &err
+    std::ostringstream &log
 )
 {
     using pgrouting::pgr_msg;
@@ -77,8 +76,7 @@ void process_contraction(
         forbid_vertices,
         contraction_methods,
         max_cycles,
-        log,
-        err
+        log
     );
 
     log << "Contraction processed" << std::endl;
@@ -213,14 +211,13 @@ pgr_do_contractGraph(
             DirectedGraph digraph;
 
             log << "Prepare contraction process" << std::endl;
-            process_contraction(
+            process_contraction (
                 digraph, 
                 edges, 
                 forbid, 
                 ordering,
                 max_cycles,
-                log,
-                err
+                log
             );
             log << "Contraction processed" << std::endl;
 
@@ -234,14 +231,13 @@ pgr_do_contractGraph(
 
             using UndirectedGraph = pgrouting::graph::CHUndirectedGraph;
             UndirectedGraph undigraph;
-            process_contraction(
+            process_contraction (
                 undigraph, 
                 edges, 
                 forbid, 
                 ordering,
                 max_cycles,
-                log,
-                err
+                log
             );
 
             get_postgres_result(

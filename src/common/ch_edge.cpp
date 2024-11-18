@@ -35,6 +35,18 @@ namespace pgrouting {
         m_contracted_vertices.clear();
     }
 
+    int64_t CH_edge::get_id() {
+        return id;
+    }
+
+    int64_t CH_edge::get_source() {
+        return source;
+    }
+
+    int64_t CH_edge::get_target() {
+        return target;
+    }
+
     void CH_edge::cp_members(CH_edge& other) {
         cost = other.cost;
         id = other.id;

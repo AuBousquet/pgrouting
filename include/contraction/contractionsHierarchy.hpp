@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #define INCLUDE_CONTRACTION_PGR_CONTRACTIONSHIERARCHY_HPP_
 #pragma once
 
-
 #include <queue>
 #include <functional>
 #include <string>
@@ -74,15 +73,14 @@ public:
         V u, 
         V v, 
         Identifiers<V> out_vertices, 
-        std::ostringstream &log,
-        std::ostringstream &err
+        std::ostringstream &log
     ) 
     {
         double p_max = 0., c;
         E e, f;
         bool found_e, found_f;
         
-        log << std::endl << "pmax calculation from (" << graph[u].id << ", " << graph[v].id << ")" << std::endl;
+        log << std::endl << "p_max calculation from (" << graph[u].id << ", " << graph[v].id << ")" << std::endl;
         boost::tie(e, found_e) = boost::edge(u, v, graph.graph);
         if (found_e) {
             for (V w : out_vertices) {
@@ -95,8 +93,6 @@ public:
                 }
             }
         }
-        else 
-            err << "Edge (" << graph[u].id << ", " << graph[v].id << ") not found" << std::endl;
         return p_max;
     }
 
@@ -112,17 +108,16 @@ public:
         G &graph, 
         V v, 
         bool simulation,
-        std::ostringstream &log,
-        std::ostringstream &err
+        std::vector<CH_edge> &shortcuts,
+        std::ostringstream &log
     )
     {
         Identifiers<V> adjacent_in_vertices = graph.find_adjacent_in_vertices(v);
         Identifiers<V> adjacent_out_vertices = graph.find_adjacent_out_vertices(v);
+        int64_t old_edges = static_cast<int64_t>(adjacent_in_vertices.size()) + static_cast<int64_t>(adjacent_out_vertices.size());
 
-        int shortcuts = 0;
-        int old_edges = adjacent_in_vertices.size() + adjacent_out_vertices.size();
         log << std::endl << ">> Contraction of node " << graph[v].id;
-        
+        log << std::endl << num_vertices(graph.graph) << " vertices and " << num_edges(graph.graph) << " edges " << std::endl;
         while (!adjacent_in_vertices.empty()) {
             try {
                 V u = adjacent_in_vertices.front();
@@ -133,11 +128,12 @@ public:
                 V_i out_i, out_end;
 
                 // Calculation of p_max
-                double p_max = find_pmax(graph, u, v, adjacent_out_vertices, log, err);
+                double p_max = find_pmax(graph, u, v, adjacent_out_vertices, log);
                 if ( p_max > 0 ) {                    
                     // Launch of a shortest paths query from u to all nodes with distance less than p_max
                     log << "  found p_max = " << p_max;
                     
+                    std::set<int64_t> reached_vertices_ids;
                     try {
                         boost::dijkstra_shortest_paths(
                             graph.graph, 
@@ -146,13 +142,21 @@ public:
                             .weight_map(get(&G::G_T_E::cost, graph.graph))
                             .distance_map(&distances[0])
                             .distance_inf(std::numeric_limits<double>::infinity())
-                            .visitor(pgrouting::visitors::dijkstra_distance_visitor<V>(p_max, distances))
+                            .visitor(pgrouting::visitors::dijkstra_max_distance_visitor<V>(p_max, distances, reached_vertices_ids, log))
                         );
                     }
-                    catch (pgrouting::found_goals &) {
+                    catch (pgrouting::max_dist_reached &) {
                         log << std::endl << "Labelling done from node " << graph[u].id << " for the contraction of node " << graph[v].id << std::endl;
                     }
-                    
+                    catch ( ... ) {
+                        log << "Unknown error" << std::endl; 
+                    }
+                    log << std::endl << "Number of labelled vertices: " << reached_vertices_ids.size() << std::endl;
+                    /*
+                    Identifiers<int64_t> r;
+                    r.set_ids(reached_vertices_ids);
+                    log << std::endl << r << std::endl;
+                    */
                     /* abort in case of an interruption occurs (e.g. the query is being cancelled) */
                     CHECK_FOR_INTERRUPTS();
                     
@@ -161,16 +165,17 @@ public:
                         E e, f, g;
                         bool found_e, found_f, found_g;
                         double c;
+                        
                         if ( u != w ) {
                             boost::tie(e, found_e) = boost::edge(u, v, graph.graph);
                             boost::tie(f, found_f) = boost::edge(v, w, graph.graph);
                             boost::tie(g, found_g) = boost::edge(u, w, graph.graph);
                             if (found_e && found_f && (!found_g || (found_g && (distances[w] < graph[g].cost)))) {
                                 c = graph[e].cost + graph[f].cost;
-                                if (distances[w] < c) { 
-                                    // The shortest path from u to w was by v
-                                    if (graph.process_shortcut_(u, v, w, simulation, distances[w], log)) {
-                                        shortcuts++;
+                                if ((distances[w] < c) && (graph.is_shortcut_possible(u, v, w))) { 
+                                    if (!simulation) {
+                                        pgrouting::CH_edge ch_e = graph.process_shortcut_from_shortest_path(u, v, w, distances[w], log);
+                                        shortcuts.push_back(ch_e);
                                     }
                                 }
                             }
@@ -188,66 +193,68 @@ public:
             for (auto &w : adjacent_out_vertices) {
                 boost::remove_edge(v, w, graph.graph);
             }
-            for (auto &u : adjacent_in_vertices) {
+            for (auto &u : graph.find_adjacent_in_vertices(v)) {
                 boost::remove_edge(u, v, graph.graph);
             }
             (graph[v]).clear_contracted_vertices(); 
         }
-
-        if (shortcuts > 0) 
-            log << shortcuts << " shortcuts created, " << old_edges << " old edges, edge difference = " << shortcuts - old_edges << ".";
-        log << std::endl;
-
-        return shortcuts - old_edges;
+        int64_t shortcuts_number = static_cast<int64_t>(shortcuts.size());
+        log << num_vertices(graph.graph) << " vertices and " << num_edges(graph.graph) << " edges" << std::endl;
+        log << shortcuts_number << " shortcuts created, " << old_edges << " old edges, edge difference = " << shortcuts_number - old_edges << std::endl;
+        
+        return shortcuts_number - old_edges;
     }
 
     void doContraction(
         G &graph, 
-        std::ostringstream &log,
-        std::ostringstream &err
+        std::ostringstream &log
     )
     {
         // First iteration over vertices
-        G contracted_graph=graph;
+        G graph_copy=graph;
+        std::vector<pgrouting::CH_edge> shortcuts;
+
         // Fill the priority queue with a first search
         log << "Do contraction" << std::endl;
-
+        log << std::endl << ">>>> FIRST LABELLING" << std::endl;
         PQ minPQ;
         BGL_FORALL_VERTICES_T(v, graph.graph, B_G) {
             if (!forbiddenVertices.has(v)) {
-                minPQ.push(std::make_pair(process_vertex_contraction(graph, v, false, log, err), v));
+                minPQ.push(std::make_pair(process_vertex_contraction(graph, v, false, shortcuts, log), v));
             }
         }
 
+        log << std::endl << ">>>> SECOND LABELLING" << std::endl;
+        shortcuts.clear();
+        graph = graph_copy;
+        
         // Second iteration: lazy heuristics 
         // The graph is reinitialized
         while (!minPQ.empty()) {
             std::pair< int64_t, V > ordered_vertex = minPQ.top();
             minPQ.pop();
-            int64_t corrected_order = process_vertex_contraction(graph, ordered_vertex.second, true, log, err);            
-            log << "Initial order " << ordered_vertex.first << ", new order " << corrected_order << ", vertex: " << graph[ordered_vertex.second].id << ", min value of the queue: " << minPQ.top().first << std::endl;
-
+            int64_t corrected_order = process_vertex_contraction(graph, ordered_vertex.second, true, shortcuts, log);       
+            log << "Vertex: " << graph[ordered_vertex.second].id << ", min value of the queue: " << minPQ.top().first << std::endl;
+            log << "   Lazy non-destructive simulation: initial order " << ordered_vertex.first << ", new order " << corrected_order << std::endl;
             if (minPQ.top().first < corrected_order) {
-                log << "Vertex reinserted" << std::endl;
+                log << "   Vertex reinserted" << std::endl;
                 minPQ.push(std::make_pair(corrected_order, ordered_vertex.second));
             }
             else {
                 std::pair< int64_t, V > contracted_vertex;
-                contracted_vertex.first = process_vertex_contraction(contracted_graph, ordered_vertex.second, false, log, err);
+                contracted_vertex.first = process_vertex_contraction(graph_copy, ordered_vertex.second, false, shortcuts, log);
                 contracted_vertex.second = ordered_vertex.second;
-                log << "Vertex endly contracted" << std::endl;
+                log << "   Vertex endly contracted" << std::endl;
                 priority_queue.push(contracted_vertex);
             }
         }
+        log << "Copy shortcuts" << std::endl;
+        graph.copy_shortcuts(shortcuts, log);
 
         E_i e, e_end;
         for (boost::tie(e, e_end) = edges(graph.graph); e != e_end; ++e) {
-            log << graph.graph[*e].id << std::endl;
+            log << graph.graph[*e].id << " : " << (graph.graph[*e]).has_contracted_vertices() << std::endl;
         }
-        BGL_FORALL_EDGES_T(e_, graph.graph, B_G) {
-            log << graph.graph[e_].id << std::endl;
-        }
-        
     }
 
 private:

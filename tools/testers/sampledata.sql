@@ -231,17 +231,20 @@ INSERT INTO old_restrictions (rid, to_cost, target_id, via_path) VALUES
 DROP TABLE IF EXISTS edges_2;
 DROP TABLE IF EXISTS vertices_2;
 
+create table vertices_2 (
+    id integer primary key,
+    x double precision,
+    y double precision,
+    geom Geometry(Point)
+);
+
 create table edges_2 (
     id bigserial primary key,
     source bigint,
     target bigint,
     cost float,
     reverse_cost float,
-    x1 float,
-    y1 float,
-    x2 float,
-    y2 float,
-    geom geometry
+    geom geometry(Linestring)
 );
 
 

@@ -398,7 +398,6 @@ Pgr_alphaShape::operator() (double alpha) const {
             auto source = boost::source(first_edge, subg);
             auto target = boost::target(first_edge, subg);
 
-
             auto predecessors = get_predecessors(source, target, subg);
             std::set<E> edges_used;
             auto poly = get_polygon(source, target, predecessors, subg, edges_used);

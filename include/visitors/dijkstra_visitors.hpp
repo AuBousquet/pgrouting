@@ -54,6 +54,38 @@ private:
 };
 
 template <typename V>
+class dijkstra_max_distance_visitor: public boost::default_dijkstra_visitor {
+public:
+    explicit dijkstra_max_distance_visitor(
+            double distance_goal,
+            std::vector<double> &distances,
+            std::set<int64_t> &reached_vertices_ids,
+            std::ostringstream &log
+    ):
+        m_distance_goal(distance_goal),
+        m_dist(distances),
+        m_reached_vertices_ids(reached_vertices_ids),
+        m_log(log)
+        {
+            pgassert(m_distance_goal > 0);
+        }
+        template <class B_G>
+        void examine_vertex(V u, B_G &g) {
+            //m_log << std::endl << g[u].id << ", potential: "<< m_dist[u] << std::endl;
+            if (m_dist[u] > m_distance_goal) {
+                throw max_dist_reached();
+            }
+            m_reached_vertices_ids.insert(g[u].id);
+        }
+
+private:
+    double m_distance_goal;
+    std::vector<double> &m_dist;
+    std::set<int64_t> &m_reached_vertices_ids;
+    std::ostringstream &m_log;
+};
+
+template <typename V>
 class dijkstra_many_goal_visitor : public boost::default_dijkstra_visitor {
  public:
      dijkstra_many_goal_visitor(
