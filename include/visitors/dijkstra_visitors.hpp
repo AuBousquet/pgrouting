@@ -54,22 +54,6 @@ private:
 };
 
 template <typename V>
-class dijkstra_many_goals_visitor : public boost::default_dijkstra_visitor {
-public:
-    dijkstra_many_goals_visitor(std::set<V> goals):
-        m_goals(goals) {}
-    
-    template <class B_G>
-        void examine_vertex(V u, B_G g) {
-            auto s_it = m_goals.find(u);
-            if (s_it != m_goals.end()) m_goals.erase(s_it);
-            if (m_goals.empty()) throw found_goals();            
-        }
-private:
-    std::set<V> m_goals;
-};
-
-template <typename V>
 class dijkstra_many_goal_visitor : public boost::default_dijkstra_visitor {
  public:
      dijkstra_many_goal_visitor(

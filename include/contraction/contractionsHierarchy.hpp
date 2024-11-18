@@ -137,16 +137,22 @@ public:
                 if ( p_max > 0 ) {                    
                     // Launch of a shortest paths query from u to all nodes with distance less than p_max
                     log << "  found p_max = " << p_max;
-                    boost::dijkstra_shortest_paths(
-                        graph.graph, 
-                        u,
-                        boost::predecessor_map(&predecessors[0])
-                        .weight_map(get(&G::G_T_E::cost, graph.graph))
-                        .distance_map(&distances[0])
-                        .distance_inf(std::numeric_limits<double>::infinity())
-                    );
-                    log << "  first labelling done for node " << graph[v].id << std::endl;
-
+                    
+                    try {
+                        boost::dijkstra_shortest_paths(
+                            graph.graph, 
+                            u,
+                            boost::predecessor_map(&predecessors[0])
+                            .weight_map(get(&G::G_T_E::cost, graph.graph))
+                            .distance_map(&distances[0])
+                            .distance_inf(std::numeric_limits<double>::infinity())
+                            .visitor(pgrouting::visitors::dijkstra_distance_visitor<V>(p_max, distances))
+                        );
+                    }
+                    catch (pgrouting::found_goals &) {
+                        log << std::endl << "Labelling done from node " << graph[u].id << " for the contraction of node " << graph[v].id << std::endl;
+                    }
+                    
                     /* abort in case of an interruption occurs (e.g. the query is being cancelled) */
                     CHECK_FOR_INTERRUPTS();
                     
