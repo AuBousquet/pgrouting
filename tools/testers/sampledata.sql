@@ -297,74 +297,39 @@ I-G = 9-7 = cost 5 ;
 
 */
 
-insert into edges_2 (cost, reverse_cost, geom) 
+insert into vertices_2 (id, x, y, geom)
 values
-    ( 3, 3, ST_MakeLine(ST_Point(0,2), ST_Point(1,2)) ), --1-11
-    ( 6, 6, ST_MakeLine(ST_Point(1,2), ST_Point(2,2)) ), --11-9
-    ( 5, 5, ST_MakeLine(ST_Point(0,2), ST_Point(0.5,1)) ), --1-3
-    ( 3, 3, ST_MakeLine(ST_Point(0,2), ST_Point(0,0)) ), --1-2
-    ( 5, 5, ST_MakeLine(ST_Point(0,0), ST_Point(1,0)) ), --2-4
-    ( 3, 3, ST_MakeLine(ST_Point(0,0), ST_Point(0.5,1)) ), --2-3
-    ( 2, 2, ST_MakeLine(ST_Point(0.5,1), ST_Point(1,0)) ), --3-4
-    ( 7, 7, ST_MakeLine(ST_Point(1,0), ST_Point(1.5,0)) ), --4-5
-    ( 6, 6, ST_MakeLine(ST_Point(1.5,0), ST_Point(3,0)) ), --5-6
-    ( 2, 2, ST_MakeLine(ST_Point(0.5,1), ST_Point(1.5,1)) ), --3-10
-    ( 4, 4, ST_MakeLine(ST_Point(1.5,1), ST_Point(1,0)) ), --10-4
-    ( 3, 3, ST_MakeLine(ST_Point(1.5,1), ST_Point(1.5,0)) ), --10-5
-    ( 3, 3, ST_MakeLine(ST_Point(1.5,1), ST_Point(1,2)) ), --10-11
-    ( 4, 4, ST_MakeLine(ST_Point(1.5,1), ST_Point(2,2)) ), --10-9
-    ( 2, 2, ST_MakeLine(ST_Point(1.5,1), ST_Point(2.5,1)) ), --10-8
-    ( 2, 2, ST_MakeLine(ST_Point(2.5,1), ST_Point(3,0)) ), --8-6
-    ( 3, 3, ST_MakeLine(ST_Point(2.5,1), ST_Point(3,1)) ), --8-7
-    ( 4, 4, ST_MakeLine(ST_Point(3,1), ST_Point(3,0)) ), --7-6
-    ( 5, 5, ST_MakeLine(ST_Point(2,2), ST_Point(3,1)) ), --9-7
-    ( 3, 3, ST_MakeLine(ST_Point(2,2), ST_Point(2.5,1)) ) --9-8
-;
+    ( 1, 0, 2, st_point(0,2) ),
+    ( 2, 0, 0, st_point(0,0) ),
+    ( 3, 0.5, 1, st_point(0.5, 1) ),
+    ( 4, 1, 0, st_point(1, 0) ),
+    ( 5, 1.5, 0, st_point(1.5, 0) ),
+    ( 6, 3, 0, st_point(3, 0) ),
+    ( 7, 3, 1, st_point(3, 1) ),
+    ( 8, 2.5, 1, st_point(2.5, 1) ),
+    ( 9, 2, 2, st_point(2, 2) ),
+    ( 10, 1.5, 1, st_point(1.5, 1) ),
+    ( 11, 1, 2, st_point(1, 2) );
 
-/* -- q1 */
-SELECT * INTO vertices_2
-FROM pgr_extractVertices('SELECT id, geom FROM edges_2 ORDER BY id');
-
-/* -- q1-1 */
-CREATE SEQUENCE vertices_2_id_seq;
-
-ALTER TABLE vertices_2
-ALTER COLUMN id SET DEFAULT nextval('vertices_2_id_seq');
-
-ALTER SEQUENCE vertices_2_id_seq
-OWNED BY vertices_2.id;
-
-SELECT setval('vertices_2_id_seq', (SELECT coalesce(max(id)) FROM vertices_2));
-
-/* -- q1-2 */
-\d vertices_2
-
-/* -- q2 */
-SELECT *
-FROM vertices_2;
-
-/* -- q3 */
-/* -- set the source information */
-UPDATE edges_2 AS e
-SET
-    source = v.id,
-    x1 = x,
-    y1 = y
-FROM vertices_2 AS v
-WHERE ST_StartPoint(e.geom) = v.geom;
-
-/* -- set the target information */
-UPDATE edges_2 AS e
-SET 
-    target = v.id,
-    x2 = x,
-    y2 = y
-FROM vertices_2 AS v
-WHERE ST_EndPoint(e.geom) = v.geom;
-
-/* -- q4 */
-SELECT id, source, target
-FROM edges_2
-ORDER BY id;
-/* -- q5 */
-
+insert into edges_2 (source, target, cost, reverse_cost, geom) 
+values
+    ( 1, 11, 3, 3, ST_MakeLine(ST_Point(0,2), ST_Point(1,2)) ),
+    ( 11, 9, 6, 6, ST_MakeLine(ST_Point(1,2), ST_Point(2,2)) ),
+    ( 1, 3, 5, 5, ST_MakeLine(ST_Point(0,2), ST_Point(0.5,1)) ),
+    ( 1, 2, 3, 3, ST_MakeLine(ST_Point(0,2), ST_Point(0,0)) ), --1-2
+    ( 2, 4, 5, 5, ST_MakeLine(ST_Point(0,0), ST_Point(1,0)) ), --2-4
+    ( 2, 3, 3, 3, ST_MakeLine(ST_Point(0,0), ST_Point(0.5,1)) ), --2-3
+    ( 3, 4, 2, 2, ST_MakeLine(ST_Point(0.5,1), ST_Point(1,0)) ), --3-4
+    ( 4, 5, 7, 7, ST_MakeLine(ST_Point(1,0), ST_Point(1.5,0)) ), --4-5
+    ( 5, 6, 6, 6, ST_MakeLine(ST_Point(1.5,0), ST_Point(3,0)) ), --5-6
+    ( 3, 10, 2, 2, ST_MakeLine(ST_Point(0.5,1), ST_Point(1.5,1)) ), --3-10
+    ( 10, 4, 4, 4, ST_MakeLine(ST_Point(1.5,1), ST_Point(1,0)) ), --10-4
+    ( 10, 5, 3, 3, ST_MakeLine(ST_Point(1.5,1), ST_Point(1.5,0)) ), --10-5
+    ( 10, 11, 3, 3, ST_MakeLine(ST_Point(1.5,1), ST_Point(1,2)) ), --10-11
+    ( 10, 9, 4, 4, ST_MakeLine(ST_Point(1.5,1), ST_Point(2,2)) ), --10-9
+    ( 10, 8, 2, 2, ST_MakeLine(ST_Point(1.5,1), ST_Point(2.5,1)) ), --10-8
+    ( 8, 6, 2, 2, ST_MakeLine(ST_Point(2.5,1), ST_Point(3,0)) ), --8-6
+    ( 8, 7, 3, 3, ST_MakeLine(ST_Point(2.5,1), ST_Point(3,1)) ), --8-7
+    ( 7, 6, 4, 4, ST_MakeLine(ST_Point(3,1), ST_Point(3,0)) ), --7-6
+    ( 9, 7, 5, 5, ST_MakeLine(ST_Point(2,2), ST_Point(3,1)) ), --9-7
+    ( 9, 8, 3, 3, ST_MakeLine(ST_Point(2,2), ST_Point(2.5,1)) ); --9-8
