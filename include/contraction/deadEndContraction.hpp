@@ -6,8 +6,11 @@ Copyright (c) 2015 pgRouting developers
 Mail: project@pgrouting.org
 
 Function's developers:
+Function's developers:
 Copyright (c) 2016 Rohith Reddy
 Mail:
+Oslandia - Aurélie Bousquet - 2024
+Mail: aurelie.bousquet@oslandia.com / contact@oslandia.com
 Oslandia - Aurélie Bousquet - 2024
 Mail: aurelie.bousquet@oslandia.com / contact@oslandia.com
 ------

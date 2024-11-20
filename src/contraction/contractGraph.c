@@ -48,16 +48,15 @@ PGDLLEXPORT Datum _pgr_contraction(PG_FUNCTION_ARGS);
 PG_FUNCTION_INFO_V1(_pgr_contraction);
 
 
-static
-void
-process(char* edges_sql,
-        ArrayType* order,
-        int num_cycles,
-        ArrayType* forbidden,
-
-        bool directed,
-        contracted_rt **result_tuples,
-        size_t *result_count) {
+static void process(
+    char* edges_sql,
+    ArrayType* order,
+    int num_cycles,
+    ArrayType* forbidden,
+    bool directed,
+    contracted_rt **result_tuples,
+    size_t *result_count
+) {
     /*
      * nothing to do
      */
@@ -70,17 +69,18 @@ process(char* edges_sql,
 
     clock_t start_t = clock();
     pgr_do_contractGraph(
-            edges_sql,
-            forbidden,
-            order,
-            num_cycles,
-            directed,
-            result_tuples, result_count,
-            &log_msg,
-            &notice_msg,
-            &err_msg);
+        edges_sql,
+        forbidden,
+        order,
+        num_cycles,
+        directed,
+        result_tuples, 
+        result_count,
+        &log_msg,
+        &notice_msg,
+        &err_msg
+    );
     time_msg("processing pgr_contraction()", start_t, clock());
-
 
     if (err_msg && (*result_tuples)) {
         pfree(*result_tuples);
@@ -197,6 +197,8 @@ _pgr_contraction(PG_FUNCTION_ARGS) {
         values[3] = Int64GetDatum(result_tuples[call_cntr].source);
         values[4] = Int64GetDatum(result_tuples[call_cntr].target);
         values[5] = Float8GetDatum(result_tuples[call_cntr].cost);
+        values[6] = Int64GetDatum(result_tuples[call_cntr].vertex_order);
+        values[7] = Int64GetDatum(result_tuples[call_cntr].metric);
 
         tuple = heap_form_tuple(tuple_desc, values, nulls);
         result = HeapTupleGetDatum(tuple);

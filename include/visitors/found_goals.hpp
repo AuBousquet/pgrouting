@@ -31,6 +31,7 @@ namespace pgrouting {
 
 //! exception for visitor termination
 struct found_goals{};
+struct max_dist_reached{};
 
 }  // namespace pgrouting
 

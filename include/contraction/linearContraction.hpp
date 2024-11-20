@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <functional>
 #include <queue>
+#include <queue>
 #include <vector>
 
 #include <boost/graph/iteration_macros.hpp>
@@ -42,7 +43,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <boost/graph/adjacency_list.hpp>
 
 #include "contraction/ch_edge.hpp"
+#include "contraction/contractionGraph.hpp"
 #include "cpp_common/identifiers.hpp"
+#include "cpp_common/messages.hpp"
+
 
 
 namespace pgrouting {
@@ -62,7 +66,10 @@ class Pgr_linear {
     void calculateVertices(G &graph) {
         linearVertices.clear();
         for (const auto &v : boost::make_iterator_range(vertices(graph.graph))) {
+        linearVertices.clear();
+        for (const auto &v : boost::make_iterator_range(vertices(graph.graph))) {
             if (is_contractible(graph, v)) {
+                linearVertices += v;
                 linearVertices += v;
             }
         }
@@ -75,7 +82,7 @@ class Pgr_linear {
             V v = linearVertices.front();
             linearVertices -= v;
             pgassert(is_contractible(graph, v));
-            one_cycle(graph, v);
+            contract_node(graph, v);
         }
     }
 
@@ -83,11 +90,10 @@ class Pgr_linear {
         return graph.is_linear(v) && !graph.getForbiddenVertices().has(v);
     }
 
-    void one_cycle(G &graph, V v) {
+    void contract_node(G &graph, V v) {
         pgassert(is_contractible(graph, v));
 
-        Identifiers<V> adjacent_vertices =
-            graph.find_adjacent_vertices(v);
+        Identifiers<V> adjacent_vertices = graph.find_adjacent_vertices(v);
         pgassert(adjacent_vertices.size() == 2);
 
         V u = adjacent_vertices.front();
@@ -115,24 +121,30 @@ class Pgr_linear {
             * u - v - w
             */
             graph.process_shortcut(u, v, w);
+            graph.process_shortcut(u, v, w);
         }
 
-        graph[v].get_contracted_vertices().clear();
+        graph[v].clear_contracted_vertices();
         boost::clear_vertex(v, graph.graph);
+        linearVertices -= v;
         linearVertices -= v;
 
         if (is_contractible(graph, u)) {
-            one_cycle(graph, u);
+            contract_node(graph, u);
         } else {
+            linearVertices -= u;
             linearVertices -= u;
         }
         if (is_contractible(graph, w)) {
-            one_cycle(graph, w);
+            contract_node(graph, w);
         } else {
+            linearVertices -= w;
             linearVertices -= w;
         }
     }
 
+ private:
+    Identifiers<V> linearVertices;
  private:
     Identifiers<V> linearVertices;
 };
