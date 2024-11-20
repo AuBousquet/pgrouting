@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "contraction/ch_graph.hpp"
 #include "contraction/linearContraction.hpp"
 #include "contraction/deadEndContraction.hpp"
+#include "contraction/contractionsHierarchy.hpp"
 
 namespace pgrouting {
 namespace contraction {
@@ -54,55 +55,80 @@ class Pgr_contract {
         G &graph,
         Identifiers<V> forbidden_vertices,
         std::vector<int64_t> contraction_methods,
-        int64_t max_cycles
-    ) {
-        std::deque<int64_t> contract_order;
+        int64_t max_cycles,
+        std::ostringstream &log
+    ) 
+    {
+        std::deque<int64_t> contraction_methods_deque;
         //  push -1 to indicate the start of the queue
-        contract_order.push_back(-1);
-        contract_order.insert(
-                contract_order.end(),
-                contraction_methods.begin(), contraction_methods.end());
+        contraction_methods_deque.push_back(-1);
+        contraction_methods_deque.insert(
+            contraction_methods_deque.end(),
+            contraction_methods.begin(), 
+            contraction_methods.end()
+        );
+        log << "Contraction methods queue prepared" << std::endl;
+
         for (int64_t i = 0; i < max_cycles; ++i) {
-            int64_t front = contract_order.front();
-            contract_order.pop_front();
-            contract_order.push_back(front);
-            auto kind = contract_order.front();
+            log << "Contraction cycle number: " << i+1 << std::endl;
+            int64_t front = contraction_methods_deque.front();
+            contraction_methods_deque.pop_front();
+            contraction_methods_deque.push_back(front);
+
+            auto kind = contraction_methods_deque.front();
             while (kind != -1) {
-                one_cycle(graph, kind, forbidden_vertices);
-                contract_order.pop_front();
-                contract_order.push_back(front);
-                kind = contract_order.front();
+                perform_one_contraction_cycle(
+                    graph, 
+                    kind, 
+                    forbidden_vertices,
+                    log
+                );
+                contraction_methods_deque.pop_front();
+                contraction_methods_deque.push_back(front);
+                kind = contraction_methods_deque.front();
             }
         }
     }
 
- private:
-    void one_cycle(
-            G &graph,
-            int64_t kind,
-            Identifiers<V> &forbidden_vertices) {
+private:
+    void perform_one_contraction_cycle(
+        G &graph,
+        int64_t kind,
+        Identifiers<V> &forbidden_vertices,
+        std::ostringstream &log
+    )
+    {
         switch (kind) {
             case -1:
                 pgassert(false);
                 break;
 
             case 1:
-                perform_deadEnd(graph, forbidden_vertices);
+                log << "Dead-end contractions" << std::endl;
+                perform_dead_end_contraction(graph, forbidden_vertices);
                 break;
-
 
             case 2:
-                perform_linear(graph, forbidden_vertices);
+                log << "Linear contractions" << std::endl;
+                perform_linear_contraction(graph, forbidden_vertices);
                 break;
+
+            case 3:
+                log << "Contractions hierarchy" << std::endl;
+                perform_contractions_hierarchy(graph, forbidden_vertices, log);
+                break;
+            
             default:
                 pgassert(false);
                 break;
         }
     }
 
-    void perform_deadEnd(
+    void perform_dead_end_contraction(
         G &graph,
-        Identifiers<V> forbidden_vertices) {
+        Identifiers<V> forbidden_vertices
+    )
+    {
         Pgr_deadend<G> deadendContractor;
         deadendContractor.setForbiddenVertices(forbidden_vertices);
 
@@ -115,12 +141,31 @@ class Pgr_contract {
         }
     }
 
-    void perform_linear(
+    void perform_linear_contraction(
         G &graph,
-        Identifiers<V>& forbidden_vertices) {
+        Identifiers<V>& forbidden_vertices
+    ) 
+    {
         Pgr_linear<G> linearContractor;
         try {
             linearContractor(graph, forbidden_vertices);
+        }
+        catch ( ... ) {
+            throw;
+        }
+    }
+
+    void perform_contractions_hierarchy(
+        G &graph,
+        Identifiers<V> forbidden_vertices,
+        std::ostringstream &log
+    ) 
+    {
+        Pgr_contractionsHierarchy<G> CH;
+        CH.setForbiddenVertices(forbidden_vertices);
+
+        try {
+            CH.doContraction(graph, log);
         }
         catch ( ... ) {
             throw;

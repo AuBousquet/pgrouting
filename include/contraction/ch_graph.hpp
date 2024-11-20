@@ -1,5 +1,5 @@
 /*PGR-GNU*****************************************************************
-File: ch_graph.hpp
+File: ch_graphs.hpp
 
 Generated with Template by:
 Copyright (c) 2015 pgRouting developers
@@ -36,10 +36,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <algorithm>
 #include <vector>
 
-#include "contraction/contractionGraph.hpp"
-#include "cpp_common/base_graph.hpp"
 #include "contraction/ch_vertex.hpp"
 #include "contraction/ch_edge.hpp"
+#include "contraction/contractionGraph.hpp"
+#include "cpp_common/base_graph.hpp"
 
 
 namespace pgrouting {

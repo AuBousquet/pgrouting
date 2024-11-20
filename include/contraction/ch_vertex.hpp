@@ -46,7 +46,7 @@ class CH_vertex {
         id(is_source? other.source : other.target) {}
 
     int64_t get_id();
-    int64_t get_metric();
+    double get_metric();
     int64_t get_vertex_order();
     void set_id(int64_t);
     void set_metric(int64_t);

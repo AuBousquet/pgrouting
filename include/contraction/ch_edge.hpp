@@ -57,7 +57,6 @@ class CH_edge {
 
     void set_contracted_vertices(Identifiers<int64_t>&);
     const Identifiers<int64_t>& get_contracted_vertices() const;
-    //Identifiers<int64_t>& get_contracted_vertices();
     std::set<int64_t>& get_contracted_vertices_();
 
     void add_contracted_vertex(CH_vertex &);

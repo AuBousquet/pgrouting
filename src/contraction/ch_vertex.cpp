@@ -43,7 +43,7 @@ int64_t CH_vertex::get_id() {
     return id;
 }
 
-int64_t CH_vertex::get_metric() {
+double CH_vertex::get_metric() {
     return metric;
 }
 
