@@ -47,8 +47,8 @@ namespace contraction {
 template < class G >
 class Pgr_deadend {
  private:
-     using V = typename G::V;
-     using E = typename G::E;
+    using V = typename G::V;
+    using E = typename G::E;
 
  public:
     Pgr_deadend() = default;
