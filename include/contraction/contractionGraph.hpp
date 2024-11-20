@@ -40,8 +40,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <boost/graph/iteration_macros.hpp>
 
 #include "cpp_common/base_graph.hpp"
-#include "cpp_common/ch_vertex.hpp"
-#include "cpp_common/ch_edge.hpp"
+#include "contraction/ch_vertex.hpp"
+#include "contraction/ch_edge.hpp"
 
 
 namespace pgrouting {
