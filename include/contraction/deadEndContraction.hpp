@@ -94,15 +94,15 @@ public:
                  * u{v1 + v + v2 + v3}     v{}
                  */
                 auto v2(graph.get_min_cost_edge(u, v));
-                graph[u].contracted_vertices() += std::get<1>(v2);
-                graph[u].contracted_vertices() += graph[v].id;
-                graph[u].contracted_vertices() += graph[v].contracted_vertices();
+                graph[u].get_contracted_vertices() += std::get<1>(v2);
+                graph[u].get_contracted_vertices() += graph[v].id;
+                graph[u].get_contracted_vertices() += graph[v].get_contracted_vertices();
 
                 deadendVertices -= v;
                 local += u;
             }
 
-            graph[v].contracted_vertices().clear();
+            graph[v].get_contracted_vertices().clear();
             boost::clear_vertex(v, graph.graph);
 
             /* abort in case of an interruption occurs (e.g. the query is being cancelled) */

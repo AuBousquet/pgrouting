@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "cpp_common/assert.hpp"
 
 #include "contraction/contractionGraph.hpp"
-#include "contraction/ch_graphs.hpp"
+#include "contraction/ch_graph.hpp"
 #include "contraction/linearContraction.hpp"
 #include "contraction/deadEndContraction.hpp"
 
@@ -51,11 +51,11 @@ class Pgr_contract {
 
 public:
     Pgr_contract(
-            G &graph,
-            Identifiers<V> forbidden_vertices,
-            std::vector<int64_t> contraction_methods,
-            int64_t max_cycles
-            ) {
+        G &graph,
+        Identifiers<V> forbidden_vertices,
+        std::vector<int64_t> contraction_methods,
+        int64_t max_cycles
+    ) {
         std::deque<int64_t> contract_order;
         //  push -1 to indicate the start of the queue
         contract_order.push_back(-1);
@@ -114,7 +114,6 @@ private:
             throw;
         }
     }
-
 
     void perform_linear(G &graph,
             Identifiers<V>& forbidden_vertices) {
