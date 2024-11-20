@@ -1,5 +1,5 @@
 /*PGR-GNU*****************************************************************
-File: ch_vertex.cpp
+File: ch_graph.hpp
 
 Generated with Template by:
 Copyright (c) 2015 pgRouting developers
@@ -27,42 +27,36 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
  ********************************************************************PGR-GNU*/
 
-#include "cpp_common/ch_vertex.hpp"
+#ifndef INCLUDE_CONTRACTION_CH_GRAPH_HPP_
+#define INCLUDE_CONTRACTION_CH_GRAPH_HPP_
+#pragma once
 
+
+#include <limits>
 #include <algorithm>
 #include <vector>
 
+#include "contraction/contractionGraph.hpp"
+#include "cpp_common/base_graph.hpp"
+#include "contraction/ch_vertex.hpp"
+#include "contraction/ch_edge.hpp"
+
+
 namespace pgrouting {
+namespace graph {
+
+using CHUndirectedGraph =  Pgr_contractionGraph <
+    boost::adjacency_list < boost::listS, boost::vecS,
+    boost::undirectedS,
+    CH_vertex, CH_edge>, false>;
+
+using CHDirectedGraph = Pgr_contractionGraph<
+    boost::adjacency_list < boost::listS, boost::vecS,
+    boost::bidirectionalS,
+    CH_vertex, CH_edge>, true>;
 
 
-const Identifiers<int64_t>&
-    CH_vertex::contracted_vertices() const {
-    return m_contracted_vertices;
-}
-
-Identifiers<int64_t>&
-    CH_vertex::contracted_vertices() {
-    return m_contracted_vertices;
-}
-
-
-bool CH_vertex::has_contracted_vertices() const {
-    if (m_contracted_vertices.size() == 0)
-        return false;
-    return true;
-}
-
-void CH_vertex::add_contracted_vertex(CH_vertex& v) {
-    m_contracted_vertices += v.id;
-    m_contracted_vertices += v.contracted_vertices();
-}
-
-std::ostream& operator <<(std::ostream& os, const CH_vertex& v) {
-    os << "{id: " << v.id << ",\t"
-     << "contracted vertices: "
-     << v.contracted_vertices()
-     << "}";
-    return os;
-}
-
+}  // namespace graph
 }  // namespace pgrouting
+
+#endif  // INCLUDE_CONTRACTION_CH_GRAPH_HPP_
