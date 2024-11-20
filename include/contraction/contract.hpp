@@ -49,7 +49,7 @@ template < class G >
 class Pgr_contract {
     typedef typename G::V V;
 
- public:
+public:
     Pgr_contract(
             G &graph,
             Identifiers<V> forbidden_vertices,
@@ -77,7 +77,7 @@ class Pgr_contract {
     }
 
 
- private:
+private:
     void one_cycle(
             G &graph,
             int64_t kind,

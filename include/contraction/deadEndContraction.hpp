@@ -46,11 +46,11 @@ namespace contraction {
 
 template < class G >
 class Pgr_deadend {
- private:
-     using V = typename G::V;
-     using E = typename G::E;
+private:
+    using V = typename G::V;
+    using E = typename G::E;
 
- public:
+public:
     Pgr_deadend() = default;
 
     void setForbiddenVertices(
@@ -118,7 +118,7 @@ class Pgr_deadend {
         }
     }
 
- private:
+private:
     Identifiers<V> deadendVertices;
     Identifiers<V> forbiddenVertices;
 };
