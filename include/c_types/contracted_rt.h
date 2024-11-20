@@ -38,12 +38,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * return type for contraction
  * ***********************************************************************/
 struct contracted_rt {
-    int64_t id;
     char* type;
+    int64_t id;
+    int64_t *contracted_vertices;
     int64_t source;
     int64_t target;
     double cost;
-    int64_t *contracted_vertices;
+    int64_t vertex_order;
+    int64_t metric;
     int contracted_vertices_size;
 };
 

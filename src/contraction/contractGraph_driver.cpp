@@ -99,7 +99,9 @@ void get_postgres_result(
     size_t sequence = 0;
 
     for (const auto id : modified_vertices) {
-        auto v = graph.get_V(id);
+        auto v = graph.get_V(id); // vertex id
+        int64_t o = graph.get_O(id); // order
+        int64_t m = graph.get_M(id); // metric
         int64_t* contracted_vertices = NULL;
         auto vids = graph[v].get_contracted_vertices();
 
@@ -110,12 +112,16 @@ void get_postgres_result(
             contracted_vertices[count++] = id;
         }
         (*return_tuples)[sequence] = {
-            id,
             const_cast<char*>("v"),
-            -1, -1, -1.00,
+            id,
             contracted_vertices,
-            count};
-
+            -1, 
+            -1, 
+            -1.00, 
+            o,
+            m, 
+            count
+        };
         ++sequence;
     }
 
@@ -133,12 +139,14 @@ void get_postgres_result(
             contracted_vertices[count++] = vid;
         }
         (*return_tuples)[sequence] = {
-            --eid,
             const_cast<char*>("e"),
+            --eid,
+            contracted_vertices, 
             edge.source, 
             edge.target, 
             edge.cost,
-            contracted_vertices, 
+            -1,
+            -1,
             count
         };
         ++sequence;
@@ -205,12 +213,9 @@ pgr_do_contractGraph(
         }
 
         if (directed) {
-            log << "Directed graph" << std::endl;
-
             using DirectedGraph = pgrouting::graph::CHDirectedGraph;
             DirectedGraph digraph;
 
-            log << "Prepare contraction process" << std::endl;
             process_contraction (
                 digraph, 
                 edges, 
@@ -219,7 +224,6 @@ pgr_do_contractGraph(
                 max_cycles,
                 log
             );
-            log << "Contraction processed" << std::endl;
 
             get_postgres_result(
                 digraph,

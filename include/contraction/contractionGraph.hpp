@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #define INCLUDE_CONTRACTION_CONTRACTIONGRAPH_HPP_
 #pragma once
 
+#include <queue>
 #include <limits>
 #include <algorithm>
 #include <vector>
@@ -56,18 +57,58 @@ public:
     typedef typename boost::graph_traits < G >::out_edge_iterator EO_i;
     typedef typename boost::graph_traits < G >::in_edge_iterator EI_i;
     typedef typename boost::graph_traits < G >::edge_iterator E_i;
+    typedef typename std::pair< int64_t, V > V_p;
+    typedef typename std::priority_queue< V_p, std::vector<V_p>, std::greater<V_p> > PQ;
 
     /*!
         Prepares the _graph_ to be of type *directed*
     */
-    explicit contractionGraph<G, t_directed>(): Pgr_base_graph<G, CH_vertex, CH_edge, t_directed>() 
-    {
+    explicit contractionGraph<G, t_directed>(): Pgr_base_graph<G, CH_vertex, CH_edge, t_directed>() {
         min_edge_id=0;
     }
 
-    int64_t get_next_id() 
-    {
+    int64_t get_next_id() {
         return --min_edge_id;
+    }
+
+    /*!
+        @brief for C calls: to get the metric of a node, directly from the graph
+        @param [in] v vertex_descriptor
+        @return int64_t: the value of the metric for node v
+    */
+    int64_t get_M(int64_t vertex_id) {
+        return (this->graph[this->vertices_map[vertex_id]]).get_metric();
+    }
+
+    /*!
+        @brief for C calls: to get the order of a node, directly from the graph
+        @param [in] v vertex_descriptor
+        @return int64_t: the order of node v
+    */
+    int64_t get_O(int64_t vertex_id) {
+        return (this->graph[this->vertices_map[vertex_id]]).get_vertex_order();
+    }
+ 
+    /*!
+        @brief defines the metric and hierarchy at the level of the nodes, from a given priority queue
+        @param [in] PQ priority_queue
+        @return void
+    */
+    void set_vertices_metric_and_hierarchy(
+        PQ priority_queue,
+        std::ostringstream &log
+    ) {
+        int64_t i = 0;
+        while (!priority_queue.empty()) {
+            i++;
+            std::pair< int64_t, V > ordered_vertex = priority_queue.top();
+            priority_queue.pop();
+            (this->graph[ordered_vertex.second]).add_contracted_vertex(this->graph[ordered_vertex.second]);
+            log << "(" << ordered_vertex.first << ", " << (this->graph[ordered_vertex.second]).id << ")" << std::endl;
+            (this->graph[ordered_vertex.second]).set_metric(ordered_vertex.first);
+            (this->graph[ordered_vertex.second]).set_vertex_order(i);
+            log << get_M((this->graph[ordered_vertex.second]).id) << " " << get_O((this->graph[ordered_vertex.second]).id) << std::endl;
+        }
     }
 
     /*!
@@ -75,8 +116,7 @@ public:
         @param [in] v vertex_descriptor
         @return Identifiers<V>: The set of vertex descriptors adjacent to the given vertex *v*
     */
-    Identifiers<V> find_adjacent_vertices(V v) const 
-    {
+    Identifiers<V> find_adjacent_vertices(V v) const {
         EO_i out, out_end;
         EI_i in, in_end;
         Identifiers<V> adjacent_vertices;
@@ -103,8 +143,7 @@ public:
         @param [in] v vertex_descriptor
         @return set<V>: The set of out vertex descriptors adjacent to the given vertex *v*
     */
-    Identifiers<V> find_adjacent_out_vertices(V v) const 
-    {
+    Identifiers<V> find_adjacent_out_vertices(V v) const {
         EO_i out, out_end;
         Identifiers<V> adjacent_vertices;
 
@@ -123,8 +162,7 @@ public:
         @param [in] v vertex_descriptor
         @return Identifiers<V>: The set of in vertex descriptors adjacent to the given vertex *v*
     */
-    Identifiers<V> find_adjacent_in_vertices(V v) const 
-    {
+    Identifiers<V> find_adjacent_in_vertices(V v) const {
         EI_i in, in_end;
         Identifiers<V> adjacent_vertices;
 
@@ -142,8 +180,7 @@ public:
         @brief vertices with at least one contracted vertex
         @result The vids Identifiers with at least one contracted vertex
     */
-    std::vector<E> get_shortcuts()
-    {
+    std::vector<E> get_shortcuts() {
         pgrouting::Identifiers<E> eids;
         E_i e, e_end;
         for (boost::tie(e, e_end) = edges(this->graph); e != e_end; ++e) {
@@ -165,23 +202,11 @@ public:
         return o_eids;
     }
 
-    void get_shortcuts_(std::ostringstream &log)
-    {
-        E_i e, e_end;
-        for (boost::tie(e, e_end) = edges(this->graph); e != e_end; ++e) 
-        {
-            if ((this->graph[*e]).id < 0) {
-                log << (this->graph[*e]).id << std::endl;
-            }
-        }
-    }
-
     /*!
         @brief vertices with at least one contracted vertex
         @result The vids Identifiers with at least one contracted vertex
     */
-    Identifiers<int64_t> get_modified_vertices() 
-    {
+    Identifiers<int64_t> get_modified_vertices() {
         Identifiers<int64_t> vids;
         for (auto v : boost::make_iterator_range(boost::vertices(this->graph))) {
             if ((this->graph[v]).has_contracted_vertices()) {
@@ -198,8 +223,7 @@ public:
     void copy_shortcuts(
         std::vector<pgrouting::CH_edge> &shortcuts,
         std::ostringstream &log
-    )
-    {
+    ) {
         for (auto it = shortcuts.begin(); it != shortcuts.end(); it++)
         {
             V u, v;
@@ -216,8 +240,7 @@ public:
         @param [in] v vertex_descriptor of target vertex
         @return E: The edge descriptor of the edge with minimum cost
     */
-    std::tuple<double, Identifiers<int64_t>, bool> get_min_cost_edge(V u, V v)
-    {
+    std::tuple<double, Identifiers<int64_t>, bool> get_min_cost_edge(V u, V v) {
         E min_edge;
         Identifiers<int64_t> contracted_vertices;
         double min_cost = (std::numeric_limits<double>::max)();
@@ -255,16 +278,14 @@ public:
         @brief print the graph with contracted vertices of all vertices and edges
     */
     friend
-    std::ostream& operator << (
-            std::ostream &os,
-            const contractionGraph &g) {
+    std::ostream& operator << (std::ostream &os, const contractionGraph &g) {
         EO_i out, out_end;
         for (auto vi = vertices(g.graph).first;
                 vi != vertices(g.graph).second;
                 ++vi) {
             if ((*vi) >= g.num_vertices()) break;
             os << g.graph[*vi].id << "(" << (*vi) << ")"
-                << g.graph[*vi].contracted_vertices() << std::endl;
+                << g.graph[*vi].get_contracted_vertices() << std::endl;
             os << " out_edges_of(" << g.graph[*vi].id << "):";
             for (boost::tie(out, out_end) = out_edges(*vi, g.graph);
                     out != out_end; ++out) {
@@ -307,8 +328,7 @@ public:
      * u ---{v+v1+v2}---> w
      *
      */
-    void process_shortcut(V u, V v, V w) 
-    {
+    void process_shortcut(V u, V v, V w) {
         auto e1 = get_min_cost_edge(u, v);
         auto e2 = get_min_cost_edge(v, w);
 
@@ -339,8 +359,7 @@ public:
         V w, 
         double cost, 
         std::ostringstream &log
-    ) 
-    {
+    ) {
         auto e1 = get_min_cost_edge(u, v);
         auto e2 = get_min_cost_edge(v, w);
 
@@ -353,7 +372,7 @@ public:
         );
         shortcut.add_contracted_vertex(this->graph[v]);
 
-        log << "  Shortcut edge " << shortcut.id << ": (" << (this->graph[u]).id << ", " << (this->graph[w]).id << ") added, of cost " << cost << "." << std::endl;
+        log << "    Shortcut edge " << shortcut.id << ": (" << (this->graph[u]).id << ", " << (this->graph[w]).id << ") added, of cost " << cost << "." << std::endl;
         
         // Add shortcut in the current graph (to go on the process)
         add_shortcut(shortcut, u, w);
@@ -365,8 +384,7 @@ public:
     /*! 
         @brief tests if the edges sequence (u, v), (v, w) exists in the graph
     */
-    bool has_u_v_w(V u, V v, V w) const 
-    {
+    bool has_u_v_w(V u, V v, V w) const {
         return boost::edge(u, v, this->graph).second && boost::edge(v, w, this->graph).second;
     }
 
@@ -392,8 +410,7 @@ public:
         }
         @enddot
     */
-    bool is_shortcut_possible(V u, V v, V w) 
-    {
+    bool is_shortcut_possible(V u, V v, V w) {
         if (u == v || v == w || u == w) return false;
         pgassert(u != v);
         pgassert(v != w);
@@ -425,8 +442,7 @@ public:
     /*! 
         @brief tests if v is in the middle of two edges with no possible bifurcation in v
     */
-    bool is_linear(V v) 
-    {
+    bool is_linear(V v) {
         // Checking adjacent vertices constraint
         auto adjacent_vertices = find_adjacent_vertices(v);
         if (adjacent_vertices.size() == 2) {

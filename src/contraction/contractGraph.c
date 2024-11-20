@@ -196,6 +196,8 @@ _pgr_contraction(PG_FUNCTION_ARGS) {
         values[3] = Int64GetDatum(result_tuples[call_cntr].source);
         values[4] = Int64GetDatum(result_tuples[call_cntr].target);
         values[5] = Float8GetDatum(result_tuples[call_cntr].cost);
+        values[6] = Int64GetDatum(result_tuples[call_cntr].vertex_order);
+        values[7] = Int64GetDatum(result_tuples[call_cntr].metric);
 
         tuple = heap_form_tuple(tuple_desc, values, nulls);
         result = HeapTupleGetDatum(tuple);

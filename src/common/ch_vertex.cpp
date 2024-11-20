@@ -36,15 +36,31 @@ namespace pgrouting {
 
 int64_t CH_vertex::get_id() {
     return id;
-};
+}
+
+int64_t CH_vertex::get_metric() {
+    return metric;
+}
+
+int64_t CH_vertex::get_vertex_order() {
+    return vertex_order;
+}
 
 void CH_vertex::set_id(int64_t vid) {
     id = vid;
-};
+}
+
+void CH_vertex::set_metric(int64_t m) {
+    metric=m;
+}
+
+void CH_vertex::set_vertex_order(int64_t order) {
+    vertex_order=order;
+}
 
 void CH_vertex::cp_members(const CH_vertex &other) {
     this->id = other.id;
-    this->m_contracted_vertices = other.get_contracted_vertices() ;
+    this->m_contracted_vertices = other.get_contracted_vertices();
 }
 
 const Identifiers<int64_t>& CH_vertex::get_contracted_vertices() const {

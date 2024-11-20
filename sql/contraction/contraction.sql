@@ -42,20 +42,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 CREATE FUNCTION pgr_contraction(
     TEXT,     -- edges_sql (required)
     BIGINT[], -- contraction_methods (required)
-
+    
     max_cycles INTEGER DEFAULT 1,
     forbidden_vertices BIGINT[] DEFAULT ARRAY[]::BIGINT[],
     directed BOOLEAN DEFAULT true,
-
+    
     OUT type TEXT,
     OUT id BIGINT,
     OUT contracted_vertices BIGINT[],
     OUT source BIGINT,
     OUT target BIGINT,
-    OUT cost FLOAT)
+    OUT cost FLOAT,
+    OUT vertex_order BIGINT,
+    OUT metric BIGINT
+)
 RETURNS SETOF RECORD AS
 $BODY$
-    SELECT type, id, contracted_vertices, source, target, cost
+    SELECT type, id, contracted_vertices, source, target, cost, vertex_order, metric
     FROM _pgr_contraction(_pgr_get_statement($1), $2::BIGINT[],  $3, $4, $5);
 $BODY$
 LANGUAGE SQL VOLATILE STRICT;
