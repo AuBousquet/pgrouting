@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 namespace pgrouting {
 
 class CH_vertex {
- public:
+public:
     int64_t id;
     CH_vertex() = default;
     CH_vertex(const CH_vertex &) = default;
@@ -55,7 +55,8 @@ class CH_vertex {
     bool has_contracted_vertices() const;
     void clear_contracted_vertices() {m_contracted_vertices.clear();}
     friend std::ostream& operator <<(std::ostream& os, const CH_vertex& v);
- private:
+
+private:
     Identifiers<int64_t> m_contracted_vertices;
 };
 
