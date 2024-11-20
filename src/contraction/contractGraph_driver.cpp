@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <algorithm>
 
 #include "cpp_common/pgdata_getters.hpp"
-#include "contraction/ch_graphs.hpp"
+#include "contraction/ch_graph.hpp"
 #include "contraction/contract.hpp"
 
 #include "c_types/contracted_rt.h"

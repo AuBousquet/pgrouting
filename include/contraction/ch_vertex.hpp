@@ -26,8 +26,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
  ********************************************************************PGR-GNU*/
-#ifndef INCLUDE_CPP_COMMON_CH_VERTEX_HPP_
-#define INCLUDE_CPP_COMMON_CH_VERTEX_HPP_
+#ifndef INCLUDE_CONTRACTION_CH_VERTEX_HPP_
+#define INCLUDE_CONTRACTION_CH_VERTEX_HPP_
+
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -53,10 +54,10 @@ public:
     const Identifiers<int64_t>& contracted_vertices() const;
     Identifiers<int64_t>& contracted_vertices();
     bool has_contracted_vertices() const;
-    void clear_contracted_vertices() {m_contracted_vertices.clear();}
-    friend std::ostream& operator <<(std::ostream& os, const CH_vertex& v);
+    void clear_contracted_vertices();
+    friend std::ostream& operator << (std::ostream& os, const CH_vertex& v);
 
-private:
+ private:
     Identifiers<int64_t> m_contracted_vertices;
 };
 
@@ -65,4 +66,4 @@ check_vertices(std::vector < CH_vertex > vertices);
 
 }  // namespace pgrouting
 
-#endif  // INCLUDE_CPP_COMMON_CH_VERTEX_HPP_
+#endif  // INCLUDE_CONTRACTION_CH_VERTEX_HPP_

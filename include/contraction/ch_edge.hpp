@@ -27,13 +27,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
  ********************************************************************PGR-GNU*/
 
-#ifndef INCLUDE_CPP_COMMON_CH_EDGE_HPP_
-#define INCLUDE_CPP_COMMON_CH_EDGE_HPP_
+#ifndef INCLUDE_CONTRACTION_CH_EDGE_HPP_
+#define INCLUDE_CONTRACTION_CH_EDGE_HPP_
 #pragma once
 
 #include <iostream>
 #include <sstream>
-#include "cpp_common/ch_vertex.hpp"
+#include "contraction/ch_vertex.hpp"
 
 namespace pgrouting {
 
@@ -69,4 +69,4 @@ private:
 
 }  // namespace pgrouting
 
-#endif  // INCLUDE_CPP_COMMON_CH_EDGE_HPP_
+#endif  // INCLUDE_CONTRACTION_CH_EDGE_HPP_
