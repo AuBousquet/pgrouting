@@ -70,7 +70,9 @@ SELECT
     ARRAY[1]::BIGINT[] AS contracted_vertices,
     -1::BIGINT AS source,
     -1::BIGINT AS target,
-    -1::FLOAT AS cost;
+    -1::FLOAT AS cost,
+    -1::BIGINT AS vertex_order,
+    -1::BIGINT AS metric;
 
 SELECT set_eq('q1', 'sol_2_1');
 
