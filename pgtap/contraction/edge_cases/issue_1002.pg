@@ -31,8 +31,8 @@ SET client_min_messages TO WARNING;
 PREPARE issue1004_r AS
 SELECT *
 FROM (VALUES
-    ('v', 15, ARRAY[6,10]::BIGINT[], -1, -1, -1)
-) AS t(type, id, contracted_vertices, source, target, cost );
+    ('v', 15, ARRAY[6,10]::BIGINT[], -1, -1, -1, -1, -1)
+) AS t(type, id, contracted_vertices, source, target, cost, vertex_order, metric);
 
 
 PREPARE issue1004_q AS
@@ -46,8 +46,8 @@ SELECT set_eq('issue1004_q', 'issue1004_r', 'Contraction any one of the forbidde
 PREPARE issue1005_r AS
 SELECT *
 FROM (VALUES
-    ('e', -1, ARRAY[11,12]::BIGINT[], 10, 17, 3)
-) AS t(type, id, contracted_vertices, source, target, cost );
+    ('e', -1, ARRAY[11,12]::BIGINT[], 10, 17, 3, -1, -1)
+) AS t(type, id, contracted_vertices, source, target, cost, vertex_order, metric);
 
 PREPARE issue1005_q AS
 SELECT * FROM pgr_contraction(
@@ -61,8 +61,8 @@ SELECT set_eq('issue1005_q', 'issue1005_r', 'Contraction any one of the forbidde
 PREPARE issue1006_r AS
 SELECT *
 FROM (VALUES
-    ('e', -1, ARRAY[11,12,16,17]::BIGINT[], 7, 15, 3)
-) AS t(type, id, contracted_vertices, source, target, cost );
+    ('e', -1, ARRAY[11,12,16,17]::BIGINT[], 7, 15, 3, -1, -1)
+) AS t(type, id, contracted_vertices, source, target, cost, vertex_order, metric);
 
 
 PREPARE issue1006_q AS

@@ -47,7 +47,9 @@ SELECT array[
 'contracted_vertices',
 'source',
 'target',
-'cost'];
+'cost',
+'vertex_order',
+'metric'];
 
 SELECT set_eq(
     $$SELECT proargnames FROM pg_proc WHERE proname = 'pgr_contraction'$$,
