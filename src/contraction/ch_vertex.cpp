@@ -34,17 +34,42 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 namespace pgrouting {
 
+int64_t CH_vertex::get_id() {
+    return id;
+}
 
-const Identifiers<int64_t>&
-    CH_vertex::contracted_vertices() const {
+int64_t CH_vertex::get_metric() {
+    return metric;
+}
+
+int64_t CH_vertex::get_vertex_order() {
+    return vertex_order;
+}
+
+void CH_vertex::set_id(int64_t vid) {
+    id = vid;
+}
+
+void CH_vertex::set_metric(int64_t m) {
+    metric=m;
+}
+
+void CH_vertex::set_vertex_order(int64_t order) {
+    vertex_order=order;
+}
+
+void CH_vertex::cp_members(const CH_vertex &other) {
+    this->id = other.id;
+    this->m_contracted_vertices = other.get_contracted_vertices();
+}
+
+const Identifiers<int64_t>& CH_vertex::get_contracted_vertices() const {
     return m_contracted_vertices;
 }
 
-Identifiers<int64_t>&
-    CH_vertex::contracted_vertices() {
+Identifiers<int64_t>& CH_vertex::get_contracted_vertices() {
     return m_contracted_vertices;
 }
-
 
 bool CH_vertex::has_contracted_vertices() const {
     if (m_contracted_vertices.size() == 0)
@@ -54,13 +79,17 @@ bool CH_vertex::has_contracted_vertices() const {
 
 void CH_vertex::add_contracted_vertex(CH_vertex& v) {
     m_contracted_vertices += v.id;
-    m_contracted_vertices += v.contracted_vertices();
+    m_contracted_vertices += v.get_contracted_vertices();
+}
+
+void CH_vertex::add_contracted_vertex_id(int64_t vid) {
+    m_contracted_vertices += vid;
 }
 
 std::ostream& operator <<(std::ostream& os, const CH_vertex& v) {
     os << "{id: " << v.id << ",\t"
      << "contracted vertices: "
-     << v.contracted_vertices()
+     << v.get_contracted_vertices()
      << "}";
     return os;
 }

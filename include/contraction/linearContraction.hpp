@@ -62,13 +62,6 @@ public:
 
     Pgr_linear():last_edge_id(0) {}
 
-private:
-    int64_t get_next_id() {
-        return --last_edge_id;
-    }
-
-
-public:
     void setForbiddenVertices(
             Identifiers<V> forbidden_vertices) {
         m_forbiddenVertices = forbidden_vertices;
@@ -87,9 +80,7 @@ public:
             }
         }
     }
-
-
-
+    
     void doContraction(G &graph, Identifiers<V> forbidden_vertices) {
         m_forbiddenVertices = forbidden_vertices;
         calculateVertices(graph);
@@ -122,21 +113,21 @@ public:
             /*
             *  u --> v --> w
             */
-            process_shortcut(graph, u, v, w);
+            graph.process_shortcut(u, v, w);
             /*
             *  w --> v --> u
             */
-            process_shortcut(graph, w, v, u);
+            graph.process_shortcut(w, v, u);
 
         } else {
             pgassert(graph.is_undirected());
             /*
             * u - v - w
             */
-            process_shortcut(graph, u, v, w);
+            graph.process_shortcut(u, v, w);
         }
 
-        graph[v].contracted_vertices().clear();
+        graph[v].get_contracted_vertices().clear();
         boost::clear_vertex(v, graph.graph);
         m_linearVertices -= v;
 
@@ -152,46 +143,9 @@ public:
         }
     }
 
-
-
-    /**
-     *
-     * u ----e1{v1}----> v ----e2{v2}----> w
-     *
-     * e1: min cost edge from u to v
-     * e2: min cost edge from v to w
-     *
-     * result:
-     * u ---{v+v1+v2}---> w
-     *
-     */
-    void process_shortcut(G &graph, V u, V v, V w) {
-        auto e1 = graph.get_min_cost_edge(u, v);
-        auto e2 = graph.get_min_cost_edge(v, w);
-
-        if (std::get<2>(e1) && std::get<2>(e2)) {
-            auto contracted_vertices = std::get<1>(e1) + std::get<1>(e2);
-            double cost = std::get<0>(e1) + std::get<0>(e2);
-            contracted_vertices += graph[v].id;
-            contracted_vertices += graph[v].contracted_vertices();
-
-            // Create shortcut
-            CH_edge shortcut(
-                    get_next_id(),
-                    graph[u].id,
-                    graph[w].id,
-                    cost);
-            shortcut.contracted_vertices() = contracted_vertices;
-
-            graph.add_shortcut(shortcut, u, w);
-        }
-    }
-
-
 private:
     Identifiers<V> m_linearVertices;
     Identifiers<V> m_forbiddenVertices;
-
     int64_t last_edge_id;
 };
 

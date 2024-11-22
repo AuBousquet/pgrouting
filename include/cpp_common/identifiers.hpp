@@ -89,6 +89,21 @@ class Identifiers {
     std::set<T> m_ids;
 
  public:
+
+    /*! 
+    \brief define ids
+     */    
+    void set_ids(std::set<T> ids) {
+        m_ids = ids;
+    }
+    
+    /*! 
+    \brief get ids
+     */
+    std::set<T>& get_ids() {
+        return (m_ids);
+    }
+    
     //! \brief true ids() has element
     /*!
      * @param [in] other Identifier of type *T*
@@ -96,8 +111,7 @@ class Identifiers {
     bool has(const T other) const {
         return (m_ids.find(other) != m_ids.end());
     }
-
-
+    
     //! \brief true when both sets are equal
     /*!
      * @param [in] rhs set of identifiers to be compared
