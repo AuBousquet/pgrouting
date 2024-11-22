@@ -54,8 +54,7 @@ void process_contraction(
     const std::vector< int64_t > &contraction_methods,
     int64_t max_cycles,
     std::ostringstream &log
-)
-{
+) {
     using pgrouting::pgr_msg;
 
     graph.insert_edges(edges);
@@ -75,8 +74,7 @@ void process_contraction(
         graph,
         forbid_vertices,
         contraction_methods,
-        max_cycles
-    );
+        max_cycles);
     log << "Contraction processed" << std::endl;
 }
 
@@ -85,8 +83,7 @@ void get_postgres_result(
     G &graph,
     contracted_rt **return_tuples,
     size_t *count
-)
-{
+) {
     using pgrouting::pgr_alloc;
 
     auto modified_vertices(graph.get_modified_vertices());
@@ -97,7 +94,7 @@ void get_postgres_result(
     size_t sequence = 0;
 
     for (const auto id : modified_vertices) {
-        auto v = graph.get_V(id); // vertex id
+        auto v = graph.get_V(id);  // vertex id
         int64_t* contracted_vertices = NULL;
         auto vids = graph[v].get_contracted_vertices();
 
@@ -111,9 +108,9 @@ void get_postgres_result(
             const_cast<char*>("v"),
             id,
             contracted_vertices,
-            -1, 
-            -1, 
-            -1.00, 
+            -1,
+            -1,
+            -1.00,
             count
         };
         ++sequence;
@@ -135,9 +132,9 @@ void get_postgres_result(
         (*return_tuples)[sequence] = {
             const_cast<char*>("e"),
             --eid,
-            contracted_vertices, 
-            edge.source, 
-            edge.target, 
+            contracted_vertices,
+            edge.source,
+            edge.target,
             edge.cost,
             count
         };
@@ -148,21 +145,19 @@ void get_postgres_result(
 }  // namespace
 
 
-
 void
 pgr_do_contractGraph(
-        char *edges_sql,
-        ArrayType* forbidden,
-        ArrayType* order,
-        int64_t max_cycles,
-        bool directed,
-        contracted_rt **return_tuples,
-        size_t *return_count,
-        char **log_msg,
-        char **notice_msg,
-        char **err_msg
-    ) 
-{
+    char *edges_sql,
+    ArrayType* forbidden,
+    ArrayType* order,
+    int64_t max_cycles,
+    bool directed,
+    contracted_rt **return_tuples,
+    size_t *return_count,
+    char **log_msg,
+    char **notice_msg,
+    char **err_msg
+) {
     using pgrouting::pgr_alloc;
     using pgrouting::pgr_msg;
     using pgrouting::pgr_free;
@@ -197,7 +192,8 @@ pgr_do_contractGraph(
         for (const auto kind : ordering) {
             log << "Contraction type " << kind << std::endl;
             *log_msg = pgr_msg(log.str().c_str());
-            if (!pgrouting::contraction::is_valid_contraction(static_cast<int>(kind))) {
+            if (!pgrouting::contraction::is_valid_contraction(
+                    static_cast<int>(kind))) {
                 *err_msg = pgr_msg("Invalid contraction type found");
                 log << "Contraction type " << kind << " not valid";
                 *log_msg = pgr_msg(log.str().c_str());
@@ -209,42 +205,34 @@ pgr_do_contractGraph(
             using DirectedGraph = pgrouting::graph::CHDirectedGraph;
             DirectedGraph digraph;
 
-            process_contraction (
-                digraph, 
-                edges, 
-                forbid, 
+            process_contraction(
+                digraph,
+                edges,
+                forbid,
                 ordering,
                 max_cycles,
-                log
-            );
+                log);
 
             get_postgres_result(
                 digraph,
                 return_tuples,
-                return_count
-            );
-
+                return_count);
         } else {
-
             using UndirectedGraph = pgrouting::graph::CHUndirectedGraph;
             UndirectedGraph undigraph;
-            process_contraction (
-                undigraph, 
-                edges, 
-                forbid, 
+            process_contraction(
+                undigraph,
+                edges,
+                forbid,
                 ordering,
                 max_cycles,
-                log
-            );
+                log);
 
             get_postgres_result(
                 undigraph,
                 return_tuples,
-                return_count
-            );
-
+                return_count);
         }
-
         *log_msg = log.str().empty()?
             *log_msg :
             pgr_msg(log.str().c_str());
@@ -252,7 +240,6 @@ pgr_do_contractGraph(
         *notice_msg = notice.str().empty()?
             *notice_msg :
             pgr_msg(notice.str().c_str());
-        
     } catch (AssertFailedException &except) {
         (*return_tuples) = pgr_free(*return_tuples);
         (*return_count) = 0;

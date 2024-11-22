@@ -47,19 +47,19 @@ namespace pgrouting {
         return target;
     }
 
-    void CH_edge::cp_members(CH_edge& other) {
+    void CH_edge::cp_members(const CH_edge& other) {
         cost = other.cost;
         id = other.id;
         source = other.source;
         target = other.target;
-        m_contracted_vertices += other.get_contracted_vertices();
+        m_contracted_vertices = other.get_contracted_vertices();
     }
 
     void CH_edge::set_contracted_vertices(Identifiers<int64_t>& contracted_vertices_ids) {
         m_contracted_vertices = contracted_vertices_ids;
     }
 
-    Identifiers<int64_t>& CH_edge::get_contracted_vertices() {
+    const Identifiers<int64_t>& CH_edge::get_contracted_vertices() const {
         return m_contracted_vertices;
     }
 

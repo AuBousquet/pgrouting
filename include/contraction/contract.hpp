@@ -49,7 +49,7 @@ template < class G >
 class Pgr_contract {
     typedef typename G::V V;
 
-public:
+ public:
     Pgr_contract(
         G &graph,
         Identifiers<V> forbidden_vertices,
@@ -76,8 +76,7 @@ public:
         }
     }
 
-
-private:
+ private:
     void one_cycle(
             G &graph,
             int64_t kind,
@@ -101,8 +100,9 @@ private:
         }
     }
 
-    void perform_deadEnd(G &graph,
-            Identifiers<V> forbidden_vertices) {
+    void perform_deadEnd(
+        G &graph,
+        Identifiers<V> forbidden_vertices) {
         Pgr_deadend<G> deadendContractor;
         deadendContractor.setForbiddenVertices(forbidden_vertices);
 
@@ -115,8 +115,9 @@ private:
         }
     }
 
-    void perform_linear(G &graph,
-            Identifiers<V>& forbidden_vertices) {
+    void perform_linear(
+        G &graph,
+        Identifiers<V>& forbidden_vertices) {
         Pgr_linear<G> linearContractor;
         try {
             linearContractor(graph, forbidden_vertices);

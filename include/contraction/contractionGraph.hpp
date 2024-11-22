@@ -49,8 +49,9 @@ namespace graph {
 
 
 template <class G, bool t_directed>
-class contractionGraph : public Pgr_base_graph<G, CH_vertex, CH_edge, t_directed> {
-public:
+class contractionGraph :
+    public Pgr_base_graph<G, CH_vertex, CH_edge, t_directed> {
+ public:
     typedef typename boost::graph_traits < G >::vertex_descriptor V;
     typedef typename boost::graph_traits < G >::edge_descriptor E;
     typedef typename boost::graph_traits < G >::edge_iterator E_i;
@@ -60,8 +61,9 @@ public:
     /*!
         Prepares the _graph_ to be of type *directed*
     */
-    explicit contractionGraph<G, t_directed>(): Pgr_base_graph<G, CH_vertex, CH_edge, t_directed>() {
-        min_edge_id=0;
+    explicit contractionGraph<G, t_directed>():
+        Pgr_base_graph<G, CH_vertex, CH_edge, t_directed>() {
+        min_edge_id = 0;
     }
 
     int64_t get_next_id() {
@@ -71,7 +73,8 @@ public:
     /*!
         @brief get the vertex descriptors of adjacent vertices of *v*
         @param [in] v vertex_descriptor
-        @return Identifiers<V>: The set of vertex descriptors adjacent to the given vertex *v*
+        @return Identifiers<V>: The set of vertex descriptors adjacent
+        to the given vertex *v*
     */
     Identifiers<V> find_adjacent_vertices(V v) const {
         EO_i out, out_end;
@@ -80,9 +83,9 @@ public:
 
         for (
             boost::tie(out, out_end) = out_edges(v, this->graph);
-            out != out_end; 
+            out != out_end;
             ++out
-        ) 
+        )
         adjacent_vertices += this->adjacent(v, *out);
 
         for (
@@ -91,7 +94,7 @@ public:
             ++in
         )
         adjacent_vertices += this->adjacent(v, *in);
-        
+
         return adjacent_vertices;
     }
 
@@ -112,12 +115,11 @@ public:
         }
         std::vector<E> o_eids(eids.begin(), eids.end());
         std::sort(
-            o_eids.begin(), 
+            o_eids.begin(),
             o_eids.end(),
             [&](E lhs, E rhs) {
                 return -1*(this->graph)[lhs].id < -1*(this->graph)[rhs].id;
-            }
-        );
+            });
         return o_eids;
     }
 
@@ -127,7 +129,8 @@ public:
     */
     Identifiers<int64_t> get_modified_vertices() {
         Identifiers<int64_t> vids;
-        for (auto v : boost::make_iterator_range(boost::vertices(this->graph))) {
+        for (auto v : boost::make_iterator_range(
+            boost::vertices(this->graph))) {
             if ((this->graph[v]).has_contracted_vertices()) {
                 vids += (this->graph[v]).get_id();
             }
@@ -150,7 +153,8 @@ public:
         if (this->is_directed()) {
             BGL_FORALL_OUTEDGES_T(u, e, this->graph, G) {
                 if (target(e, this->graph) == v) {
-                    contracted_vertices += (this->graph[e]).get_contracted_vertices();
+                    contracted_vertices +=
+                        (this->graph[e]).get_contracted_vertices();
                     if ((this->graph[e]).cost < min_cost) {
                         min_cost = (this->graph[e]).cost;
                         min_edge = e;
@@ -164,7 +168,8 @@ public:
         pgassert(this->is_undirected());
         BGL_FORALL_OUTEDGES_T(u, e, this->graph, G) {
             if (this->adjacent(u, e) == v) {
-                contracted_vertices += (this->graph[e]).get_contracted_vertices();
+                contracted_vertices +=
+                    (this->graph[e]).get_contracted_vertices();
                 if ((this->graph[e]).cost < min_cost) {
                     min_cost = (this->graph[e]).cost;
                     min_edge = e;
@@ -244,8 +249,7 @@ public:
                 get_next_id(),
                 (this->graph[u]).id,
                 (this->graph[w]).id,
-                cost
-            );
+                cost);
             shortcut.set_contracted_vertices(contracted_vertices);
             add_shortcut(shortcut, u, w);
         }
@@ -255,7 +259,8 @@ public:
         @brief tests if the edges sequence (u, v), (v, w) exists in the graph
     */
     bool has_u_v_w(V u, V v, V w) const {
-        return boost::edge(u, v, this->graph).second && boost::edge(v, w, this->graph).second;
+        return boost::edge(u, v, this->graph).second
+            && boost::edge(v, w, this->graph).second;
     }
 
     /*
@@ -301,12 +306,14 @@ public:
             * u -> v -> w
             */
             ||
-            (has_u_v_w(u, v, w) && !(boost::edge(v, u, this->graph).second || boost::edge(w, v, this->graph).second))
+            (has_u_v_w(u, v, w) && !(boost::edge(v, u, this->graph).second
+                || boost::edge(w, v, this->graph).second))
             /*
             * u <- v <- w
             */
             ||
-            (has_u_v_w(w, v, u) && !(boost::edge(v, w, this->graph).second || boost::edge(u, v, this->graph).second));
+            (has_u_v_w(w, v, u) && !(boost::edge(v, w, this->graph).second
+                || boost::edge(u, v, this->graph).second));
     }
 
     /*! 
@@ -329,7 +336,7 @@ public:
         return false;
     }
 
-private:
+ private:
     int64_t min_edge_id;
 };
 

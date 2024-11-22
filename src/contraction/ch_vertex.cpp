@@ -34,6 +34,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 namespace pgrouting {
 
+CH_vertex::CH_vertex(){
+    vertex_order = -1;
+    metric = -1;
+}
+
 int64_t CH_vertex::get_id() {
     return id;
 }
@@ -51,11 +56,11 @@ void CH_vertex::set_id(int64_t vid) {
 }
 
 void CH_vertex::set_metric(int64_t m) {
-    metric=m;
+    metric = m;
 }
 
 void CH_vertex::set_vertex_order(int64_t order) {
-    vertex_order=order;
+    vertex_order = order;
 }
 
 void CH_vertex::cp_members(const CH_vertex &other) {
@@ -84,6 +89,11 @@ void CH_vertex::add_contracted_vertex(CH_vertex& v) {
 
 void CH_vertex::add_contracted_vertex_id(int64_t vid) {
     m_contracted_vertices += vid;
+}
+
+void CH_vertex::clear_contracted_vertices()
+{
+    m_contracted_vertices.clear();
 }
 
 std::ostream& operator <<(std::ostream& os, const CH_vertex& v) {

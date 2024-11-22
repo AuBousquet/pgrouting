@@ -49,11 +49,14 @@ namespace contraction {
 
 template < class G >
 class Pgr_linear {
-private:
+ private:
     typedef typename G::V V;
     typedef typename G::V_i V_i;
     typedef typename G::B_G B_G;
 
+    Identifiers<V> m_linearVertices;
+    Identifiers<V> m_forbiddenVertices;
+    int64_t last_edge_id;
 
 public:
     void operator()(G &graph, Identifiers<V>& forbidden_vertices) {
@@ -142,11 +145,6 @@ public:
             m_linearVertices -= w;
         }
     }
-
-private:
-    Identifiers<V> m_linearVertices;
-    Identifiers<V> m_forbiddenVertices;
-    int64_t last_edge_id;
 };
 
 }  // namespace contraction

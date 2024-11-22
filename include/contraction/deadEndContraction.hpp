@@ -46,11 +46,14 @@ namespace contraction {
 
 template < class G >
 class Pgr_deadend {
-private:
+ private:
     using V = typename G::V;
     using E = typename G::E;
 
-public:
+    Identifiers<V> deadendVertices;
+    Identifiers<V> forbiddenVertices;
+
+ public:
     Pgr_deadend() = default;
 
     void setForbiddenVertices(
@@ -96,7 +99,8 @@ public:
                 auto v2(graph.get_min_cost_edge(u, v));
                 graph[u].get_contracted_vertices() += std::get<1>(v2);
                 graph[u].get_contracted_vertices() += graph[v].id;
-                graph[u].get_contracted_vertices() += graph[v].get_contracted_vertices();
+                graph[u].get_contracted_vertices() +=
+                    graph[v].get_contracted_vertices();
 
                 deadendVertices -= v;
                 local += u;
@@ -105,7 +109,8 @@ public:
             graph[v].get_contracted_vertices().clear();
             boost::clear_vertex(v, graph.graph);
 
-            /* abort in case of an interruption occurs (e.g. the query is being cancelled) */
+            /* abort in case of an interruption occurs 
+            (e.g. the query is being cancelled) */
             CHECK_FOR_INTERRUPTS();
 
             for (const auto u : local) {
@@ -117,10 +122,6 @@ public:
             }
         }
     }
-
-private:
-    Identifiers<V> deadendVertices;
-    Identifiers<V> forbiddenVertices;
 };
 
 }  // namespace contraction

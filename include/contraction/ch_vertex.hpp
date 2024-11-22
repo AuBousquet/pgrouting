@@ -26,8 +26,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
  ********************************************************************PGR-GNU*/
-#ifndef INCLUDE_CPP_COMMON_CH_VERTEX_HPP_
-#define INCLUDE_CPP_COMMON_CH_VERTEX_HPP_
+#ifndef INCLUDE_CONTRACTION_CH_VERTEX_HPP_
+#define INCLUDE_CONTRACTION_CH_VERTEX_HPP_
+
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -37,15 +38,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 namespace pgrouting {
 
-class CH_vertex {  
-public:
-    int64_t id;
-    int64_t vertex_order=-1;
-    int64_t metric=-1;
-    Identifiers<int64_t> m_contracted_vertices;
-
-public: 
-    CH_vertex() = default;
+class CH_vertex {
+ public:
+    CH_vertex();
     CH_vertex(const CH_vertex &) = default;
     CH_vertex(const Edge_t &other, bool is_source) :
         id(is_source? other.source : other.target) {}
@@ -66,13 +61,18 @@ public:
     Identifiers<int64_t>& get_contracted_vertices();
 
     bool has_contracted_vertices() const;
-    void clear_contracted_vertices() {m_contracted_vertices.clear();}
-    
-    friend std::ostream& operator << (std::ostream& os, const CH_vertex& v);   
+    void clear_contracted_vertices();
+
+    friend std::ostream& operator << (std::ostream& os, const CH_vertex& v);
+
+    int64_t id;
+    int64_t vertex_order;
+    int64_t metric;
+    Identifiers<int64_t> m_contracted_vertices;
 };
 
 size_t check_vertices(std::vector < CH_vertex > vertices);
 
 }  // namespace pgrouting
 
-#endif  // INCLUDE_CPP_COMMON_CH_VERTEX_HPP_
+#endif  // INCLUDE_CONTRACTION_CH_VERTEX_HPP_
