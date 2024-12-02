@@ -77,25 +77,20 @@ class Pgr_contract {
         }
     }
 
-
  private:
     void one_cycle(
-            G &graph,
-            int64_t kind,
-            Identifiers<V> &forbidden_vertices) {
-        
+        G &graph,
+        int64_t kind,
+        Identifiers<V> &forbidden_vertices
+    ) {
         graph.setForbiddenVertices(forbidden_vertices);
-        
         switch (kind) {
             case -1:
                 pgassert(false);
                 break;
-
             case 1:
                 perform_deadEnd(graph);
                 break;
-
-
             case 2:
                 perform_linear(graph);
                 break;

@@ -45,13 +45,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "contraction/ch_vertex.hpp"
 #include "contraction/ch_edge.hpp"
 
-
 namespace pgrouting {
 namespace graph {
-
-
 template <class G, bool t_directed>
-class contractionGraph :
+class contractionGraph:
     public Pgr_base_graph<G, CH_vertex, CH_edge, t_directed> {
  public:
     using V = typename boost::graph_traits<G>::vertex_descriptor;
@@ -59,14 +56,13 @@ class contractionGraph :
     using EO_i = typename boost::graph_traits<G>::out_edge_iterator;
     using EI_i = typename boost::graph_traits<G>::in_edge_iterator;
 
- public:
-
     // Constructors
     /*!
         Prepares the _graph_ to be of type *directed*
     */
-    explicit contractionGraph<G, t_directed>(): Pgr_base_graph<G, CH_vertex, CH_edge, t_directed>() {
-        min_edge_id=0;
+    explicit contractionGraph<G, t_directed>():
+        Pgr_base_graph<G, CH_vertex, CH_edge, t_directed>() {
+        min_edge_id = 0;
     }
 
     // Accessors
@@ -75,7 +71,7 @@ class contractionGraph :
     }
 
     void setForbiddenVertices(
-            Identifiers<V> m_forbidden_vertices) {
+        Identifiers<V> m_forbidden_vertices) {
         forbiddenVertices = m_forbidden_vertices;
     }
 
@@ -97,23 +93,25 @@ class contractionGraph :
     void add_shortcut(const CH_edge &edge, V u, V v) {
         bool inserted;
         E e;
-        if (edge.cost < 0) return;
+        if (edge.cost < 0)
+            return;
         boost::tie(e, inserted) = boost::add_edge(u, v, this->graph);
-        this->graph[e]= edge;
+        this->graph[e] = edge;
     }
 
     /*!
         @brief get the vertex descriptors of adjacent vertices of *v*
         @param [in] v vertex_descriptor
-        @return Identifiers<V>: The set of vertex descriptors adjacent to the given vertex *v*
+        @return Identifiers<V>: The set of vertex descriptors adjacent
+        to the given vertex *v*
     */
     Identifiers<V> find_adjacent_vertices(V v) const {
         Identifiers<V> adjacent_vertices;
-
-        for (const auto &e : boost::make_iterator_range(out_edges(v, this->graph)))
+        for (const auto &e:
+            boost::make_iterator_range(out_edges(v, this->graph)))
             adjacent_vertices += this->adjacent(v, e);
-
-        for (const auto &e : boost::make_iterator_range(in_edges(v, this->graph)))
+        for (const auto &e:
+            boost::make_iterator_range(in_edges(v, this->graph)))
             adjacent_vertices += this->adjacent(v, e);
 
         return adjacent_vertices;
@@ -125,7 +123,8 @@ class contractionGraph :
     */
     std::vector<E> get_shortcuts() {
         std::vector<E> eids;
-        for (const auto &e : boost::make_iterator_range(edges(this->graph))) {
+        for (const auto &e:
+            boost::make_iterator_range(edges(this->graph))) {
             if (this->graph[e].id < 0) {
                 eids.push_back(e);
                 pgassert(!(this->graph[e]).get_contracted_vertices().empty());
@@ -137,9 +136,9 @@ class contractionGraph :
             eids.begin(),
             eids.end(),
             [&](E lhs, E rhs) {
-                return -1*((this->graph)[lhs]).id < -1*((this->graph)[rhs]).id;
-            }
-        );
+                return -1 * ((this->graph)[lhs]).id
+                    < -1 * ((this->graph)[rhs]).id;
+            });
         return eids;
     }
 
@@ -149,7 +148,8 @@ class contractionGraph :
     */
     Identifiers<int64_t> get_modified_vertices() {
         Identifiers<int64_t> vids;
-        for (const auto &v: boost::make_iterator_range(boost::vertices(this->graph))) {
+        for (const auto &v:
+            boost::make_iterator_range(boost::vertices(this->graph))) {
             if ((this->graph[v]).has_contracted_vertices()) {
                 vids += (this->graph[v]).id;
             }
@@ -170,9 +170,11 @@ class contractionGraph :
         CH_edge edge;
 
         if (this->is_directed()) {
-            for (const auto &e : boost::make_iterator_range(out_edges(u, this->graph))) {
+            for (const auto &e:
+                boost::make_iterator_range(out_edges(u, this->graph))) {
                 if (target(e, this->graph) == v) {
-                    contracted_vertices += (this->graph[e]).get_contracted_vertices();
+                    contracted_vertices +=
+                        (this->graph[e]).get_contracted_vertices();
                     if ((this->graph[e]).cost < min_cost) {
                         min_cost = (this->graph[e]).cost;
                         found = true;
@@ -180,16 +182,19 @@ class contractionGraph :
                     }
                 }
             }
-            // To follow the principles presented for linear contraction in "issue_1002.pg" test 3
+            // To follow the principles presented
+            // for linear contraction in "issue_1002.pg" test 3
             edge.set_contracted_vertices(contracted_vertices);
 
             return std::make_tuple(edge, found);
         }
 
         pgassert(this->is_undirected());
-        for (const auto &e : boost::make_iterator_range(out_edges(u, this->graph))) {
+        for (const auto &e:
+            boost::make_iterator_range(out_edges(u, this->graph))) {
             if (this->adjacent(u, e) == v) {
-                contracted_vertices += (this->graph[e]).get_contracted_vertices();
+                contracted_vertices +=
+                    (this->graph[e]).get_contracted_vertices();
                 if ((this->graph[e]).cost < min_cost) {
                     min_cost = (this->graph[e]).cost;
                     found = true;
@@ -200,38 +205,44 @@ class contractionGraph :
         return std::make_tuple(edge, found);
     }
 
-    /*! 
+    /*!
         @brief tests if the edges sequence (u, v), (v, w) exists in the graph
     */
     bool has_u_v_w(V u, V v, V w) const {
-        return boost::edge(u, v, this->graph).second && boost::edge(v, w, this->graph).second;
+        return boost::edge(u, v, this->graph).second
+            && boost::edge(v, w, this->graph).second;
     }
 
     /*!
-        @brief print the graph with contracted vertices of all vertices and edges
+        @brief print the graph with contracted vertices
+        of all vertices and edges
     */
-    friend
-    std::ostream& operator << (std::ostream &os, const contractionGraph &g) {
+    friend std::ostream &operator<<(
+        std::ostream &os,
+        const contractionGraph &g
+    ) {
         EO_i out, out_end;
-        for (const auto &vi : boost::make_iterator_range(vertices(g.graph))) {
+        for (const auto &vi:
+            boost::make_iterator_range(vertices(g.graph))) {
             if ((*vi) >= g.num_vertices())
                 break;
             os << g.graph[*vi].id << "(" << (*vi) << ")"
-               << g.graph[*vi].get_contracted_vertices() << std::endl;
+                << g.graph[*vi].get_contracted_vertices() << std::endl;
             os << " out_edges_of(" << g.graph[*vi].id << "):";
-            for (const auto &out: out_edges(*vi, g.graph)) {
+            for (const auto &out : out_edges(*vi, g.graph)) {
                 os << " " << g.graph[*out].id
-                   << "=(" << g.graph[g.source(*out)].id
-                   << ", " << g.graph[g.target(*out)].id << ") = "
-                   <<  g.graph[*out].cost <<"\t";
+                    << "=(" << g.graph[g.source(*out)].id
+                    << ", " << g.graph[g.target(*out)].id << ") = "
+                    << g.graph[*out].cost << "\t";
             }
             os << std::endl;
         }
         return os;
     }
 
-    /*! 
-        @brief tests if v is in the middle of two edges with no possible bifurcation in v
+    /*!
+        @brief tests if v is in the middle of two edges
+        with no possible bifurcation in v
     */
     bool is_linear(V v) {
         // Checking adjacent vertices constraint
@@ -273,7 +284,8 @@ class contractionGraph :
         @enddot
     */
     bool is_shortcut_possible(V u, V v, V w) {
-        if (u == v || v == w || u == w) return false;
+        if (u == v || v == w || u == w)
+            return false;
         pgassert(u != v);
         pgassert(v != w);
         pgassert(u != w);
@@ -286,19 +298,23 @@ class contractionGraph :
         pgassert(this->is_directed());
         return
             /*
-            * u <-> v <-> w
-            */
+             * u <-> v <-> w
+             */
             (has_u_v_w(u, v, w) && has_u_v_w(w, v, u))
             /*
-            * u -> v -> w
-            */
+             * u -> v -> w
+             */
             ||
-            (has_u_v_w(u, v, w) && !(boost::edge(v, u, this->graph).second || boost::edge(w, v, this->graph).second))
+            (has_u_v_w(u, v, w) &&
+            !(boost::edge(v, u, this->graph).second
+                || boost::edge(w, v, this->graph).second))
             /*
-            * u <- v <- w
-            */
+             * u <- v <- w
+             */
             ||
-            (has_u_v_w(w, v, u) && !(boost::edge(v, w, this->graph).second || boost::edge(u, v, this->graph).second));
+            (has_u_v_w(w, v, u) &&
+            !(boost::edge(v, w, this->graph).second
+                || boost::edge(u, v, this->graph).second));
     }
 
     /*
@@ -317,14 +333,14 @@ class contractionGraph :
         auto e2 = get_min_cost_edge(v, w);
 
         if (std::get<1>(e1) && std::get<1>(e2)) {
-            auto contracted_vertices = 
+            auto contracted_vertices =
                 std::get<0>(e1).get_contracted_vertices() +
                 std::get<0>(e2).get_contracted_vertices();
-            double cost = 
+            double cost =
                 std::get<0>(e1).cost +
                 std::get<0>(e2).cost;
-            
-            const auto& vertex_data = this->graph[v];
+
+            const auto &vertex_data = this->graph[v];
             contracted_vertices += vertex_data.id;
             contracted_vertices += vertex_data.get_contracted_vertices();
 
@@ -333,8 +349,7 @@ class contractionGraph :
                 get_next_id(),
                 (this->graph[u]).id,
                 (this->graph[w]).id,
-                cost
-            );
+                cost);
             shortcut.set_contracted_vertices(contracted_vertices);
             add_shortcut(shortcut, u, w);
         }
@@ -344,7 +359,6 @@ class contractionGraph :
     int64_t min_edge_id;
     Identifiers<V> forbiddenVertices;
 };
-
 }  // namespace graph
 }  // namespace pgrouting
 

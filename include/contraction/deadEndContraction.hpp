@@ -89,7 +89,8 @@ class Pgr_deadend {
                  * u{v1 + v + v2 + v3}     v{}
                  */
                 const auto& e = graph.get_min_cost_edge(u, v);
-                graph[u].get_contracted_vertices() += std::get<0>(e).get_contracted_vertices();                
+                graph[u].get_contracted_vertices() +=
+                    std::get<0>(e).get_contracted_vertices();
                 graph[u].add_contracted_vertex(graph[v]);
 
                 deadendVertices -= v;
@@ -99,7 +100,8 @@ class Pgr_deadend {
             graph[v].get_contracted_vertices().clear();
             boost::clear_vertex(v, graph.graph);
 
-            /* abort in case of an interruption occurs (e.g. the query is being cancelled) */
+            /* abort in case of an interruption occurs 
+            (e.g. the query is being cancelled) */
             CHECK_FOR_INTERRUPTS();
 
             for (const auto &u : local) {

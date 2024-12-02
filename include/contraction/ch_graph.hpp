@@ -45,8 +45,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 namespace pgrouting {
 namespace graph {
 
-using CHUndirectedGraph =  contractionGraph < boost::adjacency_list < boost::listS, boost::vecS, boost::undirectedS, CH_vertex, CH_edge >, false >;
-using CHDirectedGraph = contractionGraph < boost::adjacency_list < boost::listS, boost::vecS, boost::bidirectionalS, CH_vertex, CH_edge >, true >;
+using CHUndirectedGraph = contractionGraph <
+    boost::adjacency_list
+    < boost::listS, boost::vecS, boost::undirectedS, CH_vertex, CH_edge >,
+    false >;
+using CHDirectedGraph = contractionGraph <
+    boost::adjacency_list
+    < boost::listS, boost::vecS, boost::bidirectionalS, CH_vertex, CH_edge >,
+    true >;
 
 }  // namespace graph
 }  // namespace pgrouting

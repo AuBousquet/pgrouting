@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 namespace pgrouting {
 
- // Accessors
+    // Accessors
     const Identifiers<int64_t>& CH_edge::get_contracted_vertices() const {
         return m_contracted_vertices;
     }
@@ -41,7 +41,7 @@ namespace pgrouting {
         m_contracted_vertices = contracted_vertices_ids;
     }
 
- // Other member functions
+    // Other member functions
     void CH_edge::cp_members(const CH_edge& other) {
         cost = other.cost;
         id = other.id;
@@ -72,7 +72,7 @@ namespace pgrouting {
         m_contracted_vertices.clear();
     }
 
- // Friend function
+    // Friend function
     std::ostream& operator <<(std::ostream& os, CH_edge& e) {
         os << "{id: " << e.id << ",\t"
            << "source: " << e.source << ",\t"
