@@ -38,38 +38,36 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "cpp_common/identifiers.hpp"
 
 namespace pgrouting {
-
 class CH_vertex {
  public:
     // Constructors
     CH_vertex() = default;
     CH_vertex(const CH_vertex &) = default;
-    CH_vertex(const Edge_t &other, bool is_source) :
-      id(is_source? other.source : other.target)
-      {}
+    CH_vertex(const Edge_t &other, bool is_source):
+        id(is_source ? other.source : other.target) {}
 
     // Accessors
-    void set_contracted_vertices(Identifiers<int64_t>&);
-    const Identifiers<int64_t>& get_contracted_vertices() const;
-    Identifiers<int64_t>& get_contracted_vertices();
+    void set_contracted_vertices(Identifiers<int64_t> &);
+    const Identifiers<int64_t> &get_contracted_vertices() const;
+    Identifiers<int64_t> &get_contracted_vertices();
 
     // Other member functions
     void cp_members(const CH_vertex &other);
-    void add_contracted_vertex(const CH_vertex&);
-    void add_contracted_vertices_id(const Identifiers<int64_t>&);
+    void add_contracted_vertex(const CH_vertex &);
+    void add_contracted_vertices_id(const Identifiers<int64_t> &);
     bool has_contracted_vertices() const;
     void clear_contracted_vertices();
 
-    friend std::ostream& operator << (std::ostream&, const CH_vertex&);
+    friend std::ostream &operator<<(std::ostream &, const CH_vertex &);
 
     int64_t id;
+
  private:
     Identifiers<int64_t> m_contracted_vertices;
 };
 
 size_t
-check_vertices(std::vector < CH_vertex > vertices);
-
+check_vertices(std::vector<CH_vertex> vertices);
 }  // namespace pgrouting
 
 #endif  // INCLUDE_CONTRACTION_CH_VERTEX_HPP_
