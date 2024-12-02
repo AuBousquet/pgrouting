@@ -65,8 +65,9 @@ class contractionGraph :
     /*!
         Prepares the _graph_ to be of type *directed*
     */
-    explicit contractionGraph<G, t_directed>(): Pgr_base_graph<G, CH_vertex, CH_edge, t_directed>() {
-        min_edge_id=0;
+    explicit contractionGraph<G, t_directed>():
+        Pgr_base_graph<G, CH_vertex, CH_edge, t_directed>() {
+        min_edge_id = 0;
     }
 
     // Accessors
@@ -105,7 +106,8 @@ class contractionGraph :
     /*!
         @brief get the vertex descriptors of adjacent vertices of *v*
         @param [in] v vertex_descriptor
-        @return Identifiers<V>: The set of vertex descriptors adjacent to the given vertex *v*
+        @return Identifiers<V>: The set of vertex descriptors adjacent
+        to the given vertex *v*
     */
     Identifiers<V> find_adjacent_vertices(V v) const {
         Identifiers<V> adjacent_vertices;
@@ -172,7 +174,8 @@ class contractionGraph :
         if (this->is_directed()) {
             for (const auto &e : boost::make_iterator_range(out_edges(u, this->graph))) {
                 if (target(e, this->graph) == v) {
-                    contracted_vertices += (this->graph[e]).get_contracted_vertices();
+                    contracted_vertices +=
+                        (this->graph[e]).get_contracted_vertices();
                     if ((this->graph[e]).cost < min_cost) {
                         min_cost = (this->graph[e]).cost;
                         found = true;
@@ -189,7 +192,8 @@ class contractionGraph :
         pgassert(this->is_undirected());
         for (const auto &e : boost::make_iterator_range(out_edges(u, this->graph))) {
             if (this->adjacent(u, e) == v) {
-                contracted_vertices += (this->graph[e]).get_contracted_vertices();
+                contracted_vertices +=
+                    (this->graph[e]).get_contracted_vertices();
                 if ((this->graph[e]).cost < min_cost) {
                     min_cost = (this->graph[e]).cost;
                     found = true;
@@ -293,12 +297,14 @@ class contractionGraph :
             * u -> v -> w
             */
             ||
-            (has_u_v_w(u, v, w) && !(boost::edge(v, u, this->graph).second || boost::edge(w, v, this->graph).second))
+            (has_u_v_w(u, v, w) && !(boost::edge(v, u, this->graph).second
+                || boost::edge(w, v, this->graph).second))
             /*
             * u <- v <- w
             */
             ||
-            (has_u_v_w(w, v, u) && !(boost::edge(v, w, this->graph).second || boost::edge(u, v, this->graph).second));
+            (has_u_v_w(w, v, u) && !(boost::edge(v, w, this->graph).second
+                || boost::edge(u, v, this->graph).second));
     }
 
     /*

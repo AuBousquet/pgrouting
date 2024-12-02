@@ -78,8 +78,7 @@ void CH_vertex::clear_contracted_vertices()
     m_contracted_vertices.clear();
 }
 
-// Friend function
-std::ostream& operator << (std::ostream& os, const CH_vertex& v) {
+std::ostream& operator <<(std::ostream& os, const CH_vertex& v) {
     os << "{id: " << v.id << ",\t"
        << "contracted vertices: "
        << v.get_contracted_vertices()

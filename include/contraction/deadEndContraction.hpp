@@ -47,11 +47,11 @@ namespace contraction {
 
 template < class G >
 class Pgr_deadend {
-private:
+ private:
     using V = typename G::V;
     using E = typename G::E;
 
-public:
+ public:
     Pgr_deadend() = default;
 
     void calculateVertices(G &graph) {
@@ -99,7 +99,8 @@ public:
             graph[v].get_contracted_vertices().clear();
             boost::clear_vertex(v, graph.graph);
 
-            /* abort in case of an interruption occurs (e.g. the query is being cancelled) */
+            /* abort in case of an interruption occurs 
+            (e.g. the query is being cancelled) */
             CHECK_FOR_INTERRUPTS();
 
             for (const auto &u : local) {
