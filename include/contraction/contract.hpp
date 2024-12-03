@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <deque>
 #include <vector>
+
 #include "cpp_common/assert.hpp"
 
 #include "contraction/contractionGraph.hpp"
@@ -82,18 +83,21 @@ class Pgr_contract {
             G &graph,
             int64_t kind,
             Identifiers<V> &forbidden_vertices) {
+        
+        graph.setForbiddenVertices(forbidden_vertices);
+        
         switch (kind) {
             case -1:
                 pgassert(false);
                 break;
 
             case 1:
-                perform_deadEnd(graph, forbidden_vertices);
+                perform_deadEnd(graph);
                 break;
 
 
             case 2:
-                perform_linear(graph, forbidden_vertices);
+                perform_linear(graph);
                 break;
             default:
                 pgassert(false);
@@ -101,12 +105,8 @@ class Pgr_contract {
         }
     }
 
-    void perform_deadEnd(G &graph,
-            Identifiers<V> forbidden_vertices) {
+    void perform_deadEnd(G &graph) {
         Pgr_deadend<G> deadendContractor;
-        deadendContractor.setForbiddenVertices(forbidden_vertices);
-
-        deadendContractor.calculateVertices(graph);
         try {
             deadendContractor.doContraction(graph);
         }
@@ -115,12 +115,10 @@ class Pgr_contract {
         }
     }
 
-
-    void perform_linear(G &graph,
-            Identifiers<V>& forbidden_vertices) {
+    void perform_linear(G &graph) {
         Pgr_linear<G> linearContractor;
         try {
-            linearContractor(graph, forbidden_vertices);
+            linearContractor.doContraction(graph);
         }
         catch ( ... ) {
             throw;

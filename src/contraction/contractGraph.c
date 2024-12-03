@@ -8,7 +8,8 @@ Mail: project@pgrouting.org
 Function's developer:
 Copyright (c) 2016 Rohith Reddy
 Mail:
-
+Oslandia - Aurélie Bousquet - 2024
+Mail: aurelie.bousquet@oslandia.com / contact@oslandia.com
 ------
 
 This program is free software; you can redistribute it and/or modify

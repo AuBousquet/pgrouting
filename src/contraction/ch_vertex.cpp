@@ -8,7 +8,8 @@ Mail: project@pgrouting.org
 Function's developer:
 Copyright (c) 2016 Rohith Reddy
 Mail:
-
+Oslandia - Aurélie Bousquet - 2024
+Mail: aurelie.bousquet@oslandia.com / contact@oslandia.com
 ------
 
 This program is free software; you can redistribute it and/or modify
@@ -34,17 +35,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 namespace pgrouting {
 
-
-const Identifiers<int64_t>&
-    CH_vertex::contracted_vertices() const {
+// Accessors
+const Identifiers<int64_t>& CH_vertex::get_contracted_vertices() const {
     return m_contracted_vertices;
 }
 
-Identifiers<int64_t>&
-    CH_vertex::contracted_vertices() {
+Identifiers<int64_t>& CH_vertex::get_contracted_vertices() {
     return m_contracted_vertices;
 }
 
+void CH_vertex::set_contracted_vertices(Identifiers<int64_t>& contracted_vertices_ids) {
+    m_contracted_vertices = contracted_vertices_ids;
+}
+
+// Other member functions
+void CH_vertex::cp_members(const CH_vertex &other) {
+    this->id = other.id;
+    this->m_contracted_vertices = other.get_contracted_vertices();
+}
 
 bool CH_vertex::has_contracted_vertices() const {
     if (m_contracted_vertices.size() == 0)
@@ -52,16 +60,31 @@ bool CH_vertex::has_contracted_vertices() const {
     return true;
 }
 
-void CH_vertex::add_contracted_vertex(CH_vertex& v) {
+/*!
+    @brief adds an ID of another vertex, contracted in this one
+    @param [in] vid vertex ID
+*/
+void CH_vertex::add_contracted_vertex(const CH_vertex& v) {
     m_contracted_vertices += v.id;
-    m_contracted_vertices += v.contracted_vertices();
+    m_contracted_vertices += v.get_contracted_vertices();
 }
 
-std::ostream& operator <<(std::ostream& os, const CH_vertex& v) {
+void CH_vertex::add_contracted_vertices_id(const Identifiers<int64_t>& vertices_ids) {
+    m_contracted_vertices += vertices_ids;
+}
+
+void CH_vertex::clear_contracted_vertices()
+{
+    m_contracted_vertices.clear();
+}
+
+// Friend function
+std::ostream& operator << (std::ostream& os, const CH_vertex& v) {
     os << "{id: " << v.id << ",\t"
-     << "contracted vertices: "
-     << v.contracted_vertices()
-     << "}";
+       << "contracted vertices: "
+       << v.get_contracted_vertices()
+       << "}";
+    
     return os;
 }
 
