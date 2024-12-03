@@ -8,7 +8,8 @@ Mail: project@pgrouting.org
 Function's developer:
 Copyright (c) 2016 Rohith Reddy
 Mail:
-
+Oslandia - Aurélie Bousquet - 2024
+Mail: aurelie.bousquet@oslandia.com / contact@oslandia.com
 ------
 
 This program is free software; you can redistribute it and/or modify
@@ -29,59 +30,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include "drivers/contraction/contractGraph_driver.h"
 
-#include <string>
-#include <sstream>
-#include <deque>
-#include <vector>
 #include <algorithm>
+#include <deque>
+#include <sstream>
+#include <string>
+#include <vector>
 
 #include "cpp_common/pgdata_getters.hpp"
 #include "contraction/ch_graph.hpp"
 #include "contraction/contract.hpp"
+#include "contraction/contractionGraph.hpp"
 
 #include "c_types/contracted_rt.h"
 #include "cpp_common/identifiers.hpp"
 #include "cpp_common/alloc.hpp"
 
 namespace {
-
-/*! @brief vertices with at least one contracted vertex
-
-  @result The vids Identifiers with at least one contracted vertex
-*/
-template <typename G>
-pgrouting::Identifiers<int64_t> get_modified_vertices(const G& graph) {
-    pgrouting::Identifiers<int64_t> vids;
-    for (auto v : boost::make_iterator_range(boost::vertices(graph.graph))) {
-        if (graph[v].has_contracted_vertices()) {
-            vids += graph[v].id;
-        }
-    }
-    return vids;
-}
-
-/*! @brief vertices with at least one contracted vertex
-
-  @result The vids Identifiers with at least one contracted vertex
-*/
-template <typename G>
-std::vector<typename G::E> get_shortcuts(const G& graph) {
-    using E = typename G::E;
-    pgrouting::Identifiers<E> eids;
-    for (auto e : boost::make_iterator_range(boost::edges(graph.graph))) {
-        if (graph[e].id < 0) {
-            eids += e;
-            pgassert(!graph[e].contracted_vertices().empty());
-        } else {
-            pgassert(graph[e].contracted_vertices().empty());
-        }
-    }
-    std::vector<E> o_eids(eids.begin(), eids.end());
-    std::sort(o_eids.begin(), o_eids.end(),
-            [&](E lhs, E rhs) {return -graph[lhs].id < -graph[rhs].id;});
-    return o_eids;
-}
-
 
 template <typename G>
 void process_contraction(
@@ -99,8 +63,8 @@ void process_contraction(
         }
     }
     /*
-     * Function call to get the contracted graph.
-     */
+    * Function call to get the contracted graph
+    */
     using Contract = pgrouting::contraction::Pgr_contract<G>;
     Contract result(
         graph,
@@ -111,12 +75,15 @@ void process_contraction(
 
 template <typename G>
 void get_postgres_result(
-        G &graph,
-        contracted_rt **return_tuples,
-        size_t *count) {
+    G &graph,
+    contracted_rt **return_tuples,
+    size_t *count
+)
+{
     using pgrouting::pgr_alloc;
-    auto modified_vertices(get_modified_vertices(graph));
-    auto shortcut_edges(get_shortcuts(graph));
+
+    auto modified_vertices(graph.get_modified_vertices());
+    auto shortcut_edges(graph.get_shortcuts());
 
     (*count) = modified_vertices.size() + shortcut_edges.size();
     (*return_tuples) = pgr_alloc((*count), (*return_tuples));
@@ -125,7 +92,7 @@ void get_postgres_result(
     for (const auto id : modified_vertices) {
         auto v = graph.get_V(id);
         int64_t* contracted_vertices = NULL;
-        auto vids = graph[v].contracted_vertices();
+        auto vids = graph[v].get_contracted_vertices();
 
         contracted_vertices = pgr_alloc(vids.size(), contracted_vertices);
 
@@ -134,12 +101,14 @@ void get_postgres_result(
             contracted_vertices[count++] = id;
         }
         (*return_tuples)[sequence] = {
-            id,
             const_cast<char*>("v"),
-            -1, -1, -1.00,
+            id,
             contracted_vertices,
-            count};
-
+            -1, 
+            -1, 
+            -1.00, 
+            count
+        };
         ++sequence;
     }
 
@@ -148,7 +117,7 @@ void get_postgres_result(
         auto edge = graph[e];
         int64_t* contracted_vertices = NULL;
 
-        const auto vids(edge.contracted_vertices());
+        const auto vids(edge.get_contracted_vertices());
         pgassert(!vids.empty());
 
         contracted_vertices = pgr_alloc(vids.size(), contracted_vertices);
@@ -157,10 +126,14 @@ void get_postgres_result(
             contracted_vertices[count++] = vid;
         }
         (*return_tuples)[sequence] = {
-            --eid,
             const_cast<char*>("e"),
-            edge.source, edge.target, edge.cost,
-            contracted_vertices, count};
+            --eid,
+            contracted_vertices, 
+            edge.source, 
+            edge.target, 
+            edge.cost,
+            count
+        };
         ++sequence;
     }
 }
@@ -172,17 +145,17 @@ void get_postgres_result(
 void
 pgr_do_contractGraph(
         char *edges_sql,
-
         ArrayType* forbidden,
         ArrayType* order,
-
         int64_t max_cycles,
         bool directed,
         contracted_rt **return_tuples,
         size_t *return_count,
         char **log_msg,
         char **notice_msg,
-        char **err_msg) {
+        char **err_msg
+    ) 
+{
     using pgrouting::pgr_alloc;
     using pgrouting::pgr_msg;
     using pgrouting::pgr_free;
@@ -215,46 +188,58 @@ pgr_do_contractGraph(
         auto ordering = get_intArray(order, false);
 
         for (const auto kind : ordering) {
+            *log_msg = pgr_msg(log.str().c_str());
             if (!pgrouting::contraction::is_valid_contraction(static_cast<int>(kind))) {
                 *err_msg = pgr_msg("Invalid contraction type found");
-                log << "Contraction type " << kind << " not valid";
                 *log_msg = pgr_msg(log.str().c_str());
                 return;
             }
         }
 
-
-
         if (directed) {
             using DirectedGraph = pgrouting::graph::CHDirectedGraph;
             DirectedGraph digraph;
 
-            process_contraction(digraph, edges, forbid, ordering,
-                    max_cycles);
+            process_contraction (
+                digraph, 
+                edges, 
+                forbid, 
+                ordering,
+                max_cycles);
 
             get_postgres_result(
-                    digraph,
-                    return_tuples,
-                    return_count);
+                digraph,
+                return_tuples,
+                return_count
+            );
+
         } else {
+
             using UndirectedGraph = pgrouting::graph::CHUndirectedGraph;
             UndirectedGraph undigraph;
-            process_contraction(undigraph, edges, forbid, ordering,
-                    max_cycles);
+            process_contraction (
+                undigraph, 
+                edges, 
+                forbid, 
+                ordering,
+                max_cycles);
 
             get_postgres_result(
-                    undigraph,
-                    return_tuples,
-                    return_count);
+                undigraph,
+                return_tuples,
+                return_count
+            );
+
         }
 
-        pgassert(err.str().empty());
         *log_msg = log.str().empty()?
             *log_msg :
             pgr_msg(log.str().c_str());
+
         *notice_msg = notice.str().empty()?
             *notice_msg :
             pgr_msg(notice.str().c_str());
+        
     } catch (AssertFailedException &except) {
         (*return_tuples) = pgr_free(*return_tuples);
         (*return_count) = 0;
@@ -273,7 +258,7 @@ pgr_do_contractGraph(
     } catch(...) {
         (*return_tuples) = pgr_free(*return_tuples);
         (*return_count) = 0;
-        err << "Caught unknown exception!";
+        err << "contractGraph_driver : caught unknown exception!";
         *err_msg = pgr_msg(err.str().c_str());
         *log_msg = pgr_msg(log.str().c_str());
     }

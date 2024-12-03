@@ -5,7 +5,7 @@ Generated with Template by:
 Copyright (c) 2015 pgRouting developers
 Mail: project@pgrouting.org
 
-Function's developer:
+Function's developers:
 Copyright (c) 2016 Rohith Reddy
 Mail:
 
@@ -32,8 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #pragma once
 
 
-#include <limits>
 #include <algorithm>
+#include <limits>
 #include <vector>
 
 #include "contraction/contractionGraph.hpp"
@@ -45,16 +45,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 namespace pgrouting {
 namespace graph {
 
-using CHUndirectedGraph =  Pgr_contractionGraph <
-    boost::adjacency_list < boost::listS, boost::vecS,
-    boost::undirectedS,
-    CH_vertex, CH_edge>, false>;
-
-using CHDirectedGraph = Pgr_contractionGraph<
-    boost::adjacency_list < boost::listS, boost::vecS,
-    boost::bidirectionalS,
-    CH_vertex, CH_edge>, true>;
-
+using CHUndirectedGraph =  contractionGraph < boost::adjacency_list < boost::listS, boost::vecS, boost::undirectedS, CH_vertex, CH_edge >, false >;
+using CHDirectedGraph = contractionGraph < boost::adjacency_list < boost::listS, boost::vecS, boost::bidirectionalS, CH_vertex, CH_edge >, true >;
 
 }  // namespace graph
 }  // namespace pgrouting

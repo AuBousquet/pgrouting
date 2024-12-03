@@ -5,10 +5,11 @@ Generated with Template by:
 Copyright (c) 2015 pgRouting developers
 Mail: project@pgrouting.org
 
-Function's developer:
+Function's developers:
 Copyright (c) 2016 Rohith Reddy
 Mail:
-
+Oslandia - Aurélie Bousquet - 2024
+Mail: aurelie.bousquet@oslandia.com / contact@oslandia.com
 ------
 
 This program is free software; you can redistribute it and/or modify
@@ -32,8 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #pragma once
 
 
-#include <queue>
 #include <functional>
+#include <queue>
 #include <vector>
 
 #include <boost/graph/adjacency_list.hpp>
@@ -53,15 +54,9 @@ private:
 public:
     Pgr_deadend() = default;
 
-    void setForbiddenVertices(
-            Identifiers<V> forbidden_vertices) {
-        forbiddenVertices = forbidden_vertices;
-    }
-
-
     void calculateVertices(G &graph) {
-        for (const auto v : boost::make_iterator_range(vertices(graph.graph))) {
-            if (is_dead_end(graph, v) && !forbiddenVertices.has(v)) {
+        for (const auto &v : boost::make_iterator_range(vertices(graph.graph))) {
+            if (is_dead_end(graph, v) && !graph.getForbiddenVertices().has(v)) {
                 deadendVertices += v;
             }
         }
@@ -93,23 +88,22 @@ public:
                  *
                  * u{v1 + v + v2 + v3}     v{}
                  */
-                auto v2(graph.get_min_cost_edge(u, v));
-                graph[u].contracted_vertices() += std::get<1>(v2);
-                graph[u].contracted_vertices() += graph[v].id;
-                graph[u].contracted_vertices() += graph[v].contracted_vertices();
+                const auto& e = graph.get_min_cost_edge(u, v);
+                graph[u].get_contracted_vertices() += std::get<0>(e).get_contracted_vertices();                
+                graph[u].add_contracted_vertex(graph[v]);
 
                 deadendVertices -= v;
                 local += u;
             }
 
-            graph[v].contracted_vertices().clear();
+            graph[v].get_contracted_vertices().clear();
             boost::clear_vertex(v, graph.graph);
 
             /* abort in case of an interruption occurs (e.g. the query is being cancelled) */
             CHECK_FOR_INTERRUPTS();
 
-            for (const auto u : local) {
-                if (is_dead_end(graph, u) && !forbiddenVertices.has(u)) {
+            for (const auto &u : local) {
+                if (is_dead_end(graph, u) && !graph.getForbiddenVertices().has(u)) {
                     deadendVertices += u;
                 } else {
                     deadendVertices -= u;
@@ -120,7 +114,6 @@ public:
 
 private:
     Identifiers<V> deadendVertices;
-    Identifiers<V> forbiddenVertices;
 };
 
 }  // namespace contraction

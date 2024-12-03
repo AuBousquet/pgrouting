@@ -8,7 +8,8 @@ Mail: project@pgrouting.org
 Function's developer:
 Copyright (c) 2016 Rohith Reddy
 Mail:
-
+Oslandia - Aurélie Bousquet - 2024
+Mail: aurelie.bousquet@oslandia.com / contact@oslandia.com
 ------
 
 This program is free software; you can redistribute it and/or modify
@@ -31,53 +32,56 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 namespace pgrouting {
 
-void
-CH_edge::cp_members(const CH_edge &other) {
-    this->cost = other.cost;
-    this->id = other.id;
-    this->source = other.source;
-    this->target = other.target;
-    this->m_contracted_vertices += other.contracted_vertices();
-}
+ // Accessors
+    const Identifiers<int64_t>& CH_edge::get_contracted_vertices() const {
+        return m_contracted_vertices;
+    }
 
+    void CH_edge::set_contracted_vertices(Identifiers<int64_t>& contracted_vertices_ids) {
+        m_contracted_vertices = contracted_vertices_ids;
+    }
 
-bool
-CH_edge::has_contracted_vertices() const {
-    return !m_contracted_vertices.empty();
-}
+ // Other member functions
+    void CH_edge::cp_members(const CH_edge& other) {
+        cost = other.cost;
+        id = other.id;
+        source = other.source;
+        target = other.target;
+        m_contracted_vertices = other.get_contracted_vertices();
+    }
 
-const Identifiers<int64_t>&
-CH_edge::contracted_vertices() const {
-    return m_contracted_vertices;
-}
+    void CH_edge::add_contracted_vertex(CH_vertex& v) {
+        m_contracted_vertices += v.id;
+        m_contracted_vertices += v.get_contracted_vertices();
+    }
 
-Identifiers<int64_t>&
-CH_edge::contracted_vertices() {
-    return m_contracted_vertices;
-}
+    void CH_edge::add_contracted_vertices_from_edge(CH_edge& e) {
+        if (e.has_contracted_vertices())
+            m_contracted_vertices += e.get_contracted_vertices();
+    }
 
+    void CH_edge::add_contracted_vertices(Identifiers<int64_t>& ids) {
+        m_contracted_vertices += ids;
+    }
 
-void
-CH_edge::add_contracted_vertex(CH_vertex& v) {
-    m_contracted_vertices += v.id;
-    m_contracted_vertices += v.contracted_vertices();
-}
+    bool CH_edge::has_contracted_vertices() const {
+        return !m_contracted_vertices.empty();
+    }
 
-void
-CH_edge::add_contracted_edge_vertices(CH_edge &e) {
-    if (e.has_contracted_vertices())
-        m_contracted_vertices += e.contracted_vertices();
-}
+    void CH_edge::clear_contracted_vertices() {
+        m_contracted_vertices.clear();
+    }
 
-std::ostream& operator <<(std::ostream& os, const CH_edge& e) {
-    os << "{id: " << e.id << ",\t"
-        << "source: " << e.source << ",\t"
-        << "target: " << e.target << ",\t"
-        << "cost: " << e.cost << ",\t"
-        << "contracted vertices: "
-        << e.contracted_vertices()
-        << "}";
-    return os;
-}
+ // Friend function
+    std::ostream& operator <<(std::ostream& os, CH_edge& e) {
+        os << "{id: " << e.id << ",\t"
+           << "source: " << e.source << ",\t"
+           << "target: " << e.target << ",\t"
+           << "cost: " << e.cost << ",\t"
+           << "contracted vertices: "
+           << e.get_contracted_vertices()
+           << "}";
+        return os;
+    }
 
 }  // namespace pgrouting

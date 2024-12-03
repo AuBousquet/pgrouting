@@ -5,10 +5,11 @@ Generated with Template by:
 Copyright (c) 2015 pgRouting developers
 Mail: project@pgrouting.org
 
-Function's developer:
+Function's developers:
 Copyright (c) 2016 Rohith Reddy
-Mail:
-
+Mail: 
+Oslandia - Aurélie Bousquet - 2024
+Mail: aurelie.bousquet@oslandia.com / contact@oslandia.com
 ------
 
 This program is free software; you can redistribute it and/or modify
@@ -33,38 +34,49 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <iostream>
 #include <sstream>
+
 #include "contraction/ch_vertex.hpp"
 
 namespace pgrouting {
 
 class CH_edge {
-public:
+ public:
+    
+ // Constructors
     CH_edge() = default;
 
-    CH_edge(int64_t eid, int64_t source, int64_t target, double cost) :
-        id(eid), source(source),
-        target(target), cost(cost) {}
+    CH_edge(int64_t eid, int64_t source, int64_t target, double cost):
+       id(eid), 
+       source(source),
+       target(target), 
+       cost(cost) 
+    {}
 
-    void cp_members(const CH_edge &other);
+ // Accessors
+    const Identifiers<int64_t>& get_contracted_vertices() const;
+    void set_contracted_vertices(Identifiers<int64_t>&);
 
-    void add_contracted_vertex(CH_vertex& v);
-    void add_contracted_edge_vertices(CH_edge& e);
+ // Other member functions
+    void cp_members(const CH_edge &);
+
+    void add_contracted_vertex(CH_vertex &);
+    void add_contracted_vertices_from_edge(CH_edge &);
+    void add_contracted_vertices(Identifiers<int64_t>&);
 
     bool has_contracted_vertices() const;
+    void clear_contracted_vertices();
 
-    void clear_contracted_vertices() {m_contracted_vertices.clear();}
-    const Identifiers<int64_t>& contracted_vertices() const;
-    Identifiers<int64_t>& contracted_vertices();
-    friend std::ostream& operator <<(std::ostream& os, const CH_edge& e);
+ // Friend function
+    friend std::ostream& operator << (std::ostream&, const CH_edge&);
 
-public:
+ // Attributes  
     int64_t id;
     int64_t source;
     int64_t target;
     double cost;
+ private:
+    Identifiers<int64_t> m_contracted_vertices; 
 
-private:
-    Identifiers<int64_t> m_contracted_vertices;
 };
 
 }  // namespace pgrouting
