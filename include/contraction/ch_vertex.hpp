@@ -5,10 +5,11 @@ Generated with Template by:
 Copyright (c) 2015 pgRouting developers
 Mail: project@pgrouting.org
 
-Function's developer:
+Function's developers:
 Copyright (c) 2016 Rohith Reddy
 Mail:
-
+Oslandia - Aurélie Bousquet - 2024
+Mail: aurelie.bousquet@oslandia.com / contact@oslandia.com
 ------
 
 This program is free software; you can redistribute it and/or modify
@@ -40,23 +41,28 @@ namespace pgrouting {
 
 class CH_vertex {
  public:
-    int64_t id;
+    // Constructors
     CH_vertex() = default;
     CH_vertex(const CH_vertex &) = default;
     CH_vertex(const Edge_t &other, bool is_source) :
       id(is_source? other.source : other.target)
       {}
-    void cp_members(const CH_vertex &other) {
-        this->id = other.id;
-    }
-    void add_contracted_vertex(CH_vertex& v);
-    void add_vertex_id(int64_t vid) {m_contracted_vertices += vid;}
-    const Identifiers<int64_t>& contracted_vertices() const;
-    Identifiers<int64_t>& contracted_vertices();
+
+    // Accessors
+    void set_contracted_vertices(Identifiers<int64_t>&);
+    const Identifiers<int64_t>& get_contracted_vertices() const;
+    Identifiers<int64_t>& get_contracted_vertices();
+
+    // Other member functions
+    void cp_members(const CH_vertex &other);
+    void add_contracted_vertex(const CH_vertex&);
+    void add_contracted_vertices_id(const Identifiers<int64_t>&);
     bool has_contracted_vertices() const;
     void clear_contracted_vertices();
-    friend std::ostream& operator << (std::ostream& os, const CH_vertex& v);
 
+    friend std::ostream& operator << (std::ostream&, const CH_vertex&);
+
+    int64_t id;
  private:
     Identifiers<int64_t> m_contracted_vertices;
 };
