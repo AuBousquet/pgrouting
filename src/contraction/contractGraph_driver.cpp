@@ -53,7 +53,9 @@ void process_contraction(
     const std::vector< Edge_t > &edges,
     const std::vector< int64_t > &forbidden_vertices,
     const std::vector< int64_t > &methods_sequence,
-    int64_t max_cycles
+    int64_t max_cycles,
+    std::ostringstream &log,
+    std::ostringstream &err
 ) {
     graph.insert_edges(edges);
     pgrouting::Identifiers<typename G::V> forbid_vertices;
@@ -70,7 +72,11 @@ void process_contraction(
         graph,
         forbid_vertices,
         methods_sequence,
-        max_cycles);
+        max_cycles,
+        log,
+        err
+    );
+    log << "Contraction processed" << std::endl;
 }
 
 template <typename G>
@@ -89,7 +95,9 @@ void get_postgres_result(
     size_t sequence = 0;
 
     for (const auto id : modified_vertices) {
-        auto v = graph.get_V(id);
+        auto v = graph.get_V(id); // vertex id
+        int64_t o = graph.get_vertex_order(id); // order
+        int64_t m = graph.get_vertex_metric(id); // metric
         int64_t* contracted_vertices = NULL;
         auto vids = graph[v].get_contracted_vertices();
 
@@ -103,9 +111,11 @@ void get_postgres_result(
             const_cast<char*>("v"),
             id,
             contracted_vertices,
-            -1,
-            -1,
-            -1.00,
+            -1, 
+            -1, 
+            -1.00, 
+            o,
+            m, 
             count
         };
         ++sequence;
@@ -131,6 +141,8 @@ void get_postgres_result(
             edge.source,
             edge.target,
             edge.cost,
+            -1,
+            -1,
             count
         };
         ++sequence;
@@ -141,7 +153,7 @@ void get_postgres_result(
 
 
 void
-pgr_do_contractGraph(
+pgr_do_contract_graph(
     char *edges_sql,
     ArrayType* forbidden,
     ArrayType* order,
@@ -162,6 +174,7 @@ pgr_do_contractGraph(
     std::ostringstream log;
     std::ostringstream notice;
     std::ostringstream err;
+    
     char *hint = nullptr;
 
     try {
@@ -197,13 +210,14 @@ pgr_do_contractGraph(
         if (directed) {
             using DirectedGraph = pgrouting::graph::CHDirectedGraph;
             DirectedGraph digraph;
-
             process_contraction(
                 digraph,
                 edges,
                 forbid,
                 ordering,
-                max_cycles);
+                max_cycles,
+                log,
+                err);
 
             get_postgres_result(
                 digraph,
@@ -217,7 +231,9 @@ pgr_do_contractGraph(
                 edges,
                 forbid,
                 ordering,
-                max_cycles);
+                max_cycles,
+                log,
+                err);
 
             get_postgres_result(
                 undigraph,

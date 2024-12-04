@@ -39,31 +39,43 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 namespace pgrouting {
 class CH_vertex {
+ private:
+    // Attributes
+    Identifiers<int64_t> contracted_vertices;
+  
  public:
+    int64_t id;
+    int64_t vertex_order;
+    int64_t metric;
+
     // Constructors
-    CH_vertex() = default;
+    CH_vertex();
     CH_vertex(const CH_vertex &) = default;
     CH_vertex(const Edge_t &other, bool is_source):
         id(is_source ? other.source : other.target) {}
 
     // Accessors
-    void set_contracted_vertices(Identifiers<int64_t> &);
-    const Identifiers<int64_t> &get_contracted_vertices() const;
-    Identifiers<int64_t> &get_contracted_vertices();
+    void set_contracted_vertices(Identifiers<int64_t>&);
+    void set_id(int64_t);
+    void set_metric(int64_t);
+    void set_vertex_order(int64_t);
+
+    int64_t get_id();
+    double get_metric();
+    int64_t get_vertex_order();
+    const Identifiers<int64_t>& get_contracted_vertices() const;
+    Identifiers<int64_t>& get_contracted_vertices();
+    
+    void cp_members(const CH_vertex &other);
 
     // Other member functions
-    void cp_members(const CH_vertex &other);
-    void add_contracted_vertex(const CH_vertex &);
-    void add_contracted_vertices_id(const Identifiers<int64_t> &);
+    void add_contracted_vertex(const CH_vertex&);
+    void add_contracted_vertex_id(int64_t vid);
+    void add_contracted_vertices_id(const Identifiers<int64_t>&);
     bool has_contracted_vertices() const;
     void clear_contracted_vertices();
 
-    friend std::ostream &operator<<(std::ostream &, const CH_vertex &);
-
-    int64_t id;
-
- private:
-    Identifiers<int64_t> m_contracted_vertices;
+    friend std::ostream& operator << (std::ostream&, const CH_vertex&);
 };
 
 size_t

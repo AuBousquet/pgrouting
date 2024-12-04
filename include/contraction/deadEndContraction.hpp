@@ -46,18 +46,20 @@ namespace pgrouting {
 namespace contraction {
 
 template < class G >
-class Pgr_deadend {
+class Pgr_deadend : public Pgr_messages {
  private:
     using V = typename G::V;
     using E = typename G::E;
 
+    Identifiers<V> deadend_vertices;
+ 
  public:
     Pgr_deadend() = default;
 
-    void calculateVertices(G &graph) {
+    void calculate_vertices(G &graph) {
         for (const auto &v : boost::make_iterator_range(vertices(graph.graph))) {
-            if (is_dead_end(graph, v) && !graph.getForbiddenVertices().has(v)) {
-                deadendVertices += v;
+            if (is_dead_end(graph, v) && !graph.get_forbidden_vertices().has(v)) {
+                deadend_vertices += v;
             }
         }
     }
@@ -73,12 +75,12 @@ class Pgr_deadend {
             || (graph.in_degree(v) > 0 && graph.out_degree(v) == 0);
     }
 
-    void doContraction(G &graph) {
-        calculateVertices(graph);
+    void do_contraction(G &graph) {
+        calculate_vertices(graph);
 
-        while (!deadendVertices.empty()) {
-            V v = deadendVertices.front();
-            deadendVertices -= v;
+        while (!deadend_vertices.empty()) {
+            V v = deadend_vertices.front();
+            deadend_vertices -= v;
             pgassert(is_dead_end(graph, v));
 
             Identifiers<V> local;
@@ -93,11 +95,11 @@ class Pgr_deadend {
                     std::get<0>(e).get_contracted_vertices();
                 graph[u].add_contracted_vertex(graph[v]);
 
-                deadendVertices -= v;
+                deadend_vertices -= v;
                 local += u;
             }
 
-            graph[v].get_contracted_vertices().clear();
+            graph[v].clear_contracted_vertices();
             boost::clear_vertex(v, graph.graph);
 
             /* abort in case of an interruption occurs 
@@ -105,17 +107,14 @@ class Pgr_deadend {
             CHECK_FOR_INTERRUPTS();
 
             for (const auto &u : local) {
-                if (is_dead_end(graph, u) && !graph.getForbiddenVertices().has(u)) {
-                    deadendVertices += u;
+                if (is_dead_end(graph, u) && !graph.get_forbidden_vertices().has(u)) {
+                    deadend_vertices += u;
                 } else {
-                    deadendVertices -= u;
+                    deadend_vertices -= u;
                 }
             }
         }
     }
-
- private:
-    Identifiers<V> deadendVertices;
 };
 
 }  // namespace contraction
