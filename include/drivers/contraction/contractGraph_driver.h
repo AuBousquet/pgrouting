@@ -58,14 +58,18 @@ typedef struct contracted_rt contracted_rt;
 extern "C" {
 #endif
 
-void pgr_do_contractGraph(
+void pgr_do_contract_graph(
         char*,
-        ArrayType*, ArrayType*,
-
-        int64_t, bool,
-
-        contracted_rt**, size_t*,
-        char**, char**, char**);
+        ArrayType*, 
+        ArrayType*,
+        int64_t, 
+        bool,
+        contracted_rt**, 
+        size_t*,
+        char**, 
+        char**, 
+        char**
+);
 
 #ifdef __cplusplus
 }

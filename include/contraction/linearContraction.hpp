@@ -42,48 +42,60 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <boost/graph/adjacency_list.hpp>
 
 #include "contraction/ch_edge.hpp"
+#include "contraction/contractionGraph.hpp"
 #include "cpp_common/identifiers.hpp"
+#include "cpp_common/messages.hpp"
 
 
 namespace pgrouting {
 namespace contraction {
 
 template < class G >
-class Pgr_linear {
+class Pgr_linear : public Pgr_messages {
  public:
     using V = typename G::V;
+    using E = typename G::E;
     using V_i = typename G::V_i;
     using B_G = typename G::B_G;
+
+    // Attribute
+    Identifiers<V> linear_vertices;
 
     // Constructor
     Pgr_linear() = default;
 
     // Other member functions
-    void calculateVertices(G &graph) {
-        linearVertices.clear();
+    void calculate_vertices(G &graph) {
+        linear_vertices.clear();
         for (const auto &v : boost::make_iterator_range(vertices(graph.graph))) {
             if (is_contractible(graph, v)) {
-                linearVertices += v;
+                linear_vertices += v;
             }
         }
     }
 
-    void doContraction(G &graph) {
-        calculateVertices(graph);
+    void do_contraction(
+        G &graph, 
+        std::ostringstream &log) {
+        calculate_vertices(graph);
 
-        while (!linearVertices.empty()) {
-            V v = linearVertices.front();
-            linearVertices -= v;
+        while (!linear_vertices.empty()) {
+            V v = linear_vertices.front();
+            linear_vertices -= v;
             pgassert(is_contractible(graph, v));
-            one_cycle(graph, v);
+            contract_node(graph, v, log);
         }
     }
 
     bool is_contractible(G &graph, V v) {
-        return graph.is_linear(v) && !graph.getForbiddenVertices().has(v);
+        return graph.is_linear(v) && !graph.get_forbidden_vertices().has(v);
     }
 
-    void one_cycle(G &graph, V v) {
+    void contract_node(
+        G &graph, 
+        V v, 
+        std::ostringstream &log) {
+        
         pgassert(is_contractible(graph, v));
 
         Identifiers<V> adjacent_vertices =
@@ -99,16 +111,28 @@ class Pgr_linear {
         pgassert(v != w);
         pgassert(u != w);
 
+        E e, f;
+        bool found_e, found_f;
+            
         if (graph.is_directed()) {
             /*
             *  u --> v --> w
             */
-            graph.process_shortcut(u, v, w);
+            boost::tie(e, found_e) = boost::edge(u, v, graph.graph);
+            boost::tie(f, found_f) = boost::edge(v, w, graph.graph);
+            if (found_e && found_f) {
+                graph.process_shortcut(u, v, w);
+            }
+            
             /*
             *  w --> v --> u
             */
-            graph.process_shortcut(w, v, u);
-
+            boost::tie(e, found_e) = boost::edge(w, v, graph.graph);
+            boost::tie(f, found_f) = boost::edge(v, u, graph.graph);
+            if (found_e && found_f) {
+                graph.process_shortcut(w, v, u);
+            }
+        
         } else {
             pgassert(graph.is_undirected());
             /*
@@ -119,22 +143,19 @@ class Pgr_linear {
 
         graph[v].get_contracted_vertices().clear();
         boost::clear_vertex(v, graph.graph);
-        linearVertices -= v;
+        linear_vertices -= v;
 
         if (is_contractible(graph, u)) {
-            one_cycle(graph, u);
+            contract_node(graph, u, log);
         } else {
-            linearVertices -= u;
+            linear_vertices -= u;
         }
         if (is_contractible(graph, w)) {
-            one_cycle(graph, w);
+            contract_node(graph, w, log);
         } else {
-            linearVertices -= w;
+            linear_vertices -= w;
         }
     }
-
- private:
-    Identifiers<V> linearVertices;
 };
 
 }  // namespace contraction

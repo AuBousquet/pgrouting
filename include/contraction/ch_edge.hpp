@@ -39,20 +39,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 namespace pgrouting {
 class CH_edge {
+ private:
+    Identifiers<int64_t> contracted_vertices; 
+
  public:
-    // Constructors
+ // Attributes  
+    int64_t id;
+    int64_t source;
+    int64_t target;
+    double cost;
+
+ // Constructors
     CH_edge() = default;
 
     CH_edge(int64_t eid, int64_t source, int64_t target, double cost):
         id(eid), source(source), target(target), cost(cost) {}
 
-    // Accessors
-    const Identifiers<int64_t> &get_contracted_vertices() const;
-    void set_contracted_vertices(Identifiers<int64_t> &);
+ // Accessors
+    void set_contracted_vertices(Identifiers<int64_t>&);    
+    const Identifiers<int64_t>& get_contracted_vertices() const;
 
     // Other member functions
     void cp_members(const CH_edge &);
-
     void add_contracted_vertex(CH_vertex &);
     void add_contracted_vertices_from_edge(CH_edge &);
     void add_contracted_vertices(Identifiers<int64_t> &);
@@ -60,17 +68,8 @@ class CH_edge {
     bool has_contracted_vertices() const;
     void clear_contracted_vertices();
 
-    // Friend function
-    friend std::ostream &operator<<(std::ostream &, const CH_edge &);
-
-    // Attributes
-    int64_t id;
-    int64_t source;
-    int64_t target;
-    double cost;
-
- private:
-    Identifiers<int64_t> m_contracted_vertices;
+ // Friend function
+    friend std::ostream& operator << (std::ostream&, const CH_edge&);
 };
 }  // namespace pgrouting
 

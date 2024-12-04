@@ -34,11 +34,11 @@ namespace pgrouting {
 
     // Accessors
     const Identifiers<int64_t>& CH_edge::get_contracted_vertices() const {
-        return m_contracted_vertices;
+        return contracted_vertices;
     }
 
     void CH_edge::set_contracted_vertices(Identifiers<int64_t>& contracted_vertices_ids) {
-        m_contracted_vertices = contracted_vertices_ids;
+        contracted_vertices = contracted_vertices_ids;
     }
 
     // Other member functions
@@ -47,29 +47,29 @@ namespace pgrouting {
         id = other.id;
         source = other.source;
         target = other.target;
-        m_contracted_vertices = other.get_contracted_vertices();
+        contracted_vertices = other.get_contracted_vertices();
     }
 
     void CH_edge::add_contracted_vertex(CH_vertex& v) {
-        m_contracted_vertices += v.id;
-        m_contracted_vertices += v.get_contracted_vertices();
+        contracted_vertices += v.id;
+        contracted_vertices += v.get_contracted_vertices();
     }
 
     void CH_edge::add_contracted_vertices_from_edge(CH_edge& e) {
         if (e.has_contracted_vertices())
-            m_contracted_vertices += e.get_contracted_vertices();
+            contracted_vertices += e.get_contracted_vertices();
     }
 
     void CH_edge::add_contracted_vertices(Identifiers<int64_t>& ids) {
-        m_contracted_vertices += ids;
+        contracted_vertices += ids;
     }
 
     bool CH_edge::has_contracted_vertices() const {
-        return !m_contracted_vertices.empty();
+        return !contracted_vertices.empty();
     }
 
     void CH_edge::clear_contracted_vertices() {
-        m_contracted_vertices.clear();
+        contracted_vertices.clear();
     }
 
     // Friend function
