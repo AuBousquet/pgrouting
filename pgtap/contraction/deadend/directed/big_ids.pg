@@ -44,7 +44,9 @@ SELECT set_eq('q1',
     ARRAY[100000010]::BIGINT[] AS contracted_vertices,
     -1::BIGINT AS source,
     -1::BIGINT AS target,
-    -1::FLOAT AS cost$$);
+    -1.00::FLOAT AS cost,
+    -1::BIGINT AS vertex_order,
+    -1::BIGINT AS metric$$);
 
 -- Checking dead end contraction with no dead end node
 -- input: 10->6 6<->7, 7<->11, 10->11  --q1
@@ -73,7 +75,9 @@ SELECT set_eq('q3',
     ARRAY[100000005]::BIGINT[] AS contracted_vertices,
     -1::BIGINT AS source,
     -1::BIGINT AS target,
-    -1::FLOAT AS cost$$);
+    -1.00::FLOAT AS cost,
+    -1::BIGINT AS vertex_order,
+    -1::BIGINT AS metric$$);
 
 -- Checking dead end contraction for two dead end nodes
 --  input: 6 <- 10 <- 15
@@ -91,7 +95,9 @@ SELECT set_eq('q4',
     ARRAY[100000010,100000015]::BIGINT[] AS contracted_vertices,
     -1::BIGINT AS source,
     -1::BIGINT AS target,
-    -1::FLOAT AS cost$$);
+    -1.00::FLOAT AS cost,
+    -1::BIGINT AS vertex_order,
+    -1::BIGINT AS metric$$);
 
 --Checking dead end contraction for multiple dead end nodes
 --  input: 5 <-> 6 <- 10 <- 15
@@ -103,10 +109,10 @@ SELECT * FROM pgr_contraction(
     ARRAY[1]::integer[], 1, ARRAY[]::BIGINT[], true);
 
 PREPARE sol5 AS
-SELECT type, id, contracted_vertices, source, target, cost
+SELECT type, id, contracted_vertices, source, target, cost, vertex_order, metric
 FROM (VALUES
-    ('v'::CHAR, 100000006::BIGINT, ARRAY[100000005, 100000010, 100000015]::BIGINT[], -1::BIGINT, -1::BIGINT, -1::FLOAT)
-) AS t(type, id, contracted_vertices, source, target, cost );
+    ('v'::CHAR, 100000006::BIGINT, ARRAY[100000005, 100000010, 100000015]::BIGINT[], -1::BIGINT, -1::BIGINT, -1::FLOAT, -1::BIGINT, -1::BIGINT)
+) AS t(type, id, contracted_vertices, source, target, cost, vertex_order, metric);
 
 SELECT set_eq('q5', 'sol5');
 
@@ -123,14 +129,14 @@ SELECT * FROM pgr_contraction(
     ARRAY[1]::integer[], 1, ARRAY[]::BIGINT[], true);
 
 PREPARE sol6 AS
-SELECT type, id, contracted_vertices, source, target, cost
+SELECT type, id, contracted_vertices, source, target, cost, vertex_order, metric
 FROM (VALUES
-    ('v'::CHAR, 100000004::BIGINT, ARRAY[100000002]::BIGINT[], -1::BIGINT, -1::BIGINT, -1::FLOAT),
-    ('v', 100000007, ARRAY[100000001,100000003], -1, -1, -1),
-    ('v', 100000006, ARRAY[100000005], -1, -1, -1),
-    ('v', 100000008, ARRAY[100000009], -1, -1, -1),
-    ('v', 100000014, ARRAY[100000013], -1, -1, -1)
-) AS t(type, id, contracted_vertices, source, target, cost );
+    ('v'::CHAR, 100000004::BIGINT, ARRAY[100000002]::BIGINT[], -1::BIGINT, -1::BIGINT, -1::FLOAT, -1::BIGINT, -1::BIGINT),
+    ('v', 100000007, ARRAY[100000001,100000003], -1, -1, -1, -1, -1),
+    ('v', 100000006, ARRAY[100000005], -1, -1, -1, -1, -1),
+    ('v', 100000008, ARRAY[100000009], -1, -1, -1, -1, -1),
+    ('v', 100000014, ARRAY[100000013], -1, -1, -1, -1, -1)
+) AS t(type, id, contracted_vertices, source, target, cost, vertex_order, metric);
 
 SELECT set_eq('q6', 'sol6');
 

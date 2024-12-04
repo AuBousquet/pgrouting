@@ -27,12 +27,12 @@ SELECT function_returns('pgr_contraction', ARRAY['text', 'bigint[]','integer','b
 SELECT set_eq(
   $$SELECT proargnames FROM pg_proc WHERE proname = 'pgr_contraction'$$,
   $$VALUES
-  ('{"", "", "max_cycles", "forbidden_vertices", "directed", "type", "id", "contracted_vertices", "source", "target", "cost"}'::TEXT[])
+  ('{"", "", "max_cycles", "forbidden_vertices", "directed", "type", "id", "contracted_vertices", "source", "target", "cost", "vertex_order", "metric"}'::TEXT[])
   $$);
 
 SELECT set_eq(
   $$SELECT  proallargtypes from pg_proc where proname = 'pgr_contraction'$$,
-  $$SELECT  '{25,1016,23,1016,16,25,20,1016,20,20,701}'::OID[] $$
+  $$SELECT  '{25,1016,23,1016,16,25,20,1016,20,20,701,20,20}'::OID[] $$
 );
 
 SELECT finish();
