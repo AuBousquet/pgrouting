@@ -47,7 +47,9 @@ BEGIN
     ARRAY[ $$ || vids[10] || $$]::BIGINT[] AS contracted_vertices,
     -1::BIGINT AS source,
     -1::BIGINT AS target,
-    -1::FLOAT AS cost$$);
+    -1::FLOAT AS cost,
+    -1::BIGINT AS vertex_order,
+    -1::FLOAT AS metric$$);
 
   q = format(mainq, ARRAY[vids[2],vids[4],vids[5],vids[8]], directed);
 
@@ -64,7 +66,9 @@ BEGIN
     ARRAY[ $$ || vids[5] || $$]::BIGINT[] AS contracted_vertices,
     -1::BIGINT AS source,
     -1::BIGINT AS target,
-    -1::FLOAT AS cost$$);
+    -1::FLOAT AS cost,
+    -1::BIGINT AS vertex_order,
+    -1::FLOAT AS metric$$);
 
   q = format(mainq, ARRAY[vids[1], vids[2]], directed);
 
@@ -76,15 +80,17 @@ BEGIN
     ARRAY[ $$ || vids[5] || $$,$$ ||  vids[6] || $$]::BIGINT[] AS contracted_vertices,
     -1::BIGINT AS source,
     -1::BIGINT AS target,
-    -1::FLOAT AS cost$$);
+    -1::FLOAT AS cost,
+    -1::BIGINT AS vertex_order,
+    -1::FLOAT AS metric$$);
 
   q = format(mainq, ARRAY[vids[1], vids[2], vids[3]], directed);
 
   expected = format($d$
-    SELECT type, id, contracted_vertices, source, target, cost
+    SELECT type, id, contracted_vertices, source, target, cost, vertex_order, metric
     FROM (VALUES
-      ('v'::CHAR, %1$s::BIGINT, '%2$s'::BIGINT[], -1::BIGINT, -1::BIGINT, -1::FLOAT)
-    ) AS t(type, id, contracted_vertices, source, target, cost )$d$,
+      ('v'::CHAR, %1$s::BIGINT, '%2$s'::BIGINT[], -1::BIGINT, -1::BIGINT, -1::FLOAT, -1::BIGINT, -1::FLOAT)
+    ) AS t(type, id, contracted_vertices, source, target, cost, vertex_order, metric)$d$,
     vids[6], ARRAY[vids[5], vids[10], vids[15]]) ;
 
   RETURN QUERY
@@ -95,14 +101,14 @@ BEGIN
       ARRAY[1]::integer[], 1, ARRAY[]::BIGINT[], '%1$s'::BOOLEAN)$d$, directed);
 
   expected = format($d$
-    SELECT type, id, contracted_vertices, source, target, cost
+    SELECT type, id, contracted_vertices, source, target, cost, vertex_order, metric
     FROM (VALUES
-      ('v'::CHAR, %1$s::BIGINT, '%2$s'::BIGINT[], -1::BIGINT, -1::BIGINT, -1::FLOAT),
-      ('v', %3$s, '%4$s'::BIGINT[], -1, -1, -1),
-      ('v', %5$s, '%6$s'::BIGINT[], -1, -1, -1),
-      ('v', %7$s, '%8$s'::BIGINT[], -1, -1, -1),
-      ('v', %9$s, '%10$s'::BIGINT[], -1, -1, -1)
-    ) AS t(type, id, contracted_vertices, source, target, cost )$d$,
+      ('v'::CHAR, %1$s::BIGINT, '%2$s'::BIGINT[], -1::BIGINT, -1::BIGINT, -1::FLOAT, -1::BIGINT, -1::FLOAT),
+      ('v', %3$s, '%4$s'::BIGINT[], -1, -1, -1, -1, -1),
+      ('v', %5$s, '%6$s'::BIGINT[], -1, -1, -1, -1, -1),
+      ('v', %7$s, '%8$s'::BIGINT[], -1, -1, -1, -1, -1),
+      ('v', %9$s, '%10$s'::BIGINT[], -1, -1, -1, -1, -1)
+    ) AS t(type, id, contracted_vertices, source, target, cost, vertex_order, metric)$d$,
     vids[4], ARRAY[vids[2]],
     vids[6], ARRAY[vids[5]],
     vids[7], ARRAY[vids[1], vids[3]],
