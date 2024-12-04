@@ -46,17 +46,17 @@ namespace pgrouting {
 namespace contraction {
 
 template < class G >
-class Pgr_deadend {
+class Pgr_deadend : public Pgr_messages {
  private:
-    using V = typename G::V;
-    using E = typename G::E;
+     using V = typename G::V;
+     using E = typename G::E;
 
  public:
     Pgr_deadend() = default;
 
-    void calculateVertices(G &graph) {
+    void calculate_vertices(G &graph) {
         for (const auto &v : boost::make_iterator_range(vertices(graph.graph))) {
-            if (is_dead_end(graph, v) && !graph.getForbiddenVertices().has(v)) {
+            if (is_dead_end(graph, v) && !graph.get_forbidden_vertices().has(v)) {
                 deadendVertices += v;
             }
         }
@@ -73,8 +73,8 @@ class Pgr_deadend {
             || (graph.in_degree(v) > 0 && graph.out_degree(v) == 0);
     }
 
-    void doContraction(G &graph) {
-        calculateVertices(graph);
+    void do_contraction(G &graph) {
+        calculate_vertices(graph);
 
         while (!deadendVertices.empty()) {
             V v = deadendVertices.front();
@@ -96,7 +96,7 @@ class Pgr_deadend {
                 local += u;
             }
 
-            graph[v].get_contracted_vertices().clear();
+            graph[v].clear_contracted_vertices();
             boost::clear_vertex(v, graph.graph);
 
             /* abort in case of an interruption occurs 
@@ -104,7 +104,7 @@ class Pgr_deadend {
             CHECK_FOR_INTERRUPTS();
 
             for (const auto &u : local) {
-                if (is_dead_end(graph, u) && !graph.getForbiddenVertices().has(u)) {
+                if (is_dead_end(graph, u) && !graph.get_forbidden_vertices().has(u)) {
                     deadendVertices += u;
                 } else {
                     deadendVertices -= u;

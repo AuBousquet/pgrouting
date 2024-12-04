@@ -53,12 +53,11 @@ class CH_edge {
     {}
 
  // Accessors
+    void set_contracted_vertices(Identifiers<int64_t>&);    
     const Identifiers<int64_t>& get_contracted_vertices() const;
-    void set_contracted_vertices(Identifiers<int64_t>&);
 
  // Other member functions
     void cp_members(const CH_edge &);
-
     void add_contracted_vertex(CH_vertex &);
     void add_contracted_vertices_from_edge(CH_edge &);
     void add_contracted_vertices(Identifiers<int64_t>&);
@@ -75,7 +74,7 @@ class CH_edge {
     int64_t target;
     double cost;
  private:
-    Identifiers<int64_t> m_contracted_vertices; 
+    Identifiers<int64_t> contracted_vertices; 
 
 };
 

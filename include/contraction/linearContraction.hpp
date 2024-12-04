@@ -42,14 +42,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <boost/graph/adjacency_list.hpp>
 
 #include "contraction/ch_edge.hpp"
+#include "contraction/contractionGraph.hpp"
 #include "cpp_common/identifiers.hpp"
+#include "cpp_common/messages.hpp"
 
 
 namespace pgrouting {
 namespace contraction {
 
 template < class G >
-class Pgr_linear {
+class Pgr_linear : public Pgr_messages {
  public:
     using V = typename G::V;
     using V_i = typename G::V_i;
@@ -59,7 +61,7 @@ class Pgr_linear {
     Pgr_linear() = default;
 
     // Other member functions
-    void calculateVertices(G &graph) {
+    void calculate_vertices(G &graph) {
         linearVertices.clear();
         for (const auto &v : boost::make_iterator_range(vertices(graph.graph))) {
             if (is_contractible(graph, v)) {
@@ -68,22 +70,22 @@ class Pgr_linear {
         }
     }
 
-    void doContraction(G &graph) {
-        calculateVertices(graph);
+    void do_contraction(G &graph) {
+        calculate_vertices(graph);
 
         while (!linearVertices.empty()) {
             V v = linearVertices.front();
             linearVertices -= v;
             pgassert(is_contractible(graph, v));
-            one_cycle(graph, v);
+            contract_node(graph, v);
         }
     }
 
     bool is_contractible(G &graph, V v) {
-        return graph.is_linear(v) && !graph.getForbiddenVertices().has(v);
+        return graph.is_linear(v) && !graph.get_forbidden_vertices().has(v);
     }
 
-    void one_cycle(G &graph, V v) {
+    void contract_node(G &graph, V v) {
         pgassert(is_contractible(graph, v));
 
         Identifiers<V> adjacent_vertices =
@@ -122,12 +124,12 @@ class Pgr_linear {
         linearVertices -= v;
 
         if (is_contractible(graph, u)) {
-            one_cycle(graph, u);
+            contract_node(graph, u);
         } else {
             linearVertices -= u;
         }
         if (is_contractible(graph, w)) {
-            one_cycle(graph, w);
+            contract_node(graph, w);
         } else {
             linearVertices -= w;
         }

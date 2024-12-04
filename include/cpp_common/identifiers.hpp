@@ -48,9 +48,22 @@ namespace pgrouting {
 template <typename T>
 class Identifiers {
  public:
-    typedef typename std::set<T>::iterator iterator;
-    typedef typename std::set<T>::const_iterator const_iterator;
+    using iterator = typename std::set<T>::iterator;
+    using const_iterator = typename std::set<T>::const_iterator;
 
+    /*! 
+    \brief define ids
+     */    
+    void set_ids(std::set<T> ids) {
+        m_ids = ids;
+    }
+
+    /*! 
+    \brief get ids
+     */
+    std::set<T>& get_ids() {
+        return (m_ids);
+    }
 
     //! @name constructors
     //@{
@@ -84,10 +97,6 @@ class Identifiers {
     iterator end() {return m_ids.end();}
     //@}
 
-
- private:
-    std::set<T> m_ids;
-
  public:
     //! \brief true ids() has element
     /*!
@@ -96,7 +105,6 @@ class Identifiers {
     bool has(const T other) const {
         return (m_ids.find(other) != m_ids.end());
     }
-
 
     //! \brief true when both sets are equal
     /*!
@@ -141,8 +149,6 @@ class Identifiers {
     }
 
     /// @}
-
-
 
     //! @name  set INTERSECTION
     /// @{
@@ -246,6 +252,9 @@ class Identifiers {
             os << "}";
             return os;
         }
+
+ private:
+    std::set<T> m_ids;
 };
 
 }  // namespace pgrouting

@@ -35,27 +35,61 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 namespace pgrouting {
 
-// Accessors
-const Identifiers<int64_t>& CH_vertex::get_contracted_vertices() const {
-    return m_contracted_vertices;
+// Constructors
+CH_vertex::CH_vertex(){
+    vertex_order = -1;
+    metric = -1;
 }
 
-Identifiers<int64_t>& CH_vertex::get_contracted_vertices() {
-    return m_contracted_vertices;
+// Accessors
+void CH_vertex::set_id(int64_t vid) {
+    id = vid;
+}
+
+void CH_vertex::set_metric(int64_t m) {
+    metric = m;
+}
+
+void CH_vertex::set_vertex_order(int64_t order) {
+    vertex_order = order;
 }
 
 void CH_vertex::set_contracted_vertices(Identifiers<int64_t>& contracted_vertices_ids) {
-    m_contracted_vertices = contracted_vertices_ids;
+    contractedVertices = contracted_vertices_ids;
+}
+
+int64_t CH_vertex::get_id() {
+    return id;
+}
+
+double CH_vertex::get_metric() {
+    return metric;
+}
+
+int64_t CH_vertex::get_vertex_order() {
+    return vertex_order;
+}
+
+const Identifiers<int64_t>& CH_vertex::get_contracted_vertices() const {
+    return contractedVertices;
+}
+
+Identifiers<int64_t>& CH_vertex::get_contracted_vertices() {
+    return contractedVertices;
+}
+
+/*!
+    @brief copies members 
+    @param [in] other CH_vertex used to copy the member values from
+*/
+void CH_vertex::cp_members(const CH_vertex &other) {
+    this->id = other.id;
+    this->contractedVertices = other.get_contracted_vertices();
 }
 
 // Other member functions
-void CH_vertex::cp_members(const CH_vertex &other) {
-    this->id = other.id;
-    this->m_contracted_vertices = other.get_contracted_vertices();
-}
-
 bool CH_vertex::has_contracted_vertices() const {
-    if (m_contracted_vertices.size() == 0)
+    if (contractedVertices.size() == 0)
         return false;
     return true;
 }
@@ -65,17 +99,20 @@ bool CH_vertex::has_contracted_vertices() const {
     @param [in] vid vertex ID
 */
 void CH_vertex::add_contracted_vertex(const CH_vertex& v) {
-    m_contracted_vertices += v.id;
-    m_contracted_vertices += v.get_contracted_vertices();
+    contractedVertices += v.id;
+    contractedVertices += v.get_contracted_vertices();
+}
+
+void CH_vertex::add_contracted_vertex_id(int64_t vid) {
+    contractedVertices += vid;
 }
 
 void CH_vertex::add_contracted_vertices_id(const Identifiers<int64_t>& vertices_ids) {
-    m_contracted_vertices += vertices_ids;
+    contractedVertices += vertices_ids;
 }
 
-void CH_vertex::clear_contracted_vertices()
-{
-    m_contracted_vertices.clear();
+void CH_vertex::clear_contracted_vertices() {
+    contractedVertices.clear();
 }
 
 std::ostream& operator <<(std::ostream& os, const CH_vertex& v) {
