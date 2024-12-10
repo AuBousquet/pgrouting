@@ -40,28 +40,42 @@ ALTER TABLE
 /* -- q2 */
 SELECT * FROM pgr_contraction(
   'SELECT id, source, target, cost, reverse_cost FROM edges',
-  array[1, 2], directed => false);
- type | id | contracted_vertices | source | target | cost
-------+----+---------------------+--------+--------+------
- v    |  4 | {2}                 |     -1 |     -1 |   -1
- v    |  7 | {1,3}               |     -1 |     -1 |   -1
- v    | 14 | {13}                |     -1 |     -1 |   -1
- e    | -1 | {5,6}               |      7 |     10 |    2
- e    | -2 | {8,9}               |      7 |     12 |    2
- e    | -3 | {17}                |     12 |     16 |    2
- e    | -4 | {15}                |     10 |     16 |    2
-(7 rows)
+  array[1, 2, 3], directed => false);
+ type | id | contracted_vertices | source | target | cost | vertex_order | metric
+------+----+---------------------+--------+--------+------+--------------+--------
+ v    |  1 | {}                  |     -1 |     -1 |   -1 |            5 |      0
+ v    |  2 | {}                  |     -1 |     -1 |   -1 |            9 |      0
+ v    |  3 | {}                  |     -1 |     -1 |   -1 |            6 |      0
+ v    |  4 | {2}                 |     -1 |     -1 |   -1 |           10 |      0
+ v    |  5 | {}                  |     -1 |     -1 |   -1 |           17 |      0
+ v    |  6 | {}                  |     -1 |     -1 |   -1 |            7 |      0
+ v    |  7 | {1,3}               |     -1 |     -1 |   -1 |            1 |     -6
+ v    |  8 | {}                  |     -1 |     -1 |   -1 |            8 |      0
+ v    |  9 | {}                  |     -1 |     -1 |   -1 |           11 |      0
+ v    | 10 | {}                  |     -1 |     -1 |   -1 |            2 |     -4
+ v    | 11 | {}                  |     -1 |     -1 |   -1 |            3 |     -4
+ v    | 12 | {}                  |     -1 |     -1 |   -1 |            4 |     -2
+ v    | 13 | {}                  |     -1 |     -1 |   -1 |           12 |      0
+ v    | 14 | {13}                |     -1 |     -1 |   -1 |           13 |      0
+ v    | 15 | {}                  |     -1 |     -1 |   -1 |           16 |      0
+ v    | 16 | {}                  |     -1 |     -1 |   -1 |           15 |      0
+ v    | 17 | {}                  |     -1 |     -1 |   -1 |           14 |      0
+ e    | -1 | {5,6}               |      7 |     10 |    2 |           -1 |     -1
+ e    | -2 | {8,9}               |      7 |     12 |    2 |           -1 |     -1
+ e    | -3 | {17}                |     12 |     16 |    2 |           -1 |     -1
+ e    | -4 | {15}                |     10 |     16 |    2 |           -1 |     -1
+(21 rows)
 
 /* -- q3 */
 SELECT * INTO contraction_results
 FROM pgr_contraction(
   'SELECT id, source, target, cost, reverse_cost FROM edges',
-  array[1, 2], directed => false);
-SELECT 7
+  array[1, 2, 3], directed => false);
+SELECT 21
 /* -- q4 */
 UPDATE vertices
 SET is_contracted = true
-WHERE id IN (SELECT  unnest(contracted_vertices) FROM  contraction_results);
+WHERE id IN (SELECT unnest(contracted_vertices) FROM contraction_results);
 UPDATE 10
 /* -- q5 */
 SELECT id, is_contracted
@@ -93,36 +107,44 @@ UPDATE vertices
 SET contracted_vertices = contraction_results.contracted_vertices
 FROM contraction_results
 WHERE type = 'v' AND vertices.id = contraction_results.id;
-UPDATE 3
+UPDATE 17
 /* -- q7 */
 SELECT id, contracted_vertices, is_contracted
 FROM vertices
 ORDER BY id;
  id | contracted_vertices | is_contracted
 ----+---------------------+---------------
-  1 |                     | t
-  2 |                     | t
-  3 |                     | t
+  1 | {}                  | t
+  2 | {}                  | t
+  3 | {}                  | t
   4 | {2}                 | f
-  5 |                     | t
-  6 |                     | t
+  5 | {}                  | t
+  6 | {}                  | t
   7 | {1,3}               | f
-  8 |                     | t
-  9 |                     | t
- 10 |                     | f
- 11 |                     | f
- 12 |                     | f
- 13 |                     | t
+  8 | {}                  | t
+  9 | {}                  | t
+ 10 | {}                  | f
+ 11 | {}                  | f
+ 12 | {}                  | f
+ 13 | {}                  | t
  14 | {13}                | f
- 15 |                     | t
- 16 |                     | f
- 17 |                     | t
+ 15 | {}                  | t
+ 16 | {}                  | f
+ 17 | {}                  | t
 (17 rows)
 
 /* -- q8 */
-INSERT INTO edges(source, target, cost, reverse_cost, contracted_vertices, is_new)
-SELECT source, target, cost, -1, contracted_vertices, true
-FROM contraction_results
+INSERT INTO edges(source, target, cost, reverse_cost, geom, contracted_vertices, is_new)
+SELECT
+    contraction_results.source,
+    contraction_results.target,
+    contraction_results.cost,
+    -1,
+    st_makeline(p1.geom, p2.geom) as geom,
+    contraction_results.contracted_vertices,
+    true
+FROM contraction_results JOIN vertices p1 on (contraction_results.source = p1.id)
+                         JOIN vertices p2 on (contraction_results.target = p2.id)
 WHERE type = 'e';
 INSERT 0 4
 /* -- q9 */
@@ -185,10 +207,10 @@ AND target IN (SELECT * FROM vertices_in_graph)
 ORDER BY id;
  id | source | target | cost | reverse_cost | contracted_vertices
 ----+--------+--------+------+--------------+---------------------
-  5 |     10 |     11 |    1 |           -1 |
-  8 |      7 |     11 |    1 |            1 |
-  9 |     11 |     16 |    1 |            1 |
- 11 |     11 |     12 |    1 |           -1 |
+  5 |     10 |     11 |    1 |           -1 | 
+  8 |      7 |     11 |    1 |            1 | 
+  9 |     11 |     16 |    1 |            1 | 
+ 11 |     11 |     12 |    1 |           -1 | 
  19 |      7 |     10 |    2 |           -1 | {5,6}
  20 |      7 |     12 |    2 |           -1 | {8,9}
  21 |     12 |     16 |    2 |           -1 | {17}
@@ -265,9 +287,9 @@ SELECT * FROM pgr_dijkstra(
     SELECT id
     FROM vertices
     WHERE is_contracted = false
-
+  
     UNION
-
+  
     SELECT unnest(contracted_vertices)
     FROM edges
     WHERE id IN (SELECT id FROM edges_to_expand)

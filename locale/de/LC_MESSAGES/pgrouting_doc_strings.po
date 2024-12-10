@@ -2847,7 +2847,7 @@ msgstr ""
 msgid "Dead end vertex on undirected graph"
 msgstr ""
 
-msgid "The green nodes are `dead end`_ nodes"
+msgid "The green nodes are `Dead-end definition`_ nodes"
 msgstr ""
 
 msgid "The blue nodes have an unlimited number of edges."
@@ -2856,7 +2856,7 @@ msgstr ""
 msgid "Node"
 msgstr ""
 
-msgid "Adjecent nodes"
+msgid "Adjacent nodes"
 msgstr ""
 
 msgid "Number of adjacent nodes"
@@ -2923,11 +2923,11 @@ msgstr ""
 
 msgid ""
 "The dead end contraction will stop until there are no more dead end nodes. "
-"For example from the following graph where :math:`w` is the `dead end`_ node:"
+"For example from the following graph where :math:`w` is the `Dead-end definition`_ node:"
 msgstr ""
 
 msgid ""
-"After contracting :math:`w`, node :math:`v` is now a `dead end`_ node and is "
+"After contracting :math:`w`, node :math:`v` is now a `Dead-end definition`_ node and is "
 "contracted:"
 msgstr ""
 
@@ -2961,7 +2961,7 @@ msgstr ""
 msgid "Linear vertex on undirected graph"
 msgstr ""
 
-msgid "The green nodes are `linear`_ nodes"
+msgid "The green nodes are `Linearity definition`_ nodes"
 msgstr ""
 
 msgid "The blue nodes have an unlimited number of incoming and outgoing edges."
@@ -3011,7 +3011,7 @@ msgstr ""
 
 msgid ""
 "The linear contraction will stop when there are no more linear nodes. For "
-"example from the following graph where :math:`v` and :math:`w` are `linear`_ "
+"example from the following graph where :math:`v` and :math:`w` are `Linearity definition`_ "
 "nodes:"
 msgstr ""
 
@@ -3062,7 +3062,7 @@ msgstr ""
 
 msgid ""
 "This implementation, cycles ``max_cycles`` times through "
-"``operations_order`` ."
+"``methods_sequence`` ."
 msgstr ""
 
 msgid "Contracting sample data"

@@ -13,16 +13,16 @@ ALTER TABLE edges ADD contracted_vertices BIGINT[];
 /* -- q2 */
 SELECT * FROM pgr_contraction(
   'SELECT id, source, target, cost, reverse_cost FROM edges',
-  array[1, 2], directed => false);
+  array[1, 2, 3], directed => false);
 /* -- q3 */
 SELECT * INTO contraction_results
 FROM pgr_contraction(
   'SELECT id, source, target, cost, reverse_cost FROM edges',
-  array[1, 2], directed => false);
+  array[1, 2, 3], directed => false);
 /* -- q4 */
 UPDATE vertices
 SET is_contracted = true
-WHERE id IN (SELECT  unnest(contracted_vertices) FROM  contraction_results);
+WHERE id IN (SELECT unnest(contracted_vertices) FROM  contraction_results);
 /* -- q5 */
 SELECT id, is_contracted
 FROM vertices
@@ -37,9 +37,17 @@ SELECT id, contracted_vertices, is_contracted
 FROM vertices
 ORDER BY id;
 /* -- q8 */
-INSERT INTO edges(source, target, cost, reverse_cost, contracted_vertices, is_new)
-SELECT source, target, cost, -1, contracted_vertices, true
-FROM contraction_results
+INSERT INTO edges(source, target, cost, reverse_cost, geom, contracted_vertices, is_new)
+SELECT
+    contraction_results.source,
+    contraction_results.target,
+    contraction_results.cost,
+    -1,
+    st_makeline(p1.geom, p2.geom) as geom,
+    contraction_results.contracted_vertices,
+    true
+FROM contraction_results JOIN vertices p1 on (contraction_results.source = p1.id)
+                         JOIN vertices p2 on (contraction_results.target = p2.id)
 WHERE type = 'e';
 /* -- q9 */
 SELECT id, source, target, cost, reverse_cost, contracted_vertices, is_new
@@ -111,12 +119,12 @@ SELECT * FROM pgr_dijkstra(
     WHERE ARRAY[$$ || departure || $$]::BIGINT[] <@ contracted_vertices
     OR ARRAY[$$ || destination || $$]::BIGINT[] <@ contracted_vertices
   ),
-
+  
   vertices_in_graph AS (
     SELECT id
     FROM vertices
     WHERE is_contracted = false
-
+    
     UNION
 
     SELECT unnest(contracted_vertices)
@@ -170,18 +178,18 @@ SELECT * FROM pgr_dijkstra(
     WHERE is_contracted = false
 
     UNION
-
+    
     SELECT unnest(contracted_vertices)
     FROM edges
     WHERE id IN (SELECT id FROM edges_to_expand)
-
+    
     UNION
-
+    
     SELECT unnest(contracted_vertices)
     FROM vertices
     WHERE id IN (SELECT id FROM vertices_to_expand)
   )
-
+  
   SELECT id, source, target, cost, reverse_cost
   FROM edges
   WHERE source IN (SELECT * FROM vertices_in_graph)
