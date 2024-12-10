@@ -2942,7 +2942,7 @@ msgstr "当条件成立时，可以进行当条件成立时，可以进行 `操�
 msgid "Dead end vertex on undirected graph"
 msgstr "无向图上的死端顶点"
 
-msgid "The green nodes are `dead end`_ nodes"
+msgid "The green nodes are `Dead-end definition`_ nodes"
 msgstr "绿色节点是 `死端`_ 节点"
 
 msgid "The blue nodes have an unlimited number of edges."
@@ -2951,7 +2951,7 @@ msgstr "蓝色节点具有无限数量的边。"
 msgid "Node"
 msgstr "节点"
 
-msgid "Adjecent nodes"
+msgid "Adjacent nodes"
 msgstr "相邻节点"
 
 msgid "Number of adjacent nodes"
@@ -3020,13 +3020,13 @@ msgstr "操作：死端收缩"
 
 msgid ""
 "The dead end contraction will stop until there are no more dead end nodes. "
-"For example from the following graph where :math:`w` is the `dead end`_ node:"
+"For example from the following graph where :math:`w` is the `Dead-end definition`_ node:"
 msgstr ""
 "死端收缩将停止，直到不再有死端节点。 例如，从下图中，其中 :math:`w` 是 `死端"
 "`_ 节点："
 
 msgid ""
-"After contracting :math:`w`, node :math:`v` is now a `dead end`_ node and is "
+"After contracting :math:`w`, node :math:`v` is now a `Dead-end definition`_ node and is "
 "contracted:"
 msgstr "收缩 :math:`w` 后，节点 :math:`v` 现在是一个 `死端`_ 节点并且已收缩："
 
@@ -3060,7 +3060,7 @@ msgstr "线性是对称的"
 msgid "Linear vertex on undirected graph"
 msgstr "无向图上的线性顶点"
 
-msgid "The green nodes are `linear`_ nodes"
+msgid "The green nodes are `Linearity definition`_ nodes"
 msgstr "绿色节点是 `线性`_ 节点"
 
 msgid "The blue nodes have an unlimited number of incoming and outgoing edges."
@@ -3110,7 +3110,7 @@ msgstr "操作：线性收缩"
 
 msgid ""
 "The linear contraction will stop when there are no more linear nodes. For "
-"example from the following graph where :math:`v` and :math:`w` are `linear`_ "
+"example from the following graph where :math:`v` and :math:`w` are `Linearity definition`_ "
 "nodes:"
 msgstr ""
 "当不再有线性节点时，线性收缩将停止。 例如，在下图中，其中 :math:`v` 和 :math:"
@@ -3165,8 +3165,8 @@ msgstr ""
 
 msgid ""
 "This implementation, cycles ``max_cycles`` times through "
-"``operations_order`` ."
-msgstr "此实现通过 ``operations_order``循环 ``max_cycles`` 次。"
+"``methods_sequence`` ."
+msgstr "此实现通过 ``methods_sequence``循环 ``max_cycles`` 次。"
 
 msgid "Contracting sample data"
 msgstr "收缩示例数据"

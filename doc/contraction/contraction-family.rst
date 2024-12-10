@@ -25,35 +25,42 @@ Contraction - Family of functions
 
     pgr_contraction
 
-
 Introduction
 -------------------------------------------------------------------------------
 
 In large graphs, like the road graphs, or electric networks, graph contraction
 can be used to speed up some graph algorithms.
-Contraction reduces the size of the graph by removing some of the vertices and
-edges and, for example, might add edges that represent a sequence of original
-edges decreasing the total time and space used in graph algorithms.
+Contraction can reduce the size of the graph by removing some of the vertices
+and edges and adding edges that represent a sequence of original edges
+(the original ones can be kept in some methods). In this way, it decreases
+the total time and space used by graph algorithms.
 
 This implementation gives a flexible framework for adding contraction algorithms
-in the future, currently, it supports two algorithms:
+in the future, currently, it supports three algorithms:
 
 1. Dead end contraction
 2. Linear contraction
+3. Contractions hierarchy
 
-Allowing the user to:
+allowing the user to:
 
-- Forbid contraction on a set of nodes.
-- Decide the order of the contraction algorithms and set the maximum number of
+- forbid contraction of a set of nodes;
+- decide the order of the contraction algorithms and set the maximum number of
   times they are to be executed.
 
-Dead end contraction
+These two points are mostly relevant to combine together the two first methods,
+since the third one is normally used on a stand-alone basis. However, the
+implementation of contractions hierarchy, done afterwards, was done on
+the same principle than the two first methods for clarity and homogeneity
+sake of the library.
+
+Dead-end contraction
 -------------------------------------------------------------------------------
 
 Contraction of the leaf nodes of the graph.
 
-Dead end
-..............................................................................
+Dead-end definition
+...............................................................................
 
 A node is considered a **dead end** node when
 
@@ -68,13 +75,13 @@ A node is considered a **dead end** node when
   * There are no incoming edges and has at least one outgoing edge.
 
 
-When the conditions are true then the `Operation: Dead End Contraction`_ can be
+When the conditions are true then the `Operation: dead-end contraction`_ can be
 done.
 
-Dead end vertex on undirected graph
+Dead-end vertex on undirected graph
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-- The green nodes are `dead end`_ nodes
+- The green nodes are `Dead-end definition`_ nodes
 - The blue nodes have an unlimited number of edges.
 
 .. graphviz::
@@ -98,7 +105,7 @@ Dead end vertex on undirected graph
    :header-rows: 1
 
    * - Node
-     - Adjecent nodes
+     - Adjacent nodes
      - Number of adjacent nodes
    * - :math:`a`
      - :math:`\{u\}`
@@ -108,10 +115,10 @@ Dead end vertex on undirected graph
      - 1
 
 
-Dead end vertex on directed graph
+Dead-end vertex on directed graph
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-- The green nodes are `dead end`_ nodes
+- The green nodes are `Dead-end definition`_ nodes
 - The blue nodes have an unlimited number of incoming and/or outgoing edges.
 
 .. graphviz::
@@ -139,7 +146,7 @@ Dead end vertex on directed graph
    :header-rows: 1
 
    * - Node
-     - Adjecent nodes
+     - Adjacent nodes
      - Number of adjacent nodes
      - Number of incoming edges
      - Number of outgoing edges
@@ -184,11 +191,11 @@ even that the number of adjacent vertices is not 1 for
 
   * There are no incoming edges and has at least one outgoing edge.
 
-Operation: Dead End Contraction
+Operation: dead-end contraction
 ...............................................................................
 
 The dead end contraction will stop until there are no more dead end nodes.
-For example from the following graph where :math:`w` is the `dead end`_ node:
+For example from the following graph where :math:`w` is the `Dead-end definition`_ node:
 
 .. graphviz::
 
@@ -204,7 +211,7 @@ For example from the following graph where :math:`w` is the `dead end`_ node:
     }
 
 
-After contracting :math:`w`, node :math:`v` is now a `dead end`_ node and is
+After contracting :math:`w`, node :math:`v` is now a `Dead-end definition`_ node and is
 contracted:
 
 .. graphviz::
@@ -239,24 +246,25 @@ Node :math:`u` has the information of nodes that were contracted.
 
 Linear contraction
 -------------------------------------------------------------------------------
-In the algorithm, linear contraction is represented by 2.
 
-Linear
-................................................................................
+In the algorithm, linear contraction is represented by method n°2.
 
-In case of an undirected graph, a node is considered a `linear` node when
+Linearity definition
+...............................................................................
+
+In case of an undirected graph, a node is considered as a `linear` node when
 
 * The number of adjacent vertices is 2.
 
-In case of a directed graph, a node is considered a `linear` node when
+In case of a directed graph, a node is considered as a `linear` node when
 
 * The number of adjacent vertices is 2.
 * Linearity is symmetrical
 
-Linear vertex on undirected graph
+On undirected graph
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-- The green nodes are `linear`_ nodes
+- The green nodes are `Linearity definition`_ nodes
 - The blue nodes have an unlimited number of incoming and outgoing edges.
 
 
@@ -281,16 +289,16 @@ Linear vertex on undirected graph
    :header-rows: 1
 
    * - Node
-     - Adjecent nodes
+     - Adjacent nodes
      - Number of adjacent nodes
    * - :math:`v`
      - :math:`\{u, w\}`
      - 2
 
-Linear vertex on directed graph
+On directed graph
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-- The green nodes are `linear`_ nodes
+- The green nodes are `Linearity definition`_ nodes
 - The blue nodes have an unlimited number of incoming and outgoing edges.
 - The white node is not linear because the linearity is not symetrical.
 
@@ -319,7 +327,7 @@ Linear vertex on directed graph
    :header-rows: 1
 
    * - Node
-     - Adjecent nodes
+     - Adjacent nodes
      - Number of adjacent nodes
      - Is symmetrical?
    * - :math:`a`
@@ -335,11 +343,11 @@ Linear vertex on directed graph
      - 2
      - no
 
-Operation: Linear Contraction
+Operation: linear contraction
 ...............................................................................
 
 The linear contraction will stop when there are no more linear nodes.
-For example from the following graph where :math:`v` and :math:`w` are `linear`_
+For example from the following graph where :math:`v` and :math:`w` are `Linearity definition`_
 nodes:
 
 .. graphviz::
@@ -399,7 +407,131 @@ Contracting :math:`v`:
 Edge :math:`u \rightarrow z` has the information of nodes that were contracted.
 
 
-The cycle
+Contraction hierarchies
+-------------------------------------------------------------------------------
+
+Contraction of edges and nodes ordered by importance.
+
+
+Principles
+...............................................................................
+
+A total node order is given. If u < v, then u is less important than v. 
+A hierarchy is now constructed by contracting the nodes in this order. 
+
+A node v is contracted by removing from the graph and adding shortcuts by replacing 
+former paths of the form (u, v, w) by an edge (u, w). The shortcut (u, w) is only 
+needed when (u, v, w) is the only shortest path between u and w.
+
+The contraction process adds all discovered shortcuts to the edge set E, giving 
+a "contraction hierarchy". Finding an optimal node ordering is a difficult problem.
+Nevertheless, very simple local heuristics work quite well, according to Geisberger 
+et al. [2].
+
+The basic idea is to keep the nodes in a priority queue sorted by some estimate of how 
+attractive is their contraction. We estimate that with the "edge difference" given by 
+the difference between the number of shortcuts produced by the node contraction minus
+the number of incident edges in the original graph. Finally, the aim is to reduce 
+with cleverness the size of the graph, without loosing optimality. 
+
+Initialize the queue with a first vertices order
+...............................................................................
+
+For each vertex ``v`` of the graph, build contraction of ``v``:
+
+.. graphviz::
+
+    graph G {
+        p, r, u, w [shape=circle;style=filled;width=.4;color=deepskyblue];
+        v [style=filled; color=green];
+
+        rankdir=LR;
+        v -- p [dir=both, weight=10, arrowhead=vee, arrowtail=vee, label="  10"];
+        v -- r [dir=both, weight=3, arrowhead=vee, arrowtail=vee, label="  3"];
+        v -- u [dir=both, weight=6, arrowhead=vee, arrowtail=vee, label="  6"];
+        p -- u [dir=both, weight=16, arrowhead=vee, arrowtail=vee, label="  12"];
+        r -- w [dir=both, weight=5, arrowhead=vee, arrowtail=vee, label="  5"];
+        u -- w [dir=both, weight=5, arrowhead=vee, arrowtail=vee, label="  5"];
+        p -- r [dir=both, weight=13, arrowhead=vee, arrowtail=vee, label="  13", style="invis"];
+        u -- r [dir=both, weight=9, arrowhead=vee, arrowtail=vee, label="  9", style="invis"];
+    }
+
+.. list-table::
+   :width: 80
+   :widths: auto
+   :header-rows: 1
+
+   * - Node
+     - Adjacent nodes
+   * - :math:`v`
+     - :math:`\{p, r, u, w\}`
+   * - :math:`p`
+     - :math:`\{r, v\}`
+   * - :math:`u`
+     - :math:`\{r, v, w\}`
+   * - :math:`r`
+     - :math:`\{v, w\}`
+   * - :math:`w`
+     - :math:`\{r, u\}`
+
+Remove adjacent edges.
+
+.. graphviz::
+
+    graph G {
+        p, r, u, w [shape=circle;style=filled;width=.4;color=deepskyblue];
+        v [style=filled; color=green];
+
+        rankdir=LR;
+        v -- p [dir=both, weight=10, arrowhead=vee, arrowtail=vee, label="  10", style="invis"];
+        v -- r [dir=both, weight=3, arrowhead=vee, arrowtail=vee, label="  3", style="invis"];
+        v -- u [dir=both, weight=6, arrowhead=vee, arrowtail=vee, label="  6", style="invis"];
+        p -- r [dir=both, weight=13, arrowhead=vee, arrowtail=vee, label="  13", color=red, style="invis"];
+        u -- r [dir=both, weight=9, arrowhead=vee, arrowtail=vee, label="  9", color=red, style="invis"];
+        p -- u [dir=both, weight=16, arrowhead=vee, arrowtail=vee, label="  12"];
+        r -- w [dir=both, weight=5, arrowhead=vee, arrowtail=vee, label="  5"];
+        u -- w [dir=both, weight=5, arrowhead=vee, arrowtail=vee, label="  5"];
+    }
+
+Build shortcuts from predecessors of ``v`` to successors of ``v`` if and only if the path through ``v``
+corresponds to the only shortest path between the predecessor and the successor of ``v`` in the graph.
+
+.. graphviz::
+
+    graph G {
+        p, r, u, w [shape=circle;style=filled;width=.4;color=deepskyblue];
+        v [style=filled; color=green];
+
+        rankdir=LR;
+        v -- p [dir=both, weight=10, arrowhead=vee, arrowtail=vee, label="  10", style="invis"];
+        v -- r [dir=both, weight=3, arrowhead=vee, arrowtail=vee, label="  3", style="invis"];
+        v -- u [dir=both, weight=6, arrowhead=vee, arrowtail=vee, label="  6", style="invis"];
+        p -- r [dir=both, weight=13, arrowhead=vee, arrowtail=vee, label="  13", color=red];
+        u -- r [dir=both, weight=9, arrowhead=vee, arrowtail=vee, label="  9", color=red];
+        p -- u [dir=both, weight=16, arrowhead=vee, arrowtail=vee, label="  12"];
+        r -- w [dir=both, weight=5, arrowhead=vee, arrowtail=vee, label="  5"];
+        u -- w [dir=both, weight=5, arrowhead=vee, arrowtail=vee, label="  5"];
+    }
+
+Take the following vertex and contract it. Go on until you have contracted every node of the graph. 
+At the end, there are no more edges in the graph.
+
+This first contraction will give you a vertex order, given by ordering them in ascending order on
+the metric (edge difference). Keep the vertices into a queue.
+
+Build the final vertex order
+...............................................................................
+
+Once you have built the first order, use it to browse the graph once again. For each vertex taken
+in the queue, simulate contraction and calculate its edge difference. If the computed value is
+greater than the one of the next vertex to be contracted, then put it back in the queue. 
+Otherwise contract it permanently.
+
+At the end, take the initial graph (before edges deletions) and add the shortcut edges to it.
+You will have your contracted graph, ready to use with a specialized Dijkstra algorithm,
+which takes into account the order of the nodes in the hierarchy.
+
+Application of the cycle of contraction methods
 -------------------------------------------------------------------------------
 
 Contracting a graph, can be done with more than one operation.
@@ -407,41 +539,34 @@ The order of the operations affect the resulting contracted graph, after
 applying one operation, the set of vertices that can be contracted
 by another operation changes.
 
-This implementation, cycles ``max_cycles`` times through ``operations_order`` .
+This implementation, cycles ``max_cycles`` times through ``methods_sequence``.
 
 .. parsed-literal::
 
     <input>
     do max_cycles times {
-        for (operation in operations_order)
+        for (operation in methods_sequence)
          { do operation }
     }
     <output>
 
 
-Contracting sample data
+Construction of the graph in the database
 -------------------------------------------------------------------------------
 
 In this section, building and using a contracted graph will be shown by example.
 
-- The :doc:`sampledata` for an undirected graph is used
-- a dead end operation first followed by a linear operation.
+- the :doc:`sampledata` for an undirected graph is used;
+- a dead end operation first, followed by a linear operation and the computation of a contraction hierarchy.
 
-
-.. contents::
-   :local:
-
-Construction of the graph in the database
-...............................................................................
-
-.. rubric:: Original Data
+.. rubric:: Original data of the first graph
 
 The following query shows the original data involved in the contraction
 operation.
 
 .. literalinclude:: contraction-family.queries
-   :start-after: -- q00
-   :end-before: -- q01
+   :start-after: -- q0
+   :end-before: -- q1
 
 The original graph:
 
@@ -449,14 +574,18 @@ The original graph:
    :scale: 25%
 
 Contraction results
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+...............................................................................
 
 The results do not represent the contracted graph.
 They represent the changes done to the graph after applying the contraction
 algorithm.
 
-Observe that vertices, for example, :math:`6` do not appear in the results
-because it was not affected by the contraction algorithm.
+Vertices are all represented in the result (except of course forbidden ones)
+as long as the contraction hierarchies are applied (method 3), since the method
+gives an order to all contracted vertices in the graph.
+
+Otherwise, when applying linear or dead-end contractions, vertices that are not
+affected by the contraction will not appear in the result (see ).
 
 .. literalinclude:: contraction-family.queries
    :start-after: -- q2
@@ -472,10 +601,14 @@ After doing the linear contraction operation to the graph above:
 .. image:: images/undirected_sampledata_c.png
    :scale: 25%
 
-The process to create the contraction graph on the database:
+After computing the contraction hierarchies, the graph stays unchanged.
+Nevertheless, an order is now given to the vertices, in order to be used
+with a specific Dijkstra algorithm (implementation coming in a future version),
+which speeds up the search. As a consequence, if method 3 is used, all vertices
+browsed by the contraction will be represented in the result.
 
-.. contents::
-   :local:
+Process to create the contraction graph in the database
+...............................................................................
 
 Add additional columns
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -521,7 +654,7 @@ Store the `contraction results`_ in a table
    :end-before: -- q4
 
 
-The vertex table update
+Update vertices table
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Use ``is_contracted`` column to indicate the vertices that are contracted.
@@ -543,10 +676,10 @@ The modified vertices table:
    :start-after: -- q7
    :end-before: -- q8
 
-The edge table update
+Update edges table
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Insert the new edges generated by pgr_contraction.
+Insert the new edges generated by ``pgr_contraction``.
 
 .. literalinclude:: contraction-family.queries
    :start-after: -- q8
@@ -559,7 +692,7 @@ The modified ``edge_table``.
    :end-before: -- q10
 
 
-The contracted graph
+Result of the contraction
 ...............................................................................
 
 Vertices that belong to the contracted graph.
@@ -585,7 +718,10 @@ Contracted graph
 Using the contracted graph
 ...............................................................................
 
-Using the contracted graph with ``pgr_dijkstra``
+For the moment, we only propose to use the contracted graph with ``pgr_dijkstra``.
+However, when a contraction hierarchy has been built, it is also possible to use 
+a modified Dijkstra algorithm, exploiting the vertex hierarchy, to speed-up 
+the calculation. It has not been implemented yet, but will come soon, in a further version.
 
 There are three cases when calculating the shortest path between a given source
 and target in a contracted graph:
@@ -725,7 +861,8 @@ See Also
 * :doc:`pgr_contraction`
 * :doc:`sampledata`
 * https://www.cs.cmu.edu/afs/cs/academic/class/15210-f12/www/lectures/lecture16.pdf
-* https://algo2.iti.kit.edu/documents/routeplanning/geisberger_dipl.pdf
+* https://ae.iti.kit.edu/download/diploma_thesis_geisberger.pdf
+* https://jlazarsfeld.github.io/ch.150.project/contents/
 
 .. rubric:: Indices and tables
 
