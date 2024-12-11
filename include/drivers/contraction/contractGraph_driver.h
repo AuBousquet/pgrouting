@@ -60,14 +60,14 @@ extern "C" {
 
 void pgr_do_contract_graph(
         char*,
-        ArrayType*, 
         ArrayType*,
-        int64_t, 
+        ArrayType*,
+        int64_t,
         bool,
-        contracted_rt**, 
+        contracted_rt**,
         size_t*,
-        char**, 
-        char**, 
+        char**,
+        char**,
         char**
 );
 

@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 namespace pgrouting {
 
 // Constructors
-CH_vertex::CH_vertex(){
+CH_vertex::CH_vertex() {
     vertex_order = -1;
     metric = -1;
 }
