@@ -36,11 +36,11 @@ namespace contraction {
   @brief Tests if the required contraction method is valid
   @result Boolean, true if valid, false otherwise
 */
-bool is_valid_contraction(int number) {    
+bool is_valid_contraction(int number) {
     switch (number) {
-        case 1: // dead end
-        case 2: // linear
-        case 3: // hierarchy
+        case 1:  // dead end
+        case 2:  // linear
+        case 3:  // hierarchy
             return true;
             break;
         default:

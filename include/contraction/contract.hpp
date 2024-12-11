@@ -66,8 +66,7 @@ class Pgr_contract {
         contract_order.insert(
             contract_order.end(),
             methods_sequence.begin(),
-            methods_sequence.end()
-        );
+            methods_sequence.end());
         log << "Contraction methods queue prepared" << std::endl;
         for (int64_t i = 0; i < max_cycles; ++i) {
             log << "Contraction cycle number: " << i+1 << std::endl;
@@ -78,12 +77,11 @@ class Pgr_contract {
             auto kind = contract_order.front();
             while (kind != -1) {
                 perform_one_contraction_cycle(
-                    graph, 
-                    kind, 
+                    graph,
+                    kind,
                     forbidden_vertices,
                     log,
-                    err
-                );
+                    err);
                 contract_order.pop_front();
                 contract_order.push_back(front);
                 kind = contract_order.front();
@@ -91,15 +89,14 @@ class Pgr_contract {
         }
     }
 
-private:
+ private:
     void perform_one_contraction_cycle(
         G &graph,
         int64_t kind,
         Identifiers<V> &forbidden_vertices,
         std::ostringstream &log,
         std::ostringstream &err
-    )
-    {
+    ) {
         graph.set_forbidden_vertices(forbidden_vertices);
         switch (kind) {
             case -1:
@@ -118,7 +115,7 @@ private:
                 log << "Contractions hierarchy" << std::endl;
                 perform_contractions_hierarchy(graph, log, err);
                 break;
-            
+
             default:
                 pgassert(false);
                 break;
@@ -128,8 +125,7 @@ private:
     void perform_dead_end_contraction(
         G &graph,
         std::ostringstream &err
-    )
-    {
+    ) {
         Pgr_deadend<G> deadendContractor;
         try {
             deadendContractor.do_contraction(graph);
@@ -141,11 +137,10 @@ private:
     }
 
     void perform_linear_contraction(
-        G &graph, 
+        G &graph,
         std::ostringstream &log,
         std::ostringstream &err
-    ) 
-    {
+    ) {
         Pgr_linear<G> linearContractor;
         try {
             linearContractor.do_contraction(graph, log);
@@ -160,8 +155,7 @@ private:
         G &graph,
         std::ostringstream &log,
         std::ostringstream &err
-    ) 
-    {
+    ) {
         Pgr_contractionsHierarchy<G> hierarchyContractor;
         try {
             hierarchyContractor.do_contraction(graph, log, err);

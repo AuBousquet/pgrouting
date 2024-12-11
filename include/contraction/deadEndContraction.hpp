@@ -52,7 +52,7 @@ class Pgr_deadend : public Pgr_messages {
     using E = typename G::E;
 
     Identifiers<V> deadend_vertices;
- 
+
  public:
     Pgr_deadend() = default;
 
@@ -102,7 +102,7 @@ class Pgr_deadend : public Pgr_messages {
             graph[v].clear_contracted_vertices();
             boost::clear_vertex(v, graph.graph);
 
-            /* abort in case of an interruption occurs 
+            /* abort in case of an interruption occurs
             (e.g. the query is being cancelled) */
             CHECK_FOR_INTERRUPTS();
 

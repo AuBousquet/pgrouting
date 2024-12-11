@@ -74,12 +74,11 @@ static void process(
         order,
         num_cycles,
         directed,
-        result_tuples, 
+        result_tuples,
         result_count,
         &log_msg,
         &notice_msg,
-        &err_msg
-    );
+        &err_msg);
     time_msg("processing pgr_contraction()", start_t, clock());
 
     if (err_msg && (*result_tuples)) {

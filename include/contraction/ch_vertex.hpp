@@ -42,7 +42,7 @@ class CH_vertex {
  private:
     // Attributes
     Identifiers<int64_t> contracted_vertices;
-  
+
  public:
     int64_t id;
     int64_t vertex_order;
@@ -52,7 +52,7 @@ class CH_vertex {
     CH_vertex();
     CH_vertex(const CH_vertex &) = default;
     CH_vertex(const Edge_t &other, bool is_source):
-        id(is_source ? other.source : other.target) {}
+      id(is_source? other.source : other.target) {}
 
     // Accessors
     void set_contracted_vertices(Identifiers<int64_t>&);
@@ -65,7 +65,6 @@ class CH_vertex {
     int64_t get_vertex_order();
     const Identifiers<int64_t>& get_contracted_vertices() const;
     Identifiers<int64_t>& get_contracted_vertices();
-    
     void cp_members(const CH_vertex &other);
 
     // Other member functions

@@ -74,8 +74,7 @@ void process_contraction(
         methods_sequence,
         max_cycles,
         log,
-        err
-    );
+        err);
     log << "Contraction processed" << std::endl;
 }
 
@@ -95,9 +94,9 @@ void get_postgres_result(
     size_t sequence = 0;
 
     for (const auto id : modified_vertices) {
-        auto v = graph.get_V(id); // vertex id
-        int64_t o = graph.get_vertex_order(id); // order
-        int64_t m = graph.get_vertex_metric(id); // metric
+        auto v = graph.get_V(id);
+        int64_t o = graph.get_vertex_order(id);
+        int64_t m = graph.get_vertex_metric(id);
         int64_t* contracted_vertices = NULL;
         auto vids = graph[v].get_contracted_vertices();
 
@@ -111,11 +110,11 @@ void get_postgres_result(
             const_cast<char*>("v"),
             id,
             contracted_vertices,
-            -1, 
-            -1, 
-            -1.00, 
+            -1,
+            -1,
+            -1.00,
             o,
-            m, 
+            m,
             count
         };
         ++sequence;
@@ -174,7 +173,6 @@ pgr_do_contract_graph(
     std::ostringstream log;
     std::ostringstream notice;
     std::ostringstream err;
-    
     char *hint = nullptr;
 
     try {

@@ -75,8 +75,9 @@ class Pgr_linear : public Pgr_messages {
     }
 
     void do_contraction(
-        G &graph, 
-        std::ostringstream &log) {
+        G &graph,
+        std::ostringstream &log
+    ) {
         calculate_vertices(graph);
 
         while (!linear_vertices.empty()) {
@@ -92,10 +93,10 @@ class Pgr_linear : public Pgr_messages {
     }
 
     void contract_node(
-        G &graph, 
-        V v, 
-        std::ostringstream &log) {
-        
+        G &graph,
+        V v,
+        std::ostringstream &log
+    ) {
         pgassert(is_contractible(graph, v));
 
         Identifiers<V> adjacent_vertices =
@@ -113,31 +114,30 @@ class Pgr_linear : public Pgr_messages {
 
         E e, f;
         bool found_e, found_f;
-            
+
         if (graph.is_directed()) {
             /*
-            *  u --> v --> w
-            */
+             *  u --> v --> w
+             */
             boost::tie(e, found_e) = boost::edge(u, v, graph.graph);
             boost::tie(f, found_f) = boost::edge(v, w, graph.graph);
             if (found_e && found_f) {
                 graph.process_shortcut(u, v, w);
             }
-            
+
             /*
-            *  w --> v --> u
-            */
+             *  w --> v --> u
+             */
             boost::tie(e, found_e) = boost::edge(w, v, graph.graph);
             boost::tie(f, found_f) = boost::edge(v, u, graph.graph);
             if (found_e && found_f) {
                 graph.process_shortcut(w, v, u);
             }
-        
         } else {
             pgassert(graph.is_undirected());
             /*
-            * u - v - w
-            */
+             * u - v - w
+             */
             graph.process_shortcut(u, v, w);
         }
 

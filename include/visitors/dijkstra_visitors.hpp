@@ -42,31 +42,29 @@ namespace visitors {
 
 template <typename V>
 class dijkstra_one_goal_visitor : public boost::default_dijkstra_visitor {
-public:
+ public:
     explicit dijkstra_one_goal_visitor(V goal) :
         m_goal(goal) {}
     template <class B_G>
         void examine_vertex(V &u, B_G &) {
             if (u == m_goal) throw found_goals();
         }
-private:
+ private:
     V m_goal;
 };
 
 template <typename V>
 class dijkstra_max_distance_visitor: public boost::default_dijkstra_visitor {
-public:
+ public:
     explicit dijkstra_max_distance_visitor(
             double distance_goal,
             std::vector<double> &distances,
             std::set<int64_t> &reached_vertices_ids,
-            std::ostringstream &log
-    ):
+            std::ostringstream &log):
         m_distance_goal(distance_goal),
         m_dist(distances),
         m_reached_vertices_ids(reached_vertices_ids),
-        m_log(log)
-        {
+        m_log(log) {
             pgassert(m_distance_goal > 0);
         }
         template <class B_G>
@@ -77,7 +75,7 @@ public:
             m_reached_vertices_ids.insert(g[u].id);
         }
 
-private:
+ private:
     double m_distance_goal;
     std::vector<double> &m_dist;
     std::set<int64_t> &m_reached_vertices_ids;
@@ -91,10 +89,8 @@ class dijkstra_many_goal_visitor : public boost::default_dijkstra_visitor {
              const std::set<V> &goals,
              size_t n_goals,
              std::set<V> &f_goals) :
-         m_goals(goals),
-         m_n_goals(n_goals),
-         m_found_goals(f_goals)   {
-         }
+         m_goals(goals), m_n_goals(n_goals), m_found_goals(f_goals) {}
+
      template <class B_G>
          void examine_vertex(V u, B_G &) {
              auto s_it = m_goals.find(u);
@@ -122,11 +118,11 @@ class dijkstra_many_goal_visitor : public boost::default_dijkstra_visitor {
 
 template <typename V>
 class dijkstra_distance_visitor: public boost::default_dijkstra_visitor {
-public:
+ public:
     explicit dijkstra_distance_visitor(
-            double distance_goal,
-            std::vector<double> &distances
-    ):
+        double distance_goal,
+        std::vector<double> &distances):
+
         m_distance_goal(distance_goal),
         m_dist(distances) {
             pgassert(m_distance_goal > 0);
@@ -138,7 +134,7 @@ public:
             }
         }
 
-private:
+ private:
     double m_distance_goal;
     std::vector<double> &m_dist;
 };
@@ -149,13 +145,12 @@ class dijkstra_distance_with_forbidden_node_visitor : public boost::default_dijk
      explicit dijkstra_distance_with_forbidden_node_visitor(
              double distance_goal,
              std::deque<V> &nodesInDistance,
-             std::vector<double> &distances, 
-             V &forbidden_node) :
+             std::vector<double> &distances,
+             V &forbidden_node):
          m_distance_goal(distance_goal),
          m_nodes(nodesInDistance),
          m_dist(distances),
-         m_forbidden_node(forbidden_node) 
-         {
+         m_forbidden_node(forbidden_node) {
              pgassert(m_nodes.empty());
              pgassert(m_distance_goal > 0);
          }
@@ -163,8 +158,7 @@ class dijkstra_distance_with_forbidden_node_visitor : public boost::default_dijk
          void examine_vertex(V u, B_G &) {
              if (m_dist[u] > m_distance_goal) {
                  throw found_goals();
-             }
-             else if (u != m_forbidden_node) {
+             } else if (u != m_forbidden_node) {
                  m_nodes.push_back(u);
              }
          }
