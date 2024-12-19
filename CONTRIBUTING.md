@@ -28,6 +28,8 @@ Here are some important resources:
 * Participate in fixing
   [Documentation](https://github.com/pgRouting/pgrouting/issues?q=is%3Aopen+is%3Aissue+label%3ADocumentation).
 
+* A [contribution guide](DEV_DOC.md), giving an example of process on Ubuntu / Debian.
+
 * Find a bug? [Let us know](https://github.com/pgRouting/pgrouting/issues).
 
 ## Contribution agreement
