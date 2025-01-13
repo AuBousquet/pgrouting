@@ -277,7 +277,8 @@ std::vector<Edge_xy_t> get_edges_xy(const std::string &sql, bool normal) {
   @param[in] ignore_id when true id value of edge is ignored
   @returns vector of `Edge_t`
   */
-std::vector<Edge_t> get_edges(const std::string &sql, bool normal, bool ignore_id) {
+std::vector<Edge_t> get_edges(
+        const std::string &sql, bool normal, bool ignore_id) {
     using pgrouting::Column_info_t;
     std::vector<Column_info_t> info{
     {-1, 0, !ignore_id, "id", ANY_INTEGER},
