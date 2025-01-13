@@ -53,6 +53,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "cpp_common/costFlow_t.hpp"
 #include "cpp_common/edge_xy_t.hpp"
 #include "cpp_common/edge_t.hpp"
+#include "cpp_common/orderedVertex_t.hpp"
 #include "c_types/iid_t_rt.h"
 #include "cpp_common/orders_t.hpp"
 #include "cpp_common/restriction_t.hpp"
@@ -81,6 +82,9 @@ std::vector<Delauny_t> get_delauny(const std::string&);
 
 /** @brief Read edges */
 std::vector<Edge_t> get_edges(const std::string&, bool, bool);
+
+/** @brief Read ordered vertices */
+std::vector<OrderedVertex_t> get_ordered_vertices(const std::string&);
 
 /** @brief Read edges with x, y endpoints */
 std::vector<Edge_xy_t> get_edges_xy(const std::string&, bool);

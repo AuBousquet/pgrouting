@@ -67,6 +67,7 @@ extern "C" {
 #include "c_types/iid_t_rt.h"
 #include "cpp_common/delauny_t.hpp"
 #include "cpp_common/edge_t.hpp"
+#include "cpp_common/orderedVertex_t.hpp"
 #include "c_types/edge_bool_t_rt.h"
 #include "cpp_common/edge_xy_t.hpp"
 #include "cpp_common/orders_t.hpp"
@@ -277,7 +278,8 @@ std::vector<Edge_xy_t> get_edges_xy(const std::string &sql, bool normal) {
   @param[in] ignore_id when true id value of edge is ignored
   @returns vector of `Edge_t`
   */
-std::vector<Edge_t> get_edges(const std::string &sql, bool normal, bool ignore_id) {
+std::vector<Edge_t> get_edges(
+        const std::string &sql, bool normal, bool ignore_id) {
     using pgrouting::Column_info_t;
     std::vector<Column_info_t> info{
     {-1, 0, !ignore_id, "id", ANY_INTEGER},
@@ -289,6 +291,26 @@ std::vector<Edge_t> get_edges(const std::string &sql, bool normal, bool ignore_i
     return get_data<Edge_t>(sql, normal, info, &fetch_edge);
 }
 
+/**
+
+  For queries of the type:
+  ~~~~{.c}
+  SELECT id, order FROM vertices_table;
+  ~~~~
+
+  @param[in] sql The query
+  @returns vector of pairs of int64_t
+  */
+std::vector<OrderedVertex_t> get_ordered_vertices(
+        const std::string &sql) {
+    using pgrouting::Column_info_t;
+    std::vector<Column_info_t> info{
+    {-1, 0, true, "id", ANY_INTEGER},
+    {-1, 0, true, "order", ANY_INTEGER}};
+
+    return get_data< OrderedVertex_t >(
+        sql, true, info, &fetch_ordered_vertices);
+}
 
 /**
 
