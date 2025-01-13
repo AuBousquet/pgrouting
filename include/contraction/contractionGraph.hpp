@@ -133,6 +133,13 @@ class contractionGraph :
         }
     }
 
+    void set_vertices_order(
+            std::vector< std::pair<int64_t, int64_t> > vertices) {
+        for (const auto &v : vertices) {
+            this->graph[this->vertices_map[v.first]].set_order(v.second);
+        }
+    }
+
     // Other member functions
     /*!
         @brief add a shortcut to the graph during contraction
