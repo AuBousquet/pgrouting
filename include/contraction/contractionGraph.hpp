@@ -249,9 +249,9 @@ class Pgr_contractionGraph :
          this->graph[e]= edge;
      }
 
-
      bool has_u_v_w(V u, V v, V w) const {
-         return boost::edge(u, v, this->graph).second &&  boost::edge(v, w, this->graph).second;
+         return boost::edge(u, v, this->graph).second
+             && boost::edge(v, w, this->graph).second;
      }
 
      /**
