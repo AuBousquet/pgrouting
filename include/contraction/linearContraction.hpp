@@ -80,7 +80,7 @@ class Pgr_linear {
 
 
      void doContraction(G &graph, Identifiers<V> forbidden_vertices) {
-         m_forbiddenVertices = forbidden_vertices;
+         graph.setForbiddenVertices(forbidden_vertices);
          calculateVertices(graph);
 
          while (!m_linearVertices.empty()) {
