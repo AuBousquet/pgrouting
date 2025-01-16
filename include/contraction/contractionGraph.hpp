@@ -129,17 +129,16 @@ class Pgr_contractionGraph :
             std::pair< double, V > ordered_vertex = priority_queue.top();
             priority_queue.pop();
 
-            (this->graph[ordered_vertex.second]).set_metric(
-                ordered_vertex.first);
-            (this->graph[ordered_vertex.second]).set_vertex_order(i);
+            (this->graph[ordered_vertex.second]).metric = ordered_vertex.first;
+            (this->graph[ordered_vertex.second]).vertex_order = i;
 
             log << "(" << ordered_vertex.first << ", "
                 << (this->graph[ordered_vertex.second]).id
                 << ")" << std::endl;
             log << " metric = "
-                << get_vertex_metric((this->graph[ordered_vertex.second]).id)
+                << (this->graph[ordered_vertex.second]).metric
                 << " order = "
-                << get_vertex_order((this->graph[ordered_vertex.second]).id)
+                << (this->graph[ordered_vertex.second]).vertex_order
                 << std::endl;
         }
     }
