@@ -60,7 +60,8 @@ class Pgr_contractionGraph :
     using EI_i = typename boost::graph_traits<G>::in_edge_iterator;
     using E_i = typename boost::graph_traits < G >::edge_iterator;
     using V_p = typename std::pair< double, V >;
-    using PQ = typename std::priority_queue< V_p, std::vector<V_p>, std::greater<V_p> >;
+    using PQ = typename
+        std::priority_queue< V_p, std::vector<V_p>, std::greater<V_p> >;
 
      /*!
        Prepares the _graph_ to be of type *directed*
@@ -110,14 +111,17 @@ class Pgr_contractionGraph :
             std::pair< double, V > ordered_vertex = priority_queue.top();
             priority_queue.pop();
 
-            (this->graph[ordered_vertex.second]).set_metric(ordered_vertex.first);
+            (this->graph[ordered_vertex.second]).set_metric(
+                ordered_vertex.first);
             (this->graph[ordered_vertex.second]).set_vertex_order(i);
 
             log << "(" << ordered_vertex.first << ", "
                 << (this->graph[ordered_vertex.second]).id
                 << ")" << std::endl;
-            log << " metric = " << get_vertex_metric((this->graph[ordered_vertex.second]).id) 
-                << " order = " << get_vertex_order((this->graph[ordered_vertex.second]).id) 
+            log << " metric = "
+                << get_vertex_metric((this->graph[ordered_vertex.second]).id)
+                << " order = "
+                << get_vertex_order((this->graph[ordered_vertex.second]).id)
                 << std::endl;
         }
     }
@@ -149,7 +153,8 @@ class Pgr_contractionGraph :
     Identifiers<V> find_adjacent_out_vertices(V v) const {
         Identifiers<V> adjacent_vertices;
 
-        for (const auto &out : boost::make_iterator_range(out_edges(v, this->graph)))
+        for (const auto &out :
+                boost::make_iterator_range(out_edges(v, this->graph)))
             adjacent_vertices += this->adjacent(v, out);
 
         return adjacent_vertices;
@@ -163,7 +168,8 @@ class Pgr_contractionGraph :
     Identifiers<V> find_adjacent_in_vertices(V v) const {
         Identifiers<V> adjacent_vertices;
 
-        for (const auto &in : boost::make_iterator_range(in_edges(v, this->graph)))
+        for (const auto &in :
+                boost::make_iterator_range(in_edges(v, this->graph)))
             adjacent_vertices += this->adjacent(v, in);
 
         return adjacent_vertices;
@@ -364,12 +370,14 @@ class Pgr_contractionGraph :
               * u -> v -> w
               */
              ||
-             (has_u_v_w(u, v, w) && !(boost::edge(v, u, this->graph).second || boost::edge(w, v, this->graph).second))
+             (has_u_v_w(u, v, w) && !(boost::edge(v, u, this->graph).second
+             || boost::edge(w, v, this->graph).second))
              /*
               * u <- v <- w
               */
              ||
-             (has_u_v_w(w, v, u) && !(boost::edge(v, w, this->graph).second || boost::edge(u, v, this->graph).second));
+             (has_u_v_w(w, v, u) && !(boost::edge(v, w, this->graph).second
+             || boost::edge(u, v, this->graph).second));
      }
 
      bool is_linear(V v) {
@@ -440,12 +448,12 @@ class Pgr_contractionGraph :
         std::vector<pgrouting::CH_edge> &shortcuts,
         std::ostringstream &log
     ) {
-        for (auto it = shortcuts.begin(); it != shortcuts.end(); it++)
-        {
+        for (auto it = shortcuts.begin(); it != shortcuts.end(); it++) {
             V u, v;
             u = this->vertices_map[it->source];
             v = this->vertices_map[it->target];
-            log << "Shortcut " << it->id << "(" << it->source << ", " << it->target << ")" << std::endl;
+            log << "Shortcut " << it->id << "(" << it->source
+                << ", " << it->target << ")" << std::endl;
             add_shortcut(*it, u, v);
         }
     }
