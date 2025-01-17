@@ -6,8 +6,8 @@ Copyright (c) 2015 pgRouting developers
 Mail: project@pgrouting.org
 
 Function's developer:
-Copyright (c) 2016 Rohith Reddy
-Mail:
+Copyright (c) Aurélie Bousquet - 2024
+Mail: aurelie.bousquet at oslandia.com
 
 ------
 
@@ -40,27 +40,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "c_common/debug_macro.h"
 #include "c_common/e_report.h"
 #include "c_common/time_msg.h"
-#include "c_types/contracted_rt.h"
-#include "drivers/contraction/contractGraph_driver.h"
+#include "c_types/contraction_hierarchies_rt.h"
+#include "drivers/contraction/contractionHierarchies_driver.h"
 
-PGDLLEXPORT Datum _pgr_contraction(PG_FUNCTION_ARGS);
-PG_FUNCTION_INFO_V1(_pgr_contraction);
+PGDLLEXPORT Datum _pgr_contraction_hierarchies(PG_FUNCTION_ARGS);
+PG_FUNCTION_INFO_V1(_pgr_contraction_hierarchies);
 
 
 static
 void
 process(char* edges_sql,
-        ArrayType* order,
-        int num_cycles,
         ArrayType* forbidden,
-
         bool directed,
-        contracted_rt **result_tuples,
+        contraction_hierarchies_rt **result_tuples,
         size_t *result_count) {
-    /*
-     * nothing to do
-     */
-    if (num_cycles < 1) return;
 
     pgr_SPI_connect();
     char* log_msg = NULL;
@@ -68,17 +61,16 @@ process(char* edges_sql,
     char* err_msg = NULL;
 
     clock_t start_t = clock();
-    pgr_do_contractGraph(
+    pgr_do_contractionHierarchies(
             edges_sql,
             forbidden,
-            order,
-            num_cycles,
             directed,
-            result_tuples, result_count,
+            result_tuples,
+            result_count,
             &log_msg,
             &notice_msg,
             &err_msg);
-    time_msg("processing pgr_contraction()", start_t, clock());
+    time_msg("processing pgr_contraction_hierarchies()", start_t, clock());
 
 
     if (err_msg && (*result_tuples)) {
@@ -92,11 +84,11 @@ process(char* edges_sql,
 }
 
 PGDLLEXPORT Datum
-_pgr_contraction(PG_FUNCTION_ARGS) {
+_pgr_contraction_hierarchies(PG_FUNCTION_ARGS) {
     FuncCallContext     *funcctx;
     TupleDesc            tuple_desc;
 
-    contracted_rt  *result_tuples = NULL;
+    contraction_hierarchies_rt  *result_tuples = NULL;
     size_t result_count = 0;
 
     if (SRF_IS_FIRSTCALL()) {
@@ -107,9 +99,7 @@ _pgr_contraction(PG_FUNCTION_ARGS) {
         process(
                 text_to_cstring(PG_GETARG_TEXT_P(0)),
                 PG_GETARG_ARRAYTYPE_P(1),
-                PG_GETARG_INT32(2),
-                PG_GETARG_ARRAYTYPE_P(3),
-                PG_GETARG_BOOL(4),
+                PG_GETARG_BOOL(2),
                 &result_tuples,
                 &result_count);
 
@@ -128,7 +118,7 @@ _pgr_contraction(PG_FUNCTION_ARGS) {
 
     funcctx = SRF_PERCALL_SETUP();
     tuple_desc = funcctx->tuple_desc;
-    result_tuples = (contracted_rt*) funcctx->user_fctx;
+    result_tuples = (contraction_hierarchies_rt*) funcctx->user_fctx;
 
     if (funcctx->call_cntr < funcctx->max_calls) {
         HeapTuple   tuple;
@@ -196,6 +186,8 @@ _pgr_contraction(PG_FUNCTION_ARGS) {
         values[3] = Int64GetDatum(result_tuples[call_cntr].source);
         values[4] = Int64GetDatum(result_tuples[call_cntr].target);
         values[5] = Float8GetDatum(result_tuples[call_cntr].cost);
+        values[6] = Int64GetDatum(result_tuples[call_cntr].vertex_order);
+        values[7] = Int64GetDatum(result_tuples[call_cntr].metric);
 
         tuple = heap_form_tuple(tuple_desc, values, nulls);
         result = HeapTupleGetDatum(tuple);

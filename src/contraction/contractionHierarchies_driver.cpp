@@ -1,13 +1,13 @@
 /*PGR-GNU*****************************************************************
-File: contractGraph_driver.cpp
+File: contractionHierarchies_driver.cpp
 
 Generated with Template by:
 Copyright (c) 2015 pgRouting developers
 Mail: project@pgrouting.org
 
 Function's developer:
-Copyright (c) 2016 Rohith Reddy
-Mail:
+Copyright (c) Aurélie Bousquet - 2024
+Mail: aurelie.bousquet at oslandia.com
 
 ------
 
@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
  ********************************************************************PGR-GNU*/
 
-#include "drivers/contraction/contractGraph_driver.h"
+#include "drivers/contraction/contractionHierarchies_driver.h"
 
 #include <string>
 #include <sstream>
@@ -37,28 +37,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include "cpp_common/pgdata_getters.hpp"
 #include "contraction/ch_graphs.hpp"
-#include "contraction/contract.hpp"
+#include "contraction/contractionHierarchies.hpp"
 
-#include "c_types/contracted_rt.h"
+#include "c_types/contraction_hierarchies_rt.h"
 #include "cpp_common/identifiers.hpp"
 #include "cpp_common/alloc.hpp"
 
 namespace {
-
-/*! @brief vertices with at least one contracted vertex
-
-  @result The vids Identifiers with at least one contracted vertex
-*/
-template <typename G>
-pgrouting::Identifiers<int64_t> get_modified_vertices(const G& graph) {
-    pgrouting::Identifiers<int64_t> vids;
-    for (auto v : boost::make_iterator_range(boost::vertices(graph.graph))) {
-        if (graph[v].has_contracted_vertices()) {
-            vids += graph[v].id;
-        }
-    }
-    return vids;
-}
 
 /*! @brief vertices with at least one contracted vertex
 
@@ -82,15 +67,12 @@ std::vector<typename G::E> get_shortcuts(const G& graph) {
     return o_eids;
 }
 
-
 template <typename G>
-void process_contraction(
+void perform(
         G &graph,
-        const std::vector< Edge_t > &edges,
         const std::vector< int64_t > &forbidden_vertices,
-        const std::vector< int64_t > &contraction_order,
-        int64_t max_cycles) {
-    graph.insert_edges(edges);
+        std::ostringstream &log,
+        std::ostringstream &err) {
     pgrouting::Identifiers<typename G::V> forbid_vertices;
     for (const auto &vertex : forbidden_vertices) {
         if (graph.has_vertex(vertex)) {
@@ -98,25 +80,41 @@ void process_contraction(
         }
     }
 
+    graph.setForbiddenVertices(forbid_vertices);
+    pgrouting::contraction::Pgr_contractionsHierarchy<G> hierarchyContractor;
+
+    try {
+        hierarchyContractor.do_contraction(graph, log, err);
+    }
+    catch ( ... ) {
+        err << "Contractions hierarchy failed" << std::endl;
+        throw;
+    }
+}
+
+template <typename G>
+void process_contraction(
+        G &graph,
+        const std::vector< Edge_t > &edges,
+        const std::vector< int64_t > &forbidden_vertices,
+        std::ostringstream &log,
+        std::ostringstream &err) {
+    graph.insert_edges(edges);
+
     /*
      * Function call to get the contracted graph.
      */
-    using Contract = pgrouting::contraction::Pgr_contract<G>;
-    Contract result(
-            graph,
-            forbid_vertices,
-            contraction_order,
-            max_cycles);
+    perform(graph, forbidden_vertices, log, err);
 }
 
 template <typename G>
 void get_postgres_result(
         G &graph,
-        contracted_rt **return_tuples,
+        contraction_hierarchies_rt **return_tuples,
         size_t *count) {
     using pgrouting::pgr_alloc;
-    auto modified_vertices(get_modified_vertices(graph));
-    auto shortcut_edges(get_shortcuts(graph));
+    auto modified_vertices(graph.get_modified_vertices());
+    auto shortcut_edges(graph.get_shortcuts());
 
     (*count) = modified_vertices.size() + shortcut_edges.size();
     (*return_tuples) = pgr_alloc((*count), (*return_tuples));
@@ -126,6 +124,8 @@ void get_postgres_result(
         auto v = graph.get_V(id);
         int64_t* contracted_vertices = NULL;
         auto vids = graph[v].contracted_vertices();
+        int64_t o = graph.get_vertex_order(id);
+        int64_t m = graph.get_vertex_metric(id);
 
         contracted_vertices = pgr_alloc(vids.size(), contracted_vertices);
 
@@ -138,7 +138,8 @@ void get_postgres_result(
             const_cast<char*>("v"),
             -1, -1, -1.00,
             contracted_vertices,
-            count};
+            count,
+            o, m};
 
         ++sequence;
     }
@@ -147,7 +148,6 @@ void get_postgres_result(
     for (auto e : shortcut_edges) {
         auto edge = graph[e];
         int64_t* contracted_vertices = NULL;
-
         const auto vids(edge.contracted_vertices());
         pgassert(!vids.empty());
 
@@ -160,7 +160,7 @@ void get_postgres_result(
             --eid,
             const_cast<char*>("e"),
             edge.source, edge.target, edge.cost,
-            contracted_vertices, count};
+            contracted_vertices, count, -1, -1};
         ++sequence;
     }
 }
@@ -170,15 +170,11 @@ void get_postgres_result(
 
 
 void
-pgr_do_contractGraph(
+pgr_do_contractionHierarchies(
         char *edges_sql,
-
         ArrayType* forbidden,
-        ArrayType* order,
-
-        int64_t max_cycles,
         bool directed,
-        contracted_rt **return_tuples,
+        contraction_hierarchies_rt **return_tuples,
         size_t *return_count,
         char **log_msg,
         char **notice_msg,
@@ -195,7 +191,6 @@ pgr_do_contractGraph(
     char *hint = nullptr;
 
     try {
-        pgassert(max_cycles != 0);
         pgassert(!(*log_msg));
         pgassert(!(*notice_msg));
         pgassert(!(*err_msg));
@@ -212,25 +207,12 @@ pgr_do_contractGraph(
         hint = nullptr;
 
         auto forbid = get_intArray(forbidden, true);
-        auto ordering = get_intArray(order, false);
-
-        for (const auto kind : ordering) {
-            if (!pgrouting::contraction::is_valid_contraction(static_cast<int>(kind))) {
-                *err_msg = pgr_msg("Invalid contraction type found");
-                log << "Contraction type " << kind << " not valid";
-                *log_msg = pgr_msg(log.str().c_str());
-                return;
-            }
-        }
-
-
 
         if (directed) {
             using DirectedGraph = pgrouting::graph::CHDirectedGraph;
             DirectedGraph digraph;
 
-            process_contraction(digraph, edges, forbid, ordering,
-                    max_cycles);
+            process_contraction(digraph, edges, forbid, log, err);
 
             get_postgres_result(
                     digraph,
@@ -239,8 +221,7 @@ pgr_do_contractGraph(
         } else {
             using UndirectedGraph = pgrouting::graph::CHUndirectedGraph;
             UndirectedGraph undigraph;
-            process_contraction(undigraph, edges, forbid, ordering,
-                    max_cycles);
+            process_contraction(undigraph, edges, forbid, log, err);
 
             get_postgres_result(
                     undigraph,

@@ -5,9 +5,8 @@ Copyright (c) 2015 pgRouting developers
 Mail: project@pgrouting.org
 
 Function's developer:
-Copyright (c) 2016 Rohith Reddy
-Mail:
-
+Copyright (c) Aurélie Bousquet - 2024
+Mail: aurelie.bousquet at oslandia.com
 ------
 
 This program is free software; you can redistribute it and/or modify
@@ -26,8 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
  ********************************************************************PGR-GNU*/
 
-#ifndef INCLUDE_DRIVERS_CONTRACTION_CONTRACTGRAPH_DRIVER_H_
-#define INCLUDE_DRIVERS_CONTRACTION_CONTRACTGRAPH_DRIVER_H_
+#ifndef INCLUDE_DRIVERS_CONTRACTION_CONTRACTIONHIERARCHIES_DRIVER_H_
+#define INCLUDE_DRIVERS_CONTRACTION_CONTRACTIONHIERARCHIES_DRIVER_H_
 #pragma once
 
 #ifdef __cplusplus
@@ -46,11 +45,11 @@ extern "C" {
 #ifdef __cplusplus
 #   include <cstdint>
 #   include <cstddef>
-using contracted_rt = struct contracted_rt;
+using contraction_hierarchies_rt = struct contraction_hierarchies_rt;
 #else
 #   include <stdint.h>
 #   include <stddef.h>
-typedef struct contracted_rt contracted_rt;
+typedef struct contraction_hierarchies_rt contraction_hierarchies_rt;
 #endif
 
 
@@ -58,17 +57,17 @@ typedef struct contracted_rt contracted_rt;
 extern "C" {
 #endif
 
-void pgr_do_contractGraph(
+void pgr_do_contractionHierarchies(
         char*,
-        ArrayType*, ArrayType*,
-
-        int64_t, bool,
-
-        contracted_rt**, size_t*,
-        char**, char**, char**);
-
+        ArrayType*,
+        bool,
+        contraction_hierarchies_rt**,
+        size_t*,
+        char**,
+        char**,
+        char**);
 #ifdef __cplusplus
 }
 #endif
 
-#endif  // INCLUDE_DRIVERS_CONTRACTION_CONTRACTGRAPH_DRIVER_H_
+#endif  // INCLUDE_DRIVERS_CONTRACTION_CONTRACTIONHIERARCHIES_DRIVER_H_
