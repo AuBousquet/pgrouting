@@ -14,7 +14,6 @@ if(POLICY CMP0167)
     cmake_policy(SET CMP0167 OLD)
 endif()
 
-cmake_policy(SET CMP0148 OLD)
 
 #---------------------------------------------
 # Setting kind of build
