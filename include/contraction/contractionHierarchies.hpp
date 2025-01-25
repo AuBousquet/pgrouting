@@ -93,8 +93,8 @@ class Pgr_contractionsHierarchy : public Pgr_messages {
         return p_max;
     }
 
-    /*! 
-    @brief contracts vertex *v* 
+    /*!
+    @brief contracts vertex *v*
     @param [in] G graph
     @param [in] v vertex_descriptor
     @param [in] log log output
@@ -189,7 +189,7 @@ class Pgr_contractionsHierarchy : public Pgr_messages {
                 .visitor(pgrouting::visitors::dijkstra_max_distance_visitor<V>(
                     p_max, distances, reached_vertices_ids, log)));
             }
-            catch ( pgrouting::max_dist_reached & ) {
+            catch ( pgrouting::found_goals & ) {
                 log << "    PgRouting exception during labelling!"
                     << std::endl;
                 log << "    >>> Labelling interrupted"
