@@ -40,14 +40,14 @@ used to find point to point paths. In this way, it decreases the total time and
 space used by shortest path algorithms.
 
 This implementation allows the user to forbid contraction of a set of nodes.
-The process is done on edges with positive costs. 
+The process is done on edges with positive costs.
 
 As for ``pgr_contraction`` method, it does not return the full
 contracted graph, only the changes: added shortcut edges and contracted nodes.
 Furthermore, the returned values are ordered as follows:
 
-  - column ``id`` ascending when type is ``v`` (vertex);
-  - column ``id`` descending when type is ``e`` (edge).
+- column ``id`` ascending when type is ``v`` (vertex);
+- column ``id`` descending when type is ``e`` (edge).
 
 
 Signatures

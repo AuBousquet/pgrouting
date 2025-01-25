@@ -94,6 +94,12 @@ Experimental Functions
    :start-after: experimental-start
    :end-before: experimental-end
 
+:doc:`contraction-family`
+
+.. include:: contraction-family.rst
+   :start-after: experimental-start
+   :end-before: experimental-end
+
 .. toctree::
    :hidden:
 
