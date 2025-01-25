@@ -47,6 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "cpp_common/messages.hpp"
 #include "cpp_common/identifiers.hpp"
 #include "cpp_common/interruption.hpp"
+#include "cpp_common/ch_edge.hpp"
 
 #include "c_common/e_report.h"
 
