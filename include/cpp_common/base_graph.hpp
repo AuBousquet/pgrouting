@@ -628,6 +628,11 @@ class Pgr_base_graph {
          boost::remove_edge(u, v, graph);
      }
 
+     void remove_edge(V u, V v) {
+         boost::remove_edge(u, v, graph);
+     }
+
+
      /** @brief Disconnects the outgoing edges of a vertex
 
        - No edge is disconnected if it doesn't exist in the graph

@@ -138,10 +138,14 @@ class Pgr_contractionsHierarchy : public Pgr_messages {
                 err);
         }
         if (!simulation) {
-            for (auto &w : adjacent_out_vertices)
-                boost::remove_edge(v, w, graph.graph);
-            for (auto &u : graph.find_adjacent_in_vertices(v))
-                boost::remove_edge(u, v, graph.graph);
+            for (auto &w : adjacent_out_vertices) {
+                graph.remove_edge(v, w);
+            }
+
+            for (auto &u : graph.find_adjacent_in_vertices(v)) {
+                graph.remove_edge(v, u);
+            }
+
             graph[v].clear_contracted_vertices();
 
             log << "  Size of the graph after contraction: "
