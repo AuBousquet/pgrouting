@@ -69,7 +69,7 @@ class dijkstra_max_distance_visitor: public boost::default_dijkstra_visitor {
         template <class B_G>
         void examine_vertex(V u, B_G &g) {
             if (m_dist[u] > m_distance_goal) {
-                throw max_dist_reached();
+                throw found_goals();
             }
             m_reached_vertices_ids.insert(g[u].id);
         }

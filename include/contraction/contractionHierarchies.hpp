@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <string>
 #include <utility>
 
+#include <boost/range/iterator_range.hpp>
 #include <boost/graph/iteration_macros.hpp>
 #include <boost/graph/filtered_graph.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
@@ -47,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "cpp_common/messages.hpp"
 #include "cpp_common/identifiers.hpp"
 #include "cpp_common/interruption.hpp"
+#include "cpp_common/ch_edge.hpp"
 
 #include "c_common/e_report.h"
 
@@ -93,8 +95,8 @@ class Pgr_contractionsHierarchy : public Pgr_messages {
         return p_max;
     }
 
-    /*! 
-    @brief contracts vertex *v* 
+    /*!
+    @brief contracts vertex *v*
     @param [in] G graph
     @param [in] v vertex_descriptor
     @param [in] log log output
@@ -136,10 +138,14 @@ class Pgr_contractionsHierarchy : public Pgr_messages {
                 err);
         }
         if (!simulation) {
-            for (auto &w : adjacent_out_vertices)
-                boost::remove_edge(v, w, graph.graph);
-            for (auto &u : graph.find_adjacent_in_vertices(v))
-                boost::remove_edge(u, v, graph.graph);
+            for (auto &w : adjacent_out_vertices) {
+                graph.remove_edge(v, w);
+            }
+
+            for (auto &u : graph.find_adjacent_in_vertices(v)) {
+                graph.remove_edge(v, u);
+            }
+
             graph[v].clear_contracted_vertices();
 
             log << "  Size of the graph after contraction: "
@@ -189,7 +195,7 @@ class Pgr_contractionsHierarchy : public Pgr_messages {
                 .visitor(pgrouting::visitors::dijkstra_max_distance_visitor<V>(
                     p_max, distances, reached_vertices_ids, log)));
             }
-            catch ( pgrouting::max_dist_reached & ) {
+            catch ( pgrouting::found_goals & ) {
                 log << "    PgRouting exception during labelling!"
                     << std::endl;
                 log << "    >>> Labelling interrupted"
