@@ -131,3 +131,34 @@ A Pull Request (PR) corresponding to a new functionnality has about 6 or 7 commi
 - `include`;
 - `src`;
 - `tools`.
+
+### Which tools should you apply to your code before submitting it to the review?
+
+#### Linter
+You should first use `cpplinter` to lint your code. 
+
+
+#### Update signatures
+
+```shell
+bash tools/release-scripts/get_signatures.sh 
+```
+
+#### Update news
+
+Update file `doc/src/release_notes.rst` with information about your modifications. 
+
+Then execute the following `perl` script:
+
+```shell
+perl tools/release-scripts/notes2news.pl
+```
+
+#### 
+
+
+
+
+
+
+
