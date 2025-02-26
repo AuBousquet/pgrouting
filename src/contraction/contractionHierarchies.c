@@ -126,7 +126,7 @@ _pgr_contraction_hierarchies(PG_FUNCTION_ARGS) {
         int16 typlen;
         size_t      call_cntr = funcctx->call_cntr;
 
-        size_t numb = 6;
+        size_t numb = 8;
         values =(Datum *)palloc(numb * sizeof(Datum));
         nulls = palloc(numb * sizeof(bool));
         size_t i;
