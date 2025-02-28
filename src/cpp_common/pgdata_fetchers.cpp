@@ -283,6 +283,18 @@ IID_t_rt pgr_fetch_row(
     return distance;
 }
 
+OrderedVertex_t fetch_ordered_vertices(
+    const HeapTuple tuple,
+    const TupleDesc &tupdesc,
+    const std::vector<Column_info_t> &info,
+    int64_t *,
+    size_t *,
+    bool) {
+    OrderedVertex_t ordered_vertex;
+    ordered_vertex.id = getBigInt(tuple, tupdesc, info[0]);
+    ordered_vertex.order = getBigInt(tuple, tupdesc, info[1]);
+    return ordered_vertex;
+}
 
 Orders_t fetch_orders(
         const HeapTuple tuple,

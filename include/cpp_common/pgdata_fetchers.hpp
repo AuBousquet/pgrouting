@@ -45,6 +45,7 @@ extern "C" {
 }
 
 #include <vector>
+#include <utility>
 #include <cstdint>
 
 #include "cpp_common/undefPostgresDefine.hpp"
@@ -57,6 +58,7 @@ extern "C" {
 #include "cpp_common/costFlow_t.hpp"
 #include "cpp_common/edge_xy_t.hpp"
 #include "cpp_common/edge_t.hpp"
+#include "cpp_common/orderedVertex_t.hpp"
 #include "c_types/iid_t_rt.h"
 #include "cpp_common/orders_t.hpp"
 #include "cpp_common/restriction_t.hpp"
@@ -102,6 +104,11 @@ CostFlow_t fetch_costFlow_edge(
         int64_t*, size_t*, bool);
 
 IID_t_rt pgr_fetch_row(
+        const HeapTuple, const TupleDesc &,
+        const std::vector<Column_info_t> &,
+        int64_t*, size_t*, bool);
+
+OrderedVertex_t fetch_ordered_vertices(
         const HeapTuple, const TupleDesc &,
         const std::vector<Column_info_t> &,
         int64_t*, size_t*, bool);
