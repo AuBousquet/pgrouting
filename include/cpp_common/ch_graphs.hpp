@@ -27,8 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
  ********************************************************************PGR-GNU*/
 
-#ifndef INCLUDE_CONTRACTION_CH_GRAPHS_HPP_
-#define INCLUDE_CONTRACTION_CH_GRAPHS_HPP_
+#ifndef INCLUDE_COMMON_CH_GRAPHS_HPP_
+#define INCLUDE_COMMON_CH_GRAPHS_HPP_
 #pragma once
 
 
@@ -36,10 +36,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <algorithm>
 #include <vector>
 
-#include "contraction/contractionGraph.hpp"
 #include "cpp_common/base_graph.hpp"
 #include "cpp_common/ch_vertex.hpp"
 #include "cpp_common/ch_edge.hpp"
+#include "cpp_common/contractionGraph.hpp"
 
 
 namespace pgrouting {
@@ -64,4 +64,4 @@ using CHDirectedGraph = Pgr_contractionGraph<
 }  // namespace graph
 }  // namespace pgrouting
 
-#endif  // INCLUDE_CONTRACTION_CH_GRAPHS_HPP_
+#endif  // INCLUDE_COMMON_CH_GRAPHS_HPP_

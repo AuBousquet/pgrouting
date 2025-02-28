@@ -27,8 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
  ********************************************************************PGR-GNU*/
 
-#ifndef INCLUDE_CONTRACTION_CONTRACTIONGRAPH_HPP_
-#define INCLUDE_CONTRACTION_CONTRACTIONGRAPH_HPP_
+#ifndef INCLUDE_COMMON_CONTRACTIONGRAPH_HPP_
+#define INCLUDE_COMMON_CONTRACTIONGRAPH_HPP_
 #pragma once
 
 #include <limits>
@@ -555,4 +555,4 @@ class Pgr_contractionGraph : public Pgr_base_graph<G, CH_vertex, CH_edge, t_dire
 }  // namespace graph
 }  // namespace pgrouting
 
-#endif  // INCLUDE_CONTRACTION_CONTRACTIONGRAPH_HPP_
+#endif  // INCLUDE_COMMON_CONTRACTIONGRAPH_HPP_
