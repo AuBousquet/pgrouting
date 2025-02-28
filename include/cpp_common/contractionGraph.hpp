@@ -113,6 +113,12 @@ class Pgr_contractionGraph :
         return (this->graph[this->vertices_map[vertex_id]]).vertex_order;
     }
 
+    void set_vertices_order(
+        std::vector< std::pair<int64_t, int64_t> > vertices) {
+        for (const auto &v : vertices) {
+            this->graph[this->vertices_map[v.first]].set_order(v.second);
+        }
+    }
     /*!
         @brief defines the metric and hierarchy at the level of the nodes, from a given priority queue
         @param [in] PQ priority_queue
