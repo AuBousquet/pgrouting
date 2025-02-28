@@ -4,7 +4,7 @@ Copyright (c) 2017 pgRouting developers
 Mail: project@pgrouting.org
 
 Function's developer:
-Copyright (c) Aurélie Bousquet - 2024
+Copyright (c) Aurélie Bousquet - 2025
 Mail: aurelie.bousquet at oslandia.com
 
 ------

@@ -6,7 +6,7 @@ Copyright (c) 2015 pgRouting developers
 Mail: project@pgrouting.org
 
 Function's developer:
-Copyright (c) Aurélie Bousquet - 2024
+Copyright (c) Aurélie Bousquet - 2025
 Mail: aurelie.bousquet at oslandia.com
 
 ------
@@ -43,7 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "cpp_common/alloc.hpp"
 #include "cpp_common/assert.hpp"
 #include "cpp_common/base_graph.hpp"
-#include "bdDijkstra/hbdDijkstra.hpp"
+#include "hbdDijkstra/hbdDijkstra.hpp"
 
 #include "c_types/ii_t_rt.h"
 
