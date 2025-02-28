@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -----------------------------
 
 --v2.6
-CREATE FUNCTION pgr_hbdDijkstraCostMatrix(
+CREATE FUNCTION pgr_hbd_dijkstra_cost_matrix(
     TEXT,     -- edges_sql (required)
     ANYARRAY, -- vids (required)
 
@@ -42,7 +42,7 @@ CREATE FUNCTION pgr_hbdDijkstraCostMatrix(
 RETURNS SETOF RECORD AS
 $BODY$
     SELECT a.start_vid, a.end_vid, a.agg_cost
-    FROM _pgr_hbdDijkstra(_pgr_get_statement($1), $2::BIGINT[], $2::BIGINT[], $3, true) a;
+    FROM _pgr_hbd_dijkstra(_pgr_get_statement($1), $2::BIGINT[], $2::BIGINT[], $3, true) a;
 $BODY$
 LANGUAGE SQL VOLATILE
 COST 100
@@ -50,13 +50,13 @@ ROWS 1000;
 
 -- COMMENT
 
-COMMENT ON FUNCTION pgr_hbdDijkstraCostMatrix(TEXT, ANYARRAY, BOOLEAN)
-IS 'pgr_hbdDijkstraCostMatrix
+COMMENT ON FUNCTION pgr_hbd_dijkstra_cost_matrix(TEXT, ANYARRAY, BOOLEAN)
+IS 'pgr_hbd_dijkstra_cost_matrix
 - Parameters:
     - Edges SQL with columns: id, source, target, cost [,reverse_cost]
     - ARRAY [vertices identifiers]
 - Optional Parameters
     - directed := true
 - Documentation:
-    - ${PROJECT_DOC_LINK}/pgr_hbdDijkstraCostMatrix.html
+    - ${PROJECT_DOC_LINK}/pgr_hbd_dijkstra_cost_matrix.html
 ';

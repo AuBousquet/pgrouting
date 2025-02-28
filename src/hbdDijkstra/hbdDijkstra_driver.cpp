@@ -52,8 +52,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 namespace {
 
 template < class G >
-std::deque<pgrouting::Path>
-pgr_hbdDijkstra(
+std::deque<pgrouting::Path> pgr_hbd_dijkstra(
         G &graph,
         const std::map<int64_t, std::set<int64_t>> &combinations,
         bool only_cost) {
@@ -68,9 +67,12 @@ pgr_hbdDijkstra(
 
         for (const auto &target : comb.second) {
             if (!graph.has_vertex(target)) continue;
-            fn_bdDijkstra.clear();
+            fn_hbdDijkstra.clear();
 
-            paths.push_back(fn_bdDijkstra.pgr_hbdDijkstra(graph.get_V(source), graph.get_V(target), only_cost));
+            paths.push_back(fn_hbdDijkstra.pgr_hbdDijkstra(
+                graph.get_V(source),
+                graph.get_V(target),
+                only_cost));
         }
     }
     return paths;
@@ -121,8 +123,6 @@ pgr_do_hbdDijkstra(
             return;
         }
 
-
-
         hint = edges_sql;
         auto edges = pgrouting::pgget::get_edges(std::string(edges_sql), true, false);
 
@@ -138,11 +138,11 @@ pgr_do_hbdDijkstra(
         if (directed) {
             pgrouting::DirectedGraph graph;
             graph.insert_edges(edges);
-            paths = pgr_hbdDijkstra(graph, combinations, only_cost);
+            paths = pgr_hbd_dijkstra(graph, combinations, only_cost);
         } else {
             pgrouting::UndirectedGraph graph;
             graph.insert_edges(edges);
-            paths = pgr_hbdDijkstra(graph, combinations, only_cost);
+            paths = pgr_hbd_dijkstra(graph, combinations, only_cost);
         }
 
         auto count = count_tuples(paths);

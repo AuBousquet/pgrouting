@@ -27,101 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
 ----------------------
--- pgr_hbdDijkstraCost
+-- pgr_hbd_dijkstra_cost
 ----------------------
 
-
--- ONE TO ONE
---v2.6
-CREATE FUNCTION pgr_hbdDijkstraCost(
-    TEXT,   -- edges_sql (required)
-    BIGINT, -- from_vid (required)
-    BIGINT, -- to_vid (required)
-
-    directed BOOLEAN DEFAULT true,
-
-    OUT start_vid BIGINT,
-    OUT end_vid BIGINT,
-    OUT agg_cost FLOAT)
-RETURNS SETOF RECORD AS
-$BODY$
-    SELECT a.start_vid, a.end_vid, a.agg_cost
-    FROM _pgr_hbdDijkstra(_pgr_get_statement($1), ARRAY[$2]::BIGINT[], ARRAY[$3]::BIGINT[], $4, true) AS a;
-$BODY$
-LANGUAGE sql VOLATILE STRICT
-COST 100
-ROWS 1000;
-
-
--- ONE TO MANY
---v2.6
-CREATE FUNCTION pgr_hbdDijkstraCost(
-    TEXT,     -- edges_sql (required)
-    BIGINT,   -- from_vid (required)
-    ANYARRAY, -- to_vids (required)
-
-    directed BOOLEAN DEFAULT true,
-
-    OUT start_vid BIGINT,
-    OUT end_vid BIGINT,
-    OUT agg_cost FLOAT)
-RETURNS SETOF RECORD AS
-$BODY$
-    SELECT a.start_vid, a.end_vid, a.agg_cost
-    FROM _pgr_hbdDijkstra(_pgr_get_statement($1), ARRAY[$2]::BIGINT[], $3::BIGINT[], $4, true) as a;
-$BODY$
-LANGUAGE sql VOLATILE STRICT
-COST 100
-ROWS 1000;
-
-
--- MANY TO ONE
---v2.6
-CREATE FUNCTION pgr_hbdDijkstraCost(
-    TEXT,     -- edges_sql (required)
-    ANYARRAY, -- from_vids (required)
-    BIGINT,   -- to_vid (required)
-
-    directed BOOLEAN DEFAULT true,
-
-    OUT start_vid BIGINT,
-    OUT end_vid BIGINT,
-    OUT agg_cost FLOAT)
-RETURNS SETOF RECORD AS
-$BODY$
-    SELECT a.start_vid, a.end_vid, a.agg_cost
-    FROM _pgr_hbdDijkstra(_pgr_get_statement($1), $2::BIGINT[], ARRAY[$3]::BIGINT[], $4, true) as a;
-$BODY$
-LANGUAGE sql VOLATILE STRICT
-COST 100
-ROWS 1000;
-
-
--- MANY TO MANY
---v2.6
-CREATE FUNCTION pgr_hbdDijkstraCost(
-    TEXT,     -- edges_sql (required)
-    ANYARRAY, -- from_vids (required)
-    ANYARRAY, -- to_vids (required)
-
-    directed BOOLEAN DEFAULT true,
-
-    OUT start_vid BIGINT,
-    OUT end_vid BIGINT,
-    OUT agg_cost FLOAT)
-RETURNS SETOF RECORD AS
-$BODY$
-    SELECT a.start_vid, a.end_vid, a.agg_cost
-    FROM _pgr_hbdDijkstra(_pgr_get_statement($1), $2::BIGINT[], $3::BIGINT[], directed, true) as a;
-$BODY$
-LANGUAGE SQL VOLATILE STRICT
-COST 100
-ROWS 1000;
-
-
--- COMBINATIONS
---v3.2
-CREATE FUNCTION pgr_hbdDijkstraCost(
+--v4.0
+CREATE FUNCTION pgr_hbd_dijkstra_cost(
     TEXT,     -- edges_sql (required)
     TEXT,     -- combinations_sql (required)
 
@@ -133,7 +43,7 @@ CREATE FUNCTION pgr_hbdDijkstraCost(
 RETURNS SETOF RECORD AS
 $BODY$
     SELECT a.start_vid, a.end_vid, a.agg_cost
-    FROM _pgr_hbdDijkstra(_pgr_get_statement($1), _pgr_get_statement($2), directed, true) as a;
+    FROM _pgr_hbd_dijkstra_cost(_pgr_get_statement($1), _pgr_get_statement($2), directed, true) as a;
 $BODY$
 LANGUAGE SQL VOLATILE STRICT
 COST 100
@@ -141,65 +51,13 @@ ROWS 1000;
 
 
 -- COMMENTS
-
-COMMENT ON FUNCTION pgr_hbdDijkstraCost(TEXT, BIGINT, BIGINT, BOOLEAN)
-IS 'pgr_bdDijkstraCost(One to One)
-- Parameters:
-  - Edges SQL with columns: id, source, target, cost [,reverse_cost]
-  - From vertex identifier
-  - To vertex identifier
-- Optional Parameters
-  - directed := true
-- Documentation:
-  - ${PROJECT_DOC_LINK}/pgr_hbdDijkstraCost.html
-';
-
-
-COMMENT ON FUNCTION pgr_hbdDijkstraCost(TEXT, BIGINT, ANYARRAY, BOOLEAN)
-IS 'pgr_bdDijkstraCost(One to Many)
-- Parameters:
-  - Edges SQL with columns: id, source, target, cost [,reverse_cost]
-  - From vertex identifier
-  - To ARRAY[vertices identifiers]
-- Optional Parameters
-  - directed := true
-- Documentation:
-  - ${PROJECT_DOC_LINK}/pgr_hbdDijkstraCost.html
-';
-
-
-COMMENT ON FUNCTION pgr_hbdDijkstraCost(TEXT, ANYARRAY, BIGINT, BOOLEAN)
-IS 'pgr_bdDijkstraCost(Many to One)
-- Parameters:
-  - Edges SQL with columns: id, source, target, cost [,reverse_cost]
-  - From ARRAY[vertices identifiers]
-  - To vertex identifier
-- Optional Parameters
-  - directed := true
-- Documentation:
-  - ${PROJECT_DOC_LINK}/pgr_hbdDijkstraCost.html
-';
-
-
-COMMENT ON FUNCTION pgr_hbdDijkstraCost(TEXT, ANYARRAY, ANYARRAY, BOOLEAN)
-IS 'pgr_bdDijkstraCost(Many to Many)
-- Parameters:
-  - Edges SQL with columns: id, source, target, cost [,reverse_cost]
-  - From ARRAY[vertices identifiers]
-  - To ARRAY[vertices identifiers]
-- Optional Parameters
-  - directed := true
-- Documentation:
-  - ${PROJECT_DOC_LINK}/pgr_hbdDijkstraCost.html
-';
-
-COMMENT ON FUNCTION pgr_hbdDijkstraCost(TEXT, TEXT, BOOLEAN)
-IS 'pgr_bdDijkstraCost(Combinations)
+COMMENT ON FUNCTION pgr_hbd_dijkstra_cost(TEXT, TEXT, BOOLEAN)
+IS 'pgr_hbd_dijkstra_cost(Combinations)
 - Parameters:
   - Edges SQL with columns: id, source, target, cost [,reverse_cost]
   - Combinations SQL with columns: source, target
 - Optional Parameters
   - directed := true
 - Documentation:
-  - ${PROJECT_DOC_LINK}/pgr_hbdDijkstraCost.html
+  - ${PROJECT_DOC_LINK}/pgr_hbd_dijkstra_cost.html
 ';
