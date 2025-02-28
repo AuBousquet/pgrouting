@@ -53,6 +53,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "cpp_common/costFlow_t.hpp"
 #include "cpp_common/edge_xy_t.hpp"
 #include "cpp_common/edge_t.hpp"
+#include "cpp_common/orderedVertex_t.hpp"
 #include "c_types/iid_t_rt.h"
 #include "cpp_common/orders_t.hpp"
 #include "cpp_common/restriction_t.hpp"
@@ -99,6 +100,9 @@ std::vector<IID_t_rt> get_matrixRows(const std::string&);
 
 /** @brief Reads the pick-Deliver orders */
 std::vector<Orders_t> get_orders(const std::string&, bool);
+
+/** @brief Read ordered vertices */
+std::vector<OrderedVertex_t> get_ordered_vertices(const std::string&);
 
 /** @brief Read rows of points */
 std::vector<Point_on_edge_t> get_points(const std::string&);
