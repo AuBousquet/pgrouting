@@ -35,9 +35,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <vector>
 #include <algorithm>
 
+#include "cpp_common/ch_graphs.hpp"
 #include "cpp_common/pgdata_getters.hpp"
 #include "cpp_common/to_postgres.hpp"
-#include "contraction/ch_graphs.hpp"
 #include "contraction/contractionHierarchies.hpp"
 
 #include "c_types/contraction_hierarchies_rt.h"
