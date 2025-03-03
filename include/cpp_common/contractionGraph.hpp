@@ -187,40 +187,41 @@ class Pgr_contractionGraph
     return adjacent_vertices;
   }
 
-  /*!
-      @brief get the vertex descriptors of adjacent upward vertices of *v*
-      @param [in] v vertex_descriptor
-      @return Identifiers<V>: The set of upward vertex descriptors adjacent to
-     the given vertex *v*
-  */
-  Identifiers<V> find_adjacent_up_vertices(V v) const {
-    Identifiers<V> adjacent_vertices;
+    /*!
+        @brief get the vertex descriptors of adjacent upward vertices of *v*
+        @param [in] v vertex_descriptor
+        @return Identifiers<V>: The set of upward vertex descriptors adjacent to
+        the given vertex *v*
+    */
+    Identifiers<V> find_adjacent_up_vertices(V v) const {
+        Identifiers<V> adjacent_vertices;
 
-    for (const auto &out :
-         boost::make_iterator_range(out_edges(v, this->graph)))
-      if ((this->graph[v]).vertex_order <= (this->graph[out].vertex_order)) {
-        adjacent_vertices += this->adjacent(v, out);
-      }
+        for (const auto &out :
+            boost::make_iterator_range(out_edges(v, this->graph)))
+        if ((this->graph[v]).vertex_order <= (this->graph[out].vertex_order)) {
+            adjacent_vertices += this->adjacent(v, out);
+        }
 
-    return adjacent_vertices;
-  }
+        return adjacent_vertices;
+    }
 
-  /*!
-      @brief get the vertex descriptors of adjacent backward vertices of *v*
-      @param [in] v vertex_descriptor
-      @return Identifiers<V>: The set of backward vertex descriptors adjacent to
-     the given vertex *v*
-  */
-  Identifiers<V> find_adjacent_back_vertices(V v) const {
-    Identifiers<V> adjacent_vertices;
+    /*!
+        @brief get the vertex descriptors of adjacent backward vertices of *v*
+        @param [in] v vertex_descriptor
+        @return Identifiers<V>: The set of backward vertex descriptors adjacent to
+        the given vertex *v*
+    */
+    Identifiers<V> find_adjacent_back_vertices(V v) const {
+        Identifiers<V> adjacent_vertices;
 
-    for (const auto &in : boost::make_iterator_range(in_edges(v, this->graph)))
-      if ((this->graph[v]).vertex_order >= (this->graph[out].vertex_order)) {
-        adjacent_vertices += this->adjacent(v, in);
-      }
+        for (const auto &in :
+            boost::make_iterator_range(in_edges(v, this->graph)))
+        if ((this->graph[v]).vertex_order >= (this->graph[in].vertex_order)) {
+            adjacent_vertices += this->adjacent(v, in);
+        }
 
-    return adjacent_vertices;
-  }
+        return adjacent_vertices;
+    }
 
   /*! @brief vertices with at least one contracted vertex
       @result The vids Identifiers with at least one contracted vertex
