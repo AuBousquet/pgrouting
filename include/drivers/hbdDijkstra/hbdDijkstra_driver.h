@@ -59,7 +59,8 @@ typedef struct Path_rt Path_rt;
 extern "C" {
 #endif
 
-void pgr_do_hbdDijkstra(
+void pgr_hbd_dijkstra(
+        char*,
         char*,
         char*,
         ArrayType*, ArrayType*,

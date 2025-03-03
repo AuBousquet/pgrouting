@@ -26,114 +26,123 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
  ********************************************************************PGR-GNU*/
 
+
 #ifndef INCLUDE_HBDDIJKSTRA_HBDDIJKSTRA_HPP_
 #define INCLUDE_HBDDIJKSTRA_HBDDIJKSTRA_HPP_
 #pragma once
 
-#include <functional>
-#include <limits>
-#include <queue>
 #include <string>
+#include <queue>
 #include <utility>
 #include <vector>
+#include <limits>
+#include <functional>
 
-#include "cpp_common/basePath_SSEC.hpp"
 #include "cpp_common/bidirectional.hpp"
-#include "cpp_common/contractionGraph.hpp"
+#include "cpp_common/basePath_SSEC.hpp"
 
 namespace pgrouting {
 namespace bidirectional {
 
-class Pgr_hbdDijkstra : public Pgr_bidirectional<Pgr_contractionGraph> {
-  using V = typename Pgr_bidirectional<Pgr_contractionGraph>::V;
-  using E = typename Pgr_bidirectional<Pgr_contractionGraph>::E;
-  using Cost_Vertex_pair =
-      typename Pgr_bidirectional<Pgr_contractionGraph>::Cost_Vertex_pair;
+template < typename G >
+class Pgr_hbdDijkstra : public Pgr_bidirectional<G> {
+    typedef typename Pgr_bidirectional<G>::V V;
+    typedef typename Pgr_bidirectional<G>::E E;
+    typedef typename Pgr_bidirectional<G>::Cost_Vertex_pair Cost_Vertex_pair;
 
-  using Pgr_bidirectional<Pgr_contractionGraph>::graph;
-  using Pgr_bidirectional<Pgr_contractionGraph>::m_log;
-  using Pgr_bidirectional<Pgr_contractionGraph>::v_source;
-  using Pgr_bidirectional<Pgr_contractionGraph>::v_target;
+    using Pgr_bidirectional<G>::graph;
+    using Pgr_bidirectional<G>::m_log;
+    using Pgr_bidirectional<G>::v_source;
+    using Pgr_bidirectional<G>::v_target;
 
-  using Pgr_bidirectional<Pgr_contractionGraph>::backward_predecessor;
-  using Pgr_bidirectional<Pgr_contractionGraph>::backward_queue;
-  using Pgr_bidirectional<Pgr_contractionGraph>::backward_finished;
-  using Pgr_bidirectional<Pgr_contractionGraph>::backward_cost;
-  using Pgr_bidirectional<Pgr_contractionGraph>::backward_edge;
+    using Pgr_bidirectional<G>::backward_predecessor;
+    using Pgr_bidirectional<G>::backward_queue;
+    using Pgr_bidirectional<G>::backward_finished;
+    using Pgr_bidirectional<G>::backward_cost;
+    using Pgr_bidirectional<G>::backward_edge;
 
-  using Pgr_bidirectional<Pgr_contractionGraph>::forward_predecessor;
-  using Pgr_bidirectional<Pgr_contractionGraph>::forward_queue;
-  using Pgr_bidirectional<Pgr_contractionGraph>::forward_finished;
-  using Pgr_bidirectional<Pgr_contractionGraph>::forward_cost;
-  using Pgr_bidirectional<Pgr_contractionGraph>::forward_edge;
+    using Pgr_bidirectional<G>::forward_predecessor;
+    using Pgr_bidirectional<G>::forward_queue;
+    using Pgr_bidirectional<G>::forward_finished;
+    using Pgr_bidirectional<G>::forward_cost;
+    using Pgr_bidirectional<G>::forward_edge;
+    using Pgr_bidirectional<G>::log;
+    using Pgr_bidirectional<G>::clean_log;
 
-  // shortest path function
-  using Pgr_bidirectional<Pgr_contractionGraph>::bidirectional;
+    using Pgr_bidirectional<G>::bidirectional;
 
  public:
-  explicit Pgr_hbdDijkstra(G &pgraph) : Pgr_bidirectional<G>(pgraph) {
-    m_log << "pgr_hbdDijkstra constructor\n";
-  }
+    explicit Pgr_hbdDijkstra(G &pgraph):
+        Pgr_bidirectional<G>(pgraph) {
+            m_log << "pgr_hbdDijkstra constructor\n";
+    }
 
-  ~Pgr_hbdDijkstra() = default;
+    ~Pgr_hbdDijkstra() = default;
 
-  Path pgr_hbdDijkstra(V start_vertex, V end_vertex, bool only_cost) {
-    m_log << "pgr_hbdDijkstra\n";
-    v_source = start_vertex;
-    v_target = end_vertex;
+    Path path_search(V start_vertex, V end_vertex, bool only_cost) {
+        m_log << "pgr_hbdDijkstra\n";
+        v_source = start_vertex;
+        v_target = end_vertex;
 
-    return bidirectional(only_cost);
-  }
-
-  using Pgr_bidirectional<Pgr_contractionGraph>::log;
-  using Pgr_bidirectional<Pgr_contractionGraph>::clean_log;
+        return bidirectional(only_cost);
+    }
 
  private:
-  void explore_forward(const Cost_Vertex_pair &node) {
-    typename G::EO_i out, out_end;
+    /*! @brief explores the graph forward
+        (from the origin to the destination)
+        from a given node
+        @param [in] node pair of (double, vertex_descriptor)
+    */
+    void explore_forward(
+        const Cost_Vertex_pair &node) {
+        typename G::EO_i out, out_end;
 
-    auto current_cost = node.first;
-    auto current_node = node.second;
+        auto current_cost = node.first;
+        auto current_node = node.second;
 
-    for (const auto &out : boost::make_iterator_range(
-             graph.graph.find_adjacent_up_vertices(current_node))) {
-      auto edge_cost = graph[out].cost;
-      auto next_node = graph.adjacent(current_node, out);
+        for (const auto &out : boost::make_iterator_range(
+                graph.find_adjacent_up_vertices(current_node))) {
+            auto edge_cost =
+                graph[boost::edge(current_node, out, graph.graph).first].cost;
+            if (forward_finished[out]) continue;
 
-      if (forward_finished[next_node]) continue;
-
-      if (edge_cost + current_cost < forward_cost[next_node]) {
-        forward_cost[next_node] = edge_cost + current_cost;
-        forward_predecessor[next_node] = current_node;
-        forward_edge[next_node] = graph[out].id;
-        forward_queue.push({forward_cost[next_node], next_node});
-      }
+            if (edge_cost + current_cost < forward_cost[out]) {
+                forward_cost[out] = edge_cost + current_cost;
+                forward_predecessor[out] = current_node;
+                forward_edge[out] = graph[out].id;
+                forward_queue.push({forward_cost[out], out});
+            }
+        }
+        forward_finished[current_node] = true;
     }
-    forward_finished[current_node] = true;
-  }
 
-  void explore_backward(const Cost_Vertex_pair &node) {
-    typename G::EI_i in, in_end;
+    /*!
+        @brief explores the graph backward
+        (from the destination to the origin)
+        from a given node
+        @param [in] node pair of (double, vertex_descriptor)
+    */
+    void explore_backward(
+        const Cost_Vertex_pair &node) {
+        typename G::EI_i in, in_end;
+        auto current_cost = node.first;
+        auto current_node = node.second;
 
-    auto current_cost = node.first;
-    auto current_node = node.second;
+        for (const auto &in : boost::make_iterator_range(
+                graph.find_adjacent_down_vertices(current_node))) {
+            auto edge_cost =
+                graph[boost::edge(in, current_node, graph.graph).first].cost;
+            if (backward_finished[in]) continue;
 
-    for (const auto &in : boost::make_iterator_range(
-             graph.graph.find_adjacent_down_vertices(current_node))) {
-      auto edge_cost = graph[in].cost;
-      auto next_node = graph.adjacent(current_node, in);
-
-      if (backward_finished[next_node]) continue;
-
-      if (edge_cost + current_cost < backward_cost[next_node]) {
-        backward_cost[next_node] = edge_cost + current_cost;
-        backward_predecessor[next_node] = current_node;
-        backward_edge[next_node] = graph[in].id;
-        backward_queue.push({backward_cost[next_node], next_node});
-      }
+            if (edge_cost + current_cost < backward_cost[in]) {
+                backward_cost[in] = edge_cost + current_cost;
+                backward_predecessor[in] = current_node;
+                backward_edge[in] = graph[in].id;
+                backward_queue.push({backward_cost[in], in});
+            }
+        }
+        backward_finished[current_node] = true;
     }
-    backward_finished[current_node] = true;
-  }
 };
 
 }  // namespace bidirectional

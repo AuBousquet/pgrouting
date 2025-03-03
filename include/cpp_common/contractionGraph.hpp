@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "cpp_common/base_graph.hpp"
 #include "cpp_common/ch_edge.hpp"
 #include "cpp_common/ch_vertex.hpp"
+#include "cpp_common/orderedVertex_t.hpp"
 
 namespace pgrouting {
 namespace graph {
@@ -187,40 +188,43 @@ class Pgr_contractionGraph
     return adjacent_vertices;
   }
 
-  /*!
-      @brief get the vertex descriptors of adjacent upward vertices of *v*
-      @param [in] v vertex_descriptor
-      @return Identifiers<V>: The set of upward vertex descriptors adjacent to
-     the given vertex *v*
-  */
-  Identifiers<V> find_adjacent_up_vertices(V v) const {
-    Identifiers<V> adjacent_vertices;
+    /*!
+        @brief get the vertex descriptors of adjacent upward vertices of *v*
+        @param [in] v vertex_descriptor
+        @return Identifiers<V>: The set of upward vertex descriptors adjacent to
+        the given vertex *v*
+    */
+    Identifiers<V> find_adjacent_up_vertices(V v) const {
+        Identifiers<V> adjacent_vertices;
 
-    for (const auto &out :
-         boost::make_iterator_range(out_edges(v, this->graph)))
-      if ((this->graph[v]).vertex_order <= (this->graph[out].vertex_order)) {
-        adjacent_vertices += this->adjacent(v, out);
-      }
+        for (const auto &out :
+            boost::make_iterator_range(find_adjacent_out_vertices(v)))
+        if ((this->graph[v]).vertex_order
+        <= ((this->graph[out]).vertex_order)) {
+            adjacent_vertices += out;
+        }
 
-    return adjacent_vertices;
-  }
+        return adjacent_vertices;
+    }
 
-  /*!
-      @brief get the vertex descriptors of adjacent backward vertices of *v*
-      @param [in] v vertex_descriptor
-      @return Identifiers<V>: The set of backward vertex descriptors adjacent to
-     the given vertex *v*
-  */
-  Identifiers<V> find_adjacent_back_vertices(V v) const {
-    Identifiers<V> adjacent_vertices;
+    /*!
+        @brief get the vertex descriptors of adjacent backward vertices of *v*
+        @param [in] v vertex_descriptor
+        @return Identifiers<V>: The set of backward vertex descriptors adjacent to
+        the given vertex *v*
+    */
+    Identifiers<V> find_adjacent_down_vertices(V v) const {
+        Identifiers<V> adjacent_vertices;
 
-    for (const auto &in : boost::make_iterator_range(in_edges(v, this->graph)))
-      if ((this->graph[v]).vertex_order >= (this->graph[out].vertex_order)) {
-        adjacent_vertices += this->adjacent(v, in);
-      }
+        for (const auto &in :
+            boost::make_iterator_range(find_adjacent_in_vertices(v)))
+        if ((this->graph[v]).vertex_order
+        >= ((this->graph[in]).vertex_order)) {
+            adjacent_vertices += in;
+        }
 
-    return adjacent_vertices;
-  }
+        return adjacent_vertices;
+    }
 
   /*! @brief vertices with at least one contracted vertex
       @result The vids Identifiers with at least one contracted vertex
@@ -521,25 +525,37 @@ class Pgr_contractionGraph
     }
   }
 
-  /*!
-      @brief copies shortcuts and modified vertices from another graph
-      @result void
-  */
-  void copy_shortcuts(std::vector<pgrouting::CH_edge> &shortcuts,
-                      std::ostringstream &log) {
-    for (auto it = shortcuts.begin(); it != shortcuts.end(); it++) {
-      V u, v;
-      u = this->vertices_map[it->source];
-      v = this->vertices_map[it->target];
-      log << "Shortcut " << it->id << "(" << it->source << ", " << it->target
-          << ")" << std::endl;
-      add_shortcut(*it, u, v);
+    /*!
+        @brief copies shortcuts and modified vertices from another graph
+        @result void
+    */
+    void copy_shortcuts(std::vector<pgrouting::CH_edge> &shortcuts,
+                        std::ostringstream &log) {
+        for (auto it = shortcuts.begin(); it != shortcuts.end(); it++) {
+            V u, v;
+            u = this->vertices_map[it->source];
+            v = this->vertices_map[it->target];
+            log << "Shortcut " << it->id << "(" << it->source << ", " << it->target
+                << ")" << std::endl;
+            add_shortcut(*it, u, v);
+        }
     }
-  }
+
+    /*!
+        @brief copies shortcuts and modified vertices from another graph
+        @result void
+    */
+    void cp_vertices_order(std::vector<OrderedVertex_t> &vertices) {
+        for (auto it = vertices.begin(); it != vertices.end(); it++) {
+            V u;
+            u = this->vertices_map[it->id];
+            this->graph[u].vertex_order = it->vertex_order;
+        }
+    }
 
  private:
-  int64_t min_edge_id;
-  Identifiers<V> forbiddenVertices;
+    int64_t min_edge_id;
+    Identifiers<V> forbiddenVertices;
 };
 
 }  // namespace graph
