@@ -8,18 +8,18 @@
 
 
 
--- Sample graph #2
+-- Sample graph #2 before contraction
 DROP TABLE IF EXISTS edges_2;
 DROP TABLE IF EXISTS vertices_2;
 
-create table vertices_2 (
+CREATE TABLE vertices_2 (
     id integer primary key,
     x double precision,
     y double precision,
     geom Geometry(Point)
 );
 
-create table edges_2 (
+CREATE TABLE edges_2 (
     id bigserial primary key,
     source bigint,
     target bigint,
@@ -27,7 +27,6 @@ create table edges_2 (
     reverse_cost float,
     geom geometry(Linestring)
 );
-
 
 /*---------------------------------------------------------------
  1_______11_____9_____7
@@ -84,7 +83,7 @@ values
     ( 10, 1.5, 1, st_point(1.5, 1) ),
     ( 11, 1, 2, st_point(1, 2) );
 
-insert into edges_2 (source, target, cost, reverse_cost, geom) 
+insert into edges_2 (source, target, cost, reverse_cost, geom)
 values
     ( 1, 11, 3, 3, ST_MakeLine(ST_Point(0,2), ST_Point(1,2)) ),
     ( 11, 9, 6, 6, ST_MakeLine(ST_Point(1,2), ST_Point(2,2)) ),
@@ -106,3 +105,67 @@ values
     ( 7, 6, 4, 4, ST_MakeLine(ST_Point(3,1), ST_Point(3,0)) ), --7-6
     ( 9, 7, 5, 5, ST_MakeLine(ST_Point(2,2), ST_Point(3,1)) ), --9-7
     ( 9, 8, 3, 3, ST_MakeLine(ST_Point(2,2), ST_Point(2.5,1)) ); --9-8
+
+-- Graph with the shortcuts and the ordered vertices
+DROP TABLE IF EXISTS edges_3;
+DROP TABLE IF EXISTS vertices_3;
+
+CREATE TABLE vertices_3 (
+    id integer primary key,
+    x double precision,
+    y double precision,
+    vertex_order integer,
+    metric integer,
+    geom Geometry(Point)
+);
+
+CREATE TABLE edges_3 (
+    id bigserial primary key,
+    source bigint,
+    target bigint,
+    cost float,
+    reverse_cost float,
+    shortcut boolean default false,
+    geom geometry(Linestring)
+);
+
+insert into vertices_3 (id, x, y, vertex_order, metric, geom)
+values
+    ( 1, 0, 2, 3, -4, st_point(0,2)),
+    ( 2, 0, 0, 2, -6, st_point(0,0)),
+    ( 3, 0.5, 1, 4, -4, st_point(0.5, 1)),
+    ( 4, 1, 0, 5, -4, st_point(1, 0)),
+    ( 5, 1.5, 0, 6, -4, st_point(1.5, 0)),
+    ( 6, 3, 0, 7, -4, st_point(3, 0)),
+    ( 7, 3, 1, 11, 0, st_point(3, 1)),
+    ( 8, 2.5, 1, 10, -2, st_point(2.5, 1)),
+    ( 9, 2, 2, 1, -8, st_point(2, 2)),
+    ( 10, 1.5, 1, 9, -2, st_point(1.5, 1)),
+    ( 11, 1, 2, 8, -2, st_point(1, 2));
+
+insert into edges_3 (source, target, cost, reverse_cost, shortcut, geom)
+values
+    ( 1, 11, 3, 3, false, ST_MakeLine(ST_Point(0,2), ST_Point(1,2)) ), --1-11
+    ( 11, 9, 6, 6, false, ST_MakeLine(ST_Point(1,2), ST_Point(2,2)) ), --11-9
+    ( 1, 3, 5, 5, false, ST_MakeLine(ST_Point(0,2), ST_Point(0.5,1)) ), --1-3
+    ( 1, 2, 3, 3, false, ST_MakeLine(ST_Point(0,2), ST_Point(0,0)) ), --1-2
+    ( 2, 4, 5, 5, false, ST_MakeLine(ST_Point(0,0), ST_Point(1,0)) ), --2-4
+    ( 2, 3, 3, 3, false, ST_MakeLine(ST_Point(0,0), ST_Point(0.5,1)) ), --2-3
+    ( 3, 4, 2, 2, false, ST_MakeLine(ST_Point(0.5,1), ST_Point(1,0)) ), --3-4
+    ( 4, 5, 7, 7, false, ST_MakeLine(ST_Point(1,0), ST_Point(1.5,0)) ), --4-5
+    ( 5, 6, 6, 6, false, ST_MakeLine(ST_Point(1.5,0), ST_Point(3,0)) ), --5-6
+    ( 3, 10, 2, 2, false, ST_MakeLine(ST_Point(0.5,1), ST_Point(1.5,1)) ), --3-10
+    ( 10, 4, 4, 4, false, ST_MakeLine(ST_Point(1.5,1), ST_Point(1,0)) ), --10-4
+    ( 10, 5, 3, 3, false, ST_MakeLine(ST_Point(1.5,1), ST_Point(1.5,0)) ), --10-5
+    ( 10, 11, 3, 3, false, ST_MakeLine(ST_Point(1.5,1), ST_Point(1,2)) ), --10-11
+    ( 10, 9, 4, 4, false, ST_MakeLine(ST_Point(1.5,1), ST_Point(2,2)) ), --10-9
+    ( 10, 8, 2, 2, false, ST_MakeLine(ST_Point(1.5,1), ST_Point(2.5,1)) ), --10-8
+    ( 8, 6, 2, 2, false, ST_MakeLine(ST_Point(2.5,1), ST_Point(3,0)) ), --8-6
+    ( 8, 7, 3, 3, false, ST_MakeLine(ST_Point(2.5,1), ST_Point(3,1)) ), --8-7
+    ( 7, 6, 4, 4, false, ST_MakeLine(ST_Point(3,1), ST_Point(3,0)) ), --7-6
+    ( 9, 7, 5, 5, false, ST_MakeLine(ST_Point(2,2), ST_Point(3,1)) ), --9-7
+    ( 9, 8, 3, 3, false, ST_MakeLine(ST_Point(2,2), ST_Point(2.5,1)) ), --9-8
+    ( 10, 2, 5, -1, true, ST_MakeLine(ST_Point(1.5,1), ST_Point(0,0)) ), --10-2
+    ( 2, 10, 5, -1, true, ST_MakeLine(ST_Point(0,0), ST_Point(1.5,1)) ), --2-10
+    ( 2, 11, 6, -1, true, ST_MakeLine(ST_Point(0,0), ST_Point(1,2)) ), --2-11
+    ( 11, 2, 6, -1, true, ST_MakeLine(ST_Point(1,2), ST_Point(0,0)) ); --11-2

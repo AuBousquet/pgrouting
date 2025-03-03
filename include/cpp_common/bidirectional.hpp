@@ -118,7 +118,10 @@ class Pgr_bidirectional {
         best_cost = INF;
     }
 
-    Path bidirectional(bool only_cost) {
+    Path bidirectional(
+        bool only_cost,
+        std::ostringstream &log,
+        std::ostringstream &err) {
         m_log << "bidir_astar\n";
 
         Pgr_bidirectional< G >::initialize();
@@ -126,13 +129,20 @@ class Pgr_bidirectional {
         forward_cost[v_source] = 0;
         forward_queue.push(std::make_pair(0.0, v_source));
 
-
         backward_cost[v_target] = 0;
         backward_queue.push(std::make_pair(0.0, v_target));
 
-        while (!forward_queue.empty() &&  !backward_queue.empty()) {
+        while (!forward_queue.empty() && !backward_queue.empty()) {
             auto forward_node = forward_queue.top();
             auto backward_node = backward_queue.top();
+
+            log << "Forward node: "
+                  << graph[forward_node.second].id
+                  << std::endl;
+            log << "Backward node: "
+                  << graph[backward_node.second].id
+                  << std::endl;
+
             /*
              * done: there is no path with lower cost
              */
