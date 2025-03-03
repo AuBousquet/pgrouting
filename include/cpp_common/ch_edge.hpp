@@ -32,9 +32,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #define INCLUDE_CPP_COMMON_CH_EDGE_HPP_
 #pragma once
 
+#include <cstdint>
 #include <iostream>
 #include <sstream>
-#include <cstdint>
 
 #include "cpp_common/ch_vertex.hpp"
 
@@ -42,35 +42,34 @@ namespace pgrouting {
 
 class CH_edge {
  public:
-     CH_edge() = default;
+  CH_edge() = default;
 
-     CH_edge(int64_t eid, int64_t source, int64_t target, double cost) :
-         id(eid), source(source),
-         target(target), cost(cost) {}
+  CH_edge(int64_t eid, int64_t source, int64_t target, double cost)
+      : id(eid), source(source), target(target), cost(cost) {}
 
-     void set_contracted_vertices(Identifiers<int64_t>&);
+  void set_contracted_vertices(Identifiers<int64_t>&);
 
-     void cp_members(const CH_edge &other);
+  void cp_members(const CH_edge& other);
 
-     void add_contracted_vertex(CH_vertex& v);
-     void add_contracted_edge_vertices(CH_edge& e);
-     void add_contracted_vertices(Identifiers<int64_t>&);
+  void add_contracted_vertex(CH_vertex& v);
+  void add_contracted_edge_vertices(CH_edge& e);
+  void add_contracted_vertices(Identifiers<int64_t>&);
 
-     bool has_contracted_vertices() const;
+  bool has_contracted_vertices() const;
 
-     void clear_contracted_vertices() {m_contracted_vertices.clear();}
-     const Identifiers<int64_t>& contracted_vertices() const;
-     Identifiers<int64_t>& contracted_vertices();
-     friend std::ostream& operator <<(std::ostream& os, const CH_edge& e);
+  void clear_contracted_vertices() { m_contracted_vertices.clear(); }
+  const Identifiers<int64_t>& contracted_vertices() const;
+  Identifiers<int64_t>& contracted_vertices();
+  friend std::ostream& operator<<(std::ostream& os, const CH_edge& e);
 
  public:
-     int64_t id;
-     int64_t source;
-     int64_t target;
-     double cost;
+  int64_t id;
+  int64_t source;
+  int64_t target;
+  double cost;
 
  private:
-     Identifiers<int64_t> m_contracted_vertices;
+  Identifiers<int64_t> m_contracted_vertices;
 };
 
 }  // namespace pgrouting
