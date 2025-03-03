@@ -44,7 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include "cpp_common/base_graph.hpp"
 #include "cpp_common/ch_vertex.hpp"
-#include "cpp_common/ch_edge.hpp"
+#include "cpp_common/orderedVertex_t.hpp"
 
 namespace pgrouting {
 namespace graph {
@@ -542,6 +542,52 @@ class Pgr_contractionGraph :
         for (const auto &v : vertices) {
             this->graph[this->vertices_map[v.first]].set_order(v.second);
         }
+    }
+
+    void cp_vertices_order(std::vector<OrderedVertex_t> &vertices) {
+        for (auto it = vertices.begin(); it != vertices.end(); it++) {
+            V u;
+            u = this->vertices_map[it->id];
+            this->graph[u].vertex_order = it->vertex_order;
+        }
+    }
+
+    /*!
+        @brief get the vertex descriptors of adjacent upward vertices of *v*
+        @param [in] v vertex_descriptor
+        @return Identifiers<V>: The set of upward vertex descriptors adjacent to
+        the given vertex *v*
+    */
+    Identifiers<V> find_adjacent_up_vertices(V v) const {
+        Identifiers<V> adjacent_vertices;
+
+        for (const auto &out :
+            boost::make_iterator_range(find_adjacent_out_vertices(v)))
+        if ((this->graph[v]).vertex_order
+        <= ((this->graph[out]).vertex_order)) {
+            adjacent_vertices += out;
+        }
+
+        return adjacent_vertices;
+    }
+
+    /*!
+        @brief get the vertex descriptors of adjacent backward vertices of *v*
+        @param [in] v vertex_descriptor
+        @return Identifiers<V>: The set of backward vertex descriptors adjacent to
+        the given vertex *v*
+    */
+    Identifiers<V> find_adjacent_down_vertices(V v) const {
+        Identifiers<V> adjacent_vertices;
+
+        for (const auto &in :
+            boost::make_iterator_range(find_adjacent_in_vertices(v)))
+        if ((this->graph[v]).vertex_order
+        >= ((this->graph[in]).vertex_order)) {
+            adjacent_vertices += in;
+        }
+
+        return adjacent_vertices;
     }
 
  private:
