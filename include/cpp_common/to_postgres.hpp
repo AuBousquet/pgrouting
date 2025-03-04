@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "cpp_common/identifiers.hpp"
 
 #include "contraction/contractionHierarchies.hpp"
+#include "hbdDijkstra/hbdDijkstra.hpp"
 
 namespace pgrouting {
 namespace to_postgres {
@@ -176,6 +177,32 @@ void get_postgres_result_contraction_hierarchies(
         ++sequence;
     }
 }
+
+template <class G>
+std::deque<pgrouting::Path> perform_hbd_dijkstra(
+        G &graph,
+        const std::map<int64_t, std::set<int64_t>> &combinations,
+        bool only_cost) {
+    using pgrouting::Path;
+
+    pgrouting::bidirectional::Pgr_hbdDijkstra<G> fn_hbdDijkstra(graph);
+    std::deque<Path> paths;
+
+    for (const auto &comb : combinations) {
+        auto source = comb.first;
+        if (!graph.has_vertex(source)) continue;
+
+        for (const auto &target : comb.second) {
+        if (!graph.has_vertex(target)) continue;
+        fn_hbdDijkstra.clear();
+
+        paths.push_back(fn_hbdDijkstra.pgr_hbd_dijkstra(
+            graph.get_V(source), graph.get_V(target), only_cost));
+        }
+    }
+    return paths;
+}
+
 
 }  // namespace detail
 

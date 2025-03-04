@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 --v4.0
 CREATE FUNCTION _pgr_hbd_dijkstra(
     TEXT,     -- edges_sql (required)
+    TEXT,     -- vertices_sql (required)
     TEXT,     -- combinations_sql (required)
 
     directed BOOLEAN,

@@ -298,8 +298,8 @@ std::vector<Edge_t> get_edges(const std::string &sql, bool normal, bool ignore_i
   @param[in] sql The query
   @returns vector of pairs of int64_t
   */
- std::vector<OrderedVertex_t> get_ordered_vertices(
-  const std::string &sql) {
+std::vector<OrderedVertex_t> get_ordered_vertices(
+      const std::string &sql) {
     using pgrouting::Column_info_t;
     std::vector<Column_info_t> info{
     {-1, 0, true, "id", ANY_INTEGER},

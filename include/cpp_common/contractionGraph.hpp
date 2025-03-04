@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "cpp_common/base_graph.hpp"
 #include "cpp_common/ch_edge.hpp"
 #include "cpp_common/ch_vertex.hpp"
+#include "cpp_common/orderedVertex_t.hpp"
 
 namespace pgrouting {
 namespace graph {
@@ -522,25 +523,37 @@ class Pgr_contractionGraph
     }
   }
 
-  /*!
-      @brief copies shortcuts and modified vertices from another graph
-      @result void
-  */
-  void copy_shortcuts(std::vector<pgrouting::CH_edge> &shortcuts,
-                      std::ostringstream &log) {
-    for (auto it = shortcuts.begin(); it != shortcuts.end(); it++) {
-      V u, v;
-      u = this->vertices_map[it->source];
-      v = this->vertices_map[it->target];
-      log << "Shortcut " << it->id << "(" << it->source << ", " << it->target
-          << ")" << std::endl;
-      add_shortcut(*it, u, v);
+    /*!
+        @brief copies shortcuts and modified vertices from another graph
+        @result void
+    */
+    void copy_shortcuts(std::vector<pgrouting::CH_edge> &shortcuts,
+                        std::ostringstream &log) {
+        for (auto it = shortcuts.begin(); it != shortcuts.end(); it++) {
+            V u, v;
+            u = this->vertices_map[it->source];
+            v = this->vertices_map[it->target];
+            log << "Shortcut " << it->id << "(" << it->source << ", " << it->target
+                << ")" << std::endl;
+            add_shortcut(*it, u, v);
+        }
     }
-  }
+
+    /*!
+        @brief copies shortcuts and modified vertices from another graph
+        @result void
+    */
+    void cp_vertices_order(std::vector<OrderedVertex_t> &vertices) {
+        for (auto it = vertices.begin(); it != vertices.end(); it++) {
+            V u;
+            u = this->vertices_map[it->id];
+            this->graph[u].vertex_order = it->order;
+        }
+    }
 
  private:
-  int64_t min_edge_id;
-  Identifiers<V> forbiddenVertices;
+    int64_t min_edge_id;
+    Identifiers<V> forbiddenVertices;
 };
 
 }  // namespace graph

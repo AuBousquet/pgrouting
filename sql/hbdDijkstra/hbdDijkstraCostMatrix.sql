@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 --v2.6
 CREATE FUNCTION pgr_hbd_dijkstra_cost_matrix(
     TEXT,     -- edges_sql (required)
+    TEXT,     -- vertices_sql (required)
     ANYARRAY, -- vids (required)
 
     directed BOOLEAN DEFAULT true,
@@ -54,6 +55,7 @@ COMMENT ON FUNCTION pgr_hbd_dijkstra_cost_matrix(TEXT, ANYARRAY, BOOLEAN)
 IS 'pgr_hbd_dijkstra_cost_matrix
 - Parameters:
     - Edges SQL with columns: id, source, target, cost [,reverse_cost]
+    - Vertices SQL with columns: id, order
     - ARRAY [vertices identifiers]
 - Optional Parameters
     - directed := true

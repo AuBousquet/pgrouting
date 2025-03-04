@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 --v4.0
 CREATE FUNCTION pgr_hbd_dijkstra(
     TEXT,     -- edges_sql (required)
+    TEXT,     -- vertices_sql (required)
     TEXT,     -- combinations_sql (required)
 
     directed BOOLEAN DEFAULT TRUE,
@@ -55,10 +56,11 @@ ROWS 1000;
 
 
 -- COMMENTS
-COMMENT ON FUNCTION pgr_hbd_dijkstra(TEXT, TEXT, BOOLEAN)
+COMMENT ON FUNCTION pgr_hbd_dijkstra(TEXT, TEXT, TEXT, BOOLEAN)
 IS 'pgr_hbd_dijkstra(Combinations)
 - Parameters:
   - Edges SQL with columns: id, source, target, cost [,reverse_cost]
+  - Vertices SQL with columns: id, order
   - Combinations SQL with columns: source, target
 - Optional Parameters
   - directed := true

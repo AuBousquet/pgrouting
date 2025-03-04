@@ -44,9 +44,9 @@ extern "C" {
 #include <access/htup_details.h>
 }
 
-#include <vector>
-#include <utility>
 #include <cstdint>
+#include <utility>
+#include <vector>
 
 #include "cpp_common/undefPostgresDefine.hpp"
 

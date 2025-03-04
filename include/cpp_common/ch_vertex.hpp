@@ -41,26 +41,29 @@ namespace pgrouting {
 
 class CH_vertex {
  public:
-  int64_t id;
-  int64_t vertex_order;
-  int64_t metric;
-  CH_vertex();
-  CH_vertex(const Edge_t& other, bool is_source)
-      : id(is_source ? other.source : other.target) {}
-  void set_contracted_vertices(Identifiers<int64_t>&);
-  void cp_members(const CH_vertex& other) { this->id = other.id; }
-  void add_contracted_vertex(CH_vertex& v);
-  void add_contracted_vertex_id(int64_t vid);
-  void add_contracted_vertices_id(const Identifiers<int64_t>&);
-  void add_vertex_id(int64_t vid) { m_contracted_vertices += vid; }
-  const Identifiers<int64_t>& contracted_vertices() const;
-  Identifiers<int64_t>& contracted_vertices();
-  bool has_contracted_vertices() const;
-  void clear_contracted_vertices() { m_contracted_vertices.clear(); }
-  friend std::ostream& operator<<(std::ostream& os, const CH_vertex& v);
+    int64_t id;
+    int64_t vertex_order;
+    int64_t metric;
+
+    CH_vertex();
+    CH_vertex(const Edge_t& other, bool is_source)
+        : id(is_source ? other.source : other.target) {}
+    void set_contracted_vertices(Identifiers<int64_t>&);
+    void cp_members(const CH_vertex& other) {
+        this->id = other.id;
+    }
+    void add_contracted_vertex(CH_vertex& v);
+    void add_contracted_vertex_id(int64_t vid);
+    void add_contracted_vertices_id(const Identifiers<int64_t>&);
+    void add_vertex_id(int64_t vid) { m_contracted_vertices += vid; }
+    const Identifiers<int64_t>& contracted_vertices() const;
+    Identifiers<int64_t>& contracted_vertices();
+    bool has_contracted_vertices() const;
+    void clear_contracted_vertices() { m_contracted_vertices.clear(); }
+    friend std::ostream& operator<<(std::ostream& os, const CH_vertex& v);
 
  private:
-  Identifiers<int64_t> m_contracted_vertices;
+    Identifiers<int64_t> m_contracted_vertices;
 };
 
 size_t check_vertices(std::vector<CH_vertex> vertices);

@@ -51,6 +51,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "cpp_common/costFlow_t.hpp"
 #include "cpp_common/edge_xy_t.hpp"
 #include "cpp_common/edge_t.hpp"
+#include "cpp_common/orderedVertex_t.hpp"
 #include "c_types/iid_t_rt.h"
 #include "cpp_common/orders_t.hpp"
 #include "cpp_common/restriction_t.hpp"
@@ -269,6 +270,19 @@ Edge_xy_t fetch_edge_xy(
     return edge;
 }
 
+OrderedVertex_t fetch_ordered_vertices(
+    const HeapTuple tuple,
+    const TupleDesc &tupdesc,
+    const std::vector<Column_info_t> &info,
+    int64_t *,
+    size_t *,
+    bool) {
+    OrderedVertex_t ordered_vertex;
+    ordered_vertex.id = getBigInt(tuple, tupdesc, info[0]);
+    ordered_vertex.order = getBigInt(tuple, tupdesc, info[1]);
+    return ordered_vertex;
+}
+
 IID_t_rt pgr_fetch_row(
         const HeapTuple tuple,
         const TupleDesc &tupdesc,
@@ -281,19 +295,6 @@ IID_t_rt pgr_fetch_row(
     distance.to_vid = getBigInt(tuple, tupdesc,  info[1]);
     distance.cost = getFloat8(tuple, tupdesc, info[2]);
     return distance;
-}
-
-OrderedVertex_t fetch_ordered_vertices(
-    const HeapTuple tuple,
-    const TupleDesc &tupdesc,
-    const std::vector<Column_info_t> &info,
-    int64_t *,
-    size_t *,
-    bool) {
-    OrderedVertex_t ordered_vertex;
-    ordered_vertex.id = getBigInt(tuple, tupdesc, info[0]);
-    ordered_vertex.order = getBigInt(tuple, tupdesc, info[1]);
-    return ordered_vertex;
 }
 
 Orders_t fetch_orders(
