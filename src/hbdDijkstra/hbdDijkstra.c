@@ -80,22 +80,13 @@ PGDLLEXPORT Datum _pgr_hbd_dijkstra(PG_FUNCTION_ARGS) {
         funcctx = SRF_FIRSTCALL_INIT();
         oldcontext = MemoryContextSwitchTo(funcctx->multi_call_memory_ctx);
         if (PG_NARGS() == 5) {
-            /*
-            * many to many
-            */
-            process(text_to_cstring(PG_GETARG_TEXT_P(0)), NULL,
-                    PG_GETARG_ARRAYTYPE_P(1), PG_GETARG_ARRAYTYPE_P(2),
-                    PG_GETARG_BOOL(3), PG_GETARG_BOOL(4), &result_tuples,
-                    &result_count);
-
-        } else if (PG_NARGS() == 4) {
-            /*
-            * combinations
-            */
-            process(text_to_cstring(PG_GETARG_TEXT_P(0)),
-                    text_to_cstring(PG_GETARG_TEXT_P(1)), NULL, NULL,
-                    PG_GETARG_BOOL(2), PG_GETARG_BOOL(3), &result_tuples,
-                    &result_count);
+            process(
+                text_to_cstring(PG_GETARG_TEXT_P(0)),
+                text_to_cstring(PG_GETARG_TEXT_P(1)),
+                text_to_cstring(PG_GETARG_TEXT_P(2)),
+                NULL, NULL,
+                PG_GETARG_BOOL(3), PG_GETARG_BOOL(4),
+                &result_tuples, &result_count);
         }
 
         funcctx->max_calls = result_count;

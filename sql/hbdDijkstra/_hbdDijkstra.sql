@@ -54,5 +54,5 @@ LANGUAGE c VOLATILE STRICT;
 
 
 -- COMMENTS
-COMMENT ON FUNCTION _pgr_hbd_dijkstra(TEXT, TEXT, BOOLEAN, BOOLEAN)
+COMMENT ON FUNCTION _pgr_hbd_dijkstra(TEXT, TEXT, TEXT, BOOLEAN, BOOLEAN)
 IS 'pgRouting internal function';

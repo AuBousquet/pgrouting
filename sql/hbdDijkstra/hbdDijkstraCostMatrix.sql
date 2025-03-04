@@ -51,7 +51,7 @@ ROWS 1000;
 
 -- COMMENT
 
-COMMENT ON FUNCTION pgr_hbd_dijkstra_cost_matrix(TEXT, ANYARRAY, BOOLEAN)
+COMMENT ON FUNCTION pgr_hbd_dijkstra_cost_matrix(TEXT, TEXT, ANYARRAY, BOOLEAN)
 IS 'pgr_hbd_dijkstra_cost_matrix
 - Parameters:
     - Edges SQL with columns: id, source, target, cost [,reverse_cost]

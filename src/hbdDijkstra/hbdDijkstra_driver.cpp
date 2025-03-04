@@ -110,21 +110,22 @@ void pgr_hbd_dijkstra(char *edges_sql, char *vertices_sql,
         std::deque<Path> paths;
 
         if (directed) {
-        pgrouting::graph::CHDirectedGraph graph;
-        graph.insert_edges(edges);
-        graph.cp_vertices_members(vertices);
-        paths =
-            detail::perform_hbd_dijkstra<typename pgrouting::DirectedGraph>(
-                graph, combinations, only_cost);
+            pgrouting::graph::CHDirectedGraph graph;
+            graph.insert_edges(edges);
+            graph.cp_vertices_order(vertices);
+            paths =
+                detail::perform_hbd_dijkstra
+                    <typename pgrouting::graph::CHDirectedGraph>(
+                    graph, combinations, only_cost);
         } else {
-        pgrouting::graph::CHUniqueUndirectedGraph graph;
-        graph.insert_edges(edges);
-        graph.cp_vertices_order(vertices);
-        paths =
-            detail::perform_hbd_dijkstra<typename pgrouting::UndirectedGraph>(
-                graph, combinations, only_cost);
+            pgrouting::graph::CHUniqueUndirectedGraph graph;
+            graph.insert_edges(edges);
+            graph.cp_vertices_order(vertices);
+            paths =
+                detail::perform_hbd_dijkstra
+                    <typename pgrouting::graph::CHUniqueUndirectedGraph>(
+                    graph, combinations, only_cost);
         }
-
         auto count = count_tuples(paths);
 
         if (count == 0) {

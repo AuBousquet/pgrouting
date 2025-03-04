@@ -198,9 +198,10 @@ class Pgr_contractionGraph
         Identifiers<V> adjacent_vertices;
 
         for (const auto &out :
-            boost::make_iterator_range(out_edges(v, this->graph)))
-        if ((this->graph[v]).vertex_order <= (this->graph[out].vertex_order)) {
-            adjacent_vertices += this->adjacent(v, out);
+            boost::make_iterator_range(find_adjacent_out_vertices(v)))
+        if ((this->graph[v]).vertex_order
+        <= ((this->graph[out]).vertex_order)) {
+            adjacent_vertices += out;
         }
 
         return adjacent_vertices;
@@ -212,13 +213,14 @@ class Pgr_contractionGraph
         @return Identifiers<V>: The set of backward vertex descriptors adjacent to
         the given vertex *v*
     */
-    Identifiers<V> find_adjacent_back_vertices(V v) const {
+    Identifiers<V> find_adjacent_down_vertices(V v) const {
         Identifiers<V> adjacent_vertices;
 
         for (const auto &in :
-            boost::make_iterator_range(in_edges(v, this->graph)))
-        if ((this->graph[v]).vertex_order >= (this->graph[in].vertex_order)) {
-            adjacent_vertices += this->adjacent(v, in);
+            boost::make_iterator_range(find_adjacent_in_vertices(v)))
+        if ((this->graph[v]).vertex_order
+        >= ((this->graph[in]).vertex_order)) {
+            adjacent_vertices += in;
         }
 
         return adjacent_vertices;

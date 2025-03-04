@@ -66,75 +66,85 @@ class Pgr_hbdDijkstra : public Pgr_bidirectional<G> {
     using Pgr_bidirectional<G>::forward_finished;
     using Pgr_bidirectional<G>::forward_cost;
     using Pgr_bidirectional<G>::forward_edge;
+    using Pgr_bidirectional<G>::log;
+    using Pgr_bidirectional<G>::clean_log;
 
     using Pgr_bidirectional<G>::bidirectional;
 
  public:
     explicit Pgr_hbdDijkstra(G &pgraph):
         Pgr_bidirectional<G>(pgraph) {
-            m_log << "pgr_bdDijkstra constructor\n";
-        }
+            m_log << "pgr_hbdDijkstra constructor\n";
+    }
 
     ~Pgr_hbdDijkstra() = default;
 
-    Path pgr_hbdDijkstra(V start_vertex, V end_vertex, bool only_cost) {
-        m_log << "pgr_bdDijkstra\n";
+    Path path_search(V start_vertex, V end_vertex, bool only_cost) {
+        m_log << "pgr_hbdDijkstra\n";
         v_source = start_vertex;
         v_target = end_vertex;
 
         return bidirectional(only_cost);
     }
 
-    using Pgr_bidirectional<G>::log;
-    using Pgr_bidirectional<G>::clean_log;
-
  private:
-    void explore_forward(const Cost_Vertex_pair &node) {
+    /*! @brief explores the graph forward
+        (from the origin to the destination)
+        from a given node
+        @param [in] node pair of (double, vertex_descriptor)
+    */
+    void explore_forward(
+        const Cost_Vertex_pair &node) {
         typename G::EO_i out, out_end;
 
         auto current_cost = node.first;
         auto current_node = node.second;
 
         for (const auto &out : boost::make_iterator_range(
-                graph.graph.find_adjacent_up_vertices(current_node))) {
-            auto edge_cost = graph[out].cost;
-            auto next_node = graph.adjacent(current_node, out);
+                graph.find_adjacent_up_vertices(current_node))) {
+            auto edge_cost =
+                graph[boost::edge(current_node, out, graph.graph).first].cost;
+            if (forward_finished[out]) continue;
 
-            if (forward_finished[next_node]) continue;
-
-            if (edge_cost + current_cost < forward_cost[next_node]) {
-                forward_cost[next_node] = edge_cost + current_cost;
-                forward_predecessor[next_node] = current_node;
-                forward_edge[next_node] = graph[out].id;
-                forward_queue.push({forward_cost[next_node], next_node});
+            if (edge_cost + current_cost < forward_cost[out]) {
+                forward_cost[out] = edge_cost + current_cost;
+                forward_predecessor[out] = current_node;
+                forward_edge[out] = graph[out].id;
+                forward_queue.push({forward_cost[out], out});
             }
         }
         forward_finished[current_node] = true;
     }
 
-    void explore_backward(const Cost_Vertex_pair &node) {
+    /*!
+        @brief explores the graph backward
+        (from the destination to the origin)
+        from a given node
+        @param [in] node pair of (double, vertex_descriptor)
+    */
+    void explore_backward(
+        const Cost_Vertex_pair &node) {
         typename G::EI_i in, in_end;
-
         auto current_cost = node.first;
         auto current_node = node.second;
 
         for (const auto &in : boost::make_iterator_range(
-                graph.graph.find_adjacent_down_vertices(current_node))) {
-            auto edge_cost = graph[in].cost;
-            auto next_node = graph.adjacent(current_node, in);
+                graph.find_adjacent_down_vertices(current_node))) {
+            auto edge_cost =
+                graph[boost::edge(in, current_node, graph.graph).first].cost;
+            if (backward_finished[in]) continue;
 
-            if (backward_finished[next_node]) continue;
-
-            if (edge_cost + current_cost < backward_cost[next_node]) {
-                backward_cost[next_node] = edge_cost + current_cost;
-                backward_predecessor[next_node] = current_node;
-                backward_edge[next_node] = graph[in].id;
-                backward_queue.push({backward_cost[next_node], next_node});
+            if (edge_cost + current_cost < backward_cost[in]) {
+                backward_cost[in] = edge_cost + current_cost;
+                backward_predecessor[in] = current_node;
+                backward_edge[in] = graph[in].id;
+                backward_queue.push({backward_cost[in], in});
             }
         }
         backward_finished[current_node] = true;
     }
 };
+
 }  // namespace bidirectional
 }  // namespace pgrouting
 

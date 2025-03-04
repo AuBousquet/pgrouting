@@ -52,7 +52,7 @@ ROWS 1000;
 
 
 -- COMMENTS
-COMMENT ON FUNCTION pgr_hbd_dijkstra_cost(TEXT, TEXT, BOOLEAN)
+COMMENT ON FUNCTION pgr_hbd_dijkstra_cost(TEXT, TEXT, TEXT, BOOLEAN)
 IS 'pgr_hbd_dijkstra_cost(Combinations)
 - Parameters:
   - Edges SQL with columns: id, source, target, cost [,reverse_cost]

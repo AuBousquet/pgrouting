@@ -185,7 +185,7 @@ std::deque<pgrouting::Path> perform_hbd_dijkstra(
         bool only_cost) {
     using pgrouting::Path;
 
-    pgrouting::bidirectional::Pgr_hbdDijkstra<G> fn_hbdDijkstra(graph);
+    pgrouting::bidirectional::Pgr_hbdDijkstra<G> hbd_searcher(graph);
     std::deque<Path> paths;
 
     for (const auto &comb : combinations) {
@@ -194,14 +194,15 @@ std::deque<pgrouting::Path> perform_hbd_dijkstra(
 
         for (const auto &target : comb.second) {
         if (!graph.has_vertex(target)) continue;
-        fn_hbdDijkstra.clear();
+        hbd_searcher.clear();
 
-        paths.push_back(fn_hbdDijkstra.pgr_hbd_dijkstra(
+        paths.push_back(hbd_searcher.path_search(
             graph.get_V(source), graph.get_V(target), only_cost));
         }
     }
     return paths;
 }
+
 
 
 }  // namespace detail
