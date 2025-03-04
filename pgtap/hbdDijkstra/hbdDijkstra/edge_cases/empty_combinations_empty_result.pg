@@ -24,22 +24,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 BEGIN;
 
-SELECT plan(1);
+-- keep in one line (for perl updates)
+SELECT CASE WHEN NOT min_version('4.0.0') THEN plan(1) ELSE plan(2) END;
+
 
 create or REPLACE FUNCTION foo()
 RETURNS SETOF TEXT AS
 $BODY$
 BEGIN
-
-  IF NOT min_version('3.2.0') THEN
-    RETURN QUERY
-    SELECT skip(1, 'Combinations signature added on 3.2.0');
-    RETURN;
-  END IF;
-
-
     RETURN query SELECT is_empty(
-      'SELECT path_seq,  start_vid,  end_vid, node, edge, cost, agg_cost FROM pgr_bdDijkstra(
+      'SELECT path_seq,  start_vid,  end_vid, node, edge, cost, agg_cost FROM pgr_hbd_dijkstra(
         ''SELECT id, source, target, cost, reverse_cost FROM edges'',
         ''SELECT * FROM combinations WHERE source IN (-1)'' ) '
     );
