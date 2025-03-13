@@ -549,7 +549,7 @@ class Pgr_contractionGraph
         for (auto it = vertices.begin(); it != vertices.end(); it++) {
             V u;
             u = this->vertices_map[it->id];
-            this->graph[u].vertex_order = it->order;
+            this->graph[u].vertex_order = it->vertex_order;
         }
     }
 

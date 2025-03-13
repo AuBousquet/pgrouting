@@ -279,7 +279,7 @@ OrderedVertex_t fetch_ordered_vertices(
     bool) {
     OrderedVertex_t ordered_vertex;
     ordered_vertex.id = getBigInt(tuple, tupdesc, info[0]);
-    ordered_vertex.order = getBigInt(tuple, tupdesc, info[1]);
+    ordered_vertex.vertex_order = getBigInt(tuple, tupdesc, info[1]);
     return ordered_vertex;
 }
 

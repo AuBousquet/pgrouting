@@ -303,10 +303,9 @@ std::vector<OrderedVertex_t> get_ordered_vertices(
     using pgrouting::Column_info_t;
     std::vector<Column_info_t> info{
     {-1, 0, true, "id", ANY_INTEGER},
-    {-1, 0, true, "order", ANY_INTEGER}};
+    {-1, 0, true, "vertex_order", ANY_INTEGER}};
 
-    return get_data< OrderedVertex_t >(
-      sql, true, info, &fetch_ordered_vertices);
+    return get_data< OrderedVertex_t >(sql, true, info, &fetch_ordered_vertices);
 }
 
 /**

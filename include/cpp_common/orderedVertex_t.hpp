@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 struct OrderedVertex_t {
     int64_t id;
-    int64_t order;
+    int64_t vertex_order;
 };
 
 #endif  // INCLUDE_CPP_COMMON_ORDERED_VERTEX_T_HPP_

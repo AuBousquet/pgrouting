@@ -182,7 +182,8 @@ template <class G>
 std::deque<pgrouting::Path> perform_hbd_dijkstra(
         G &graph,
         const std::map<int64_t, std::set<int64_t>> &combinations,
-        bool only_cost) {
+        bool only_cost,
+        std::ostringstream &log) {
     using pgrouting::Path;
 
     pgrouting::bidirectional::Pgr_hbdDijkstra<G> hbd_searcher(graph);

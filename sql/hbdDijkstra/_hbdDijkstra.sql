@@ -35,6 +35,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 CREATE FUNCTION _pgr_hbd_dijkstra(
     TEXT,     -- edges_sql (required)
     TEXT,     -- vertices_sql (required)
+    ANYARRAY, -- start_vids (required)
+    ANYARRAY, -- end_vids (required)
+
+    directed BOOLEAN,
+    only_cost BOOLEAN DEFAULT false,
+
+    OUT seq INTEGER,
+    OUT path_seq INTEGER,
+    OUT start_vid BIGINT,
+    OUT end_vid BIGINT,
+    OUT node BIGINT,
+    OUT edge BIGINT,
+    OUT cost FLOAT,
+    OUT agg_cost FLOAT)
+RETURNS SETOF RECORD AS
+'MODULE_PATHNAME'
+LANGUAGE c VOLATILE STRICT;
+
+COMMENT ON FUNCTION _pgr_hbd_dijkstra(TEXT, TEXT, ANYARRAY, ANYARRAY, BOOLEAN, BOOLEAN)
+IS 'pgRouting internal function';
+
+
+CREATE FUNCTION _pgr_hbd_dijkstra(
+    TEXT,     -- edges_sql (required)
+    TEXT,     -- vertices_sql (required)
     TEXT,     -- combinations_sql (required)
 
     directed BOOLEAN,
@@ -52,7 +77,5 @@ RETURNS SETOF RECORD AS
 'MODULE_PATHNAME'
 LANGUAGE c VOLATILE STRICT;
 
-
--- COMMENTS
 COMMENT ON FUNCTION _pgr_hbd_dijkstra(TEXT, TEXT, TEXT, BOOLEAN, BOOLEAN)
 IS 'pgRouting internal function';

@@ -46,12 +46,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "drivers/hbdDijkstra/hbdDijkstra_driver.h"
 
 
-void pgr_hbd_dijkstra(char *edges_sql, char *vertices_sql,
+void pgr_hbd_dijkstra(
+        char *edges_sql,
+        char *vertices_sql,
         char *combinations_sql,
-        ArrayType *starts, ArrayType *ends,
-        bool directed, bool only_cost,
-        Path_rt **return_tuples, size_t *return_count,
-        char **log_msg, char **notice_msg, char **err_msg) {
+        ArrayType *starts,
+        ArrayType *ends,
+        bool directed,
+        bool only_cost,
+        Path_rt **return_tuples,
+        size_t *return_count,
+        char **log_msg,
+        char **notice_msg,
+        char **err_msg) {
     using pgrouting::Path;
     using pgrouting::pgr_alloc;
     using pgrouting::pgr_free;
@@ -116,7 +123,7 @@ void pgr_hbd_dijkstra(char *edges_sql, char *vertices_sql,
             paths =
                 detail::perform_hbd_dijkstra
                     <typename pgrouting::graph::CHDirectedGraph>(
-                    graph, combinations, only_cost);
+                    graph, combinations, only_cost, log);
         } else {
             pgrouting::graph::CHUniqueUndirectedGraph graph;
             graph.insert_edges(edges);
@@ -124,7 +131,7 @@ void pgr_hbd_dijkstra(char *edges_sql, char *vertices_sql,
             paths =
                 detail::perform_hbd_dijkstra
                     <typename pgrouting::graph::CHUniqueUndirectedGraph>(
-                    graph, combinations, only_cost);
+                    graph, combinations, only_cost, log);
         }
         auto count = count_tuples(paths);
 
@@ -139,8 +146,13 @@ void pgr_hbd_dijkstra(char *edges_sql, char *vertices_sql,
         (*return_tuples) = pgr_alloc(count, (*return_tuples));
         (*return_count) = (collapse_paths(return_tuples, paths));
 
-        *log_msg = to_pg_msg(log);
-        *notice_msg = to_pg_msg(notice);
+        pgassert(err.str().empty());
+        *log_msg = log.str().empty()?
+            *log_msg :
+            to_pg_msg(log);
+        *notice_msg = notice.str().empty()?
+            *notice_msg :
+            to_pg_msg(notice);
     } catch (AssertFailedException &except) {
         (*return_tuples) = pgr_free(*return_tuples);
         (*return_count) = 0;

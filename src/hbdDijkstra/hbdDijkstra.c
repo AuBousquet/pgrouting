@@ -40,23 +40,35 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 PGDLLEXPORT Datum _pgr_hbd_dijkstra(PG_FUNCTION_ARGS);
 PG_FUNCTION_INFO_V1(_pgr_hbd_dijkstra);
 
-static void process(char *edges_sql, char *vertices_sql,
-                    char *combinations_sql,
-                    ArrayType *starts, ArrayType *ends,
-                    bool directed, bool only_cost,
-                    Path_rt **result_tuples, size_t *result_count) {
+static void process(
+        char *edges_sql,
+        char *vertices_sql,
+        char *combinations_sql,
+        ArrayType *starts,
+        ArrayType *ends,
+        bool directed,
+        bool only_cost,
+        Path_rt **result_tuples,
+        size_t *result_count) {
     pgr_SPI_connect();
     char *log_msg = NULL;
     char *notice_msg = NULL;
     char *err_msg = NULL;
 
     clock_t start_t = clock();
-    pgr_hbd_dijkstra(edges_sql, vertices_sql,
-                     combinations_sql,
-                     starts, ends,
-                     directed, only_cost,
-                     result_tuples, result_count, &log_msg, &notice_msg,
-                     &err_msg);
+    pgr_hbd_dijkstra(
+        edges_sql,
+        vertices_sql,
+        combinations_sql,
+        starts,
+        ends,
+        directed,
+        only_cost,
+        result_tuples,
+        result_count,
+        &log_msg,
+        &notice_msg,
+        &err_msg);
     time_msg(" processing pgr_hbd_dijkstra", start_t, clock());
 
     if (err_msg && (*result_tuples)) {
@@ -79,14 +91,35 @@ PGDLLEXPORT Datum _pgr_hbd_dijkstra(PG_FUNCTION_ARGS) {
         MemoryContext oldcontext;
         funcctx = SRF_FIRSTCALL_INIT();
         oldcontext = MemoryContextSwitchTo(funcctx->multi_call_memory_ctx);
-        if (PG_NARGS() == 5) {
+        if (PG_NARGS() == 6) {
+            /*
+             * many to many
+             */
+            process(
+                text_to_cstring(PG_GETARG_TEXT_P(0)),
+                text_to_cstring(PG_GETARG_TEXT_P(1)),
+                NULL,
+                PG_GETARG_ARRAYTYPE_P(2),
+                PG_GETARG_ARRAYTYPE_P(3),
+                PG_GETARG_BOOL(4),
+                PG_GETARG_BOOL(5),
+                &result_tuples,
+                &result_count);
+
+        } else if (PG_NARGS() == 5) {
+            /*
+             * combinations
+             */
             process(
                 text_to_cstring(PG_GETARG_TEXT_P(0)),
                 text_to_cstring(PG_GETARG_TEXT_P(1)),
                 text_to_cstring(PG_GETARG_TEXT_P(2)),
-                NULL, NULL,
-                PG_GETARG_BOOL(3), PG_GETARG_BOOL(4),
-                &result_tuples, &result_count);
+                NULL,
+                NULL,
+                PG_GETARG_BOOL(3),
+                PG_GETARG_BOOL(4),
+                &result_tuples,
+                &result_count);
         }
 
         funcctx->max_calls = result_count;

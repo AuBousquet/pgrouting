@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -- pgr_bdDijkstraCostMatrix
 -----------------------------
 
---v2.6
 CREATE FUNCTION pgr_hbd_dijkstra_cost_matrix(
     TEXT,     -- edges_sql (required)
     TEXT,     -- vertices_sql (required)
@@ -43,7 +42,7 @@ CREATE FUNCTION pgr_hbd_dijkstra_cost_matrix(
 RETURNS SETOF RECORD AS
 $BODY$
     SELECT a.start_vid, a.end_vid, a.agg_cost
-    FROM _pgr_hbd_dijkstra(_pgr_get_statement($1), $2::BIGINT[], $2::BIGINT[], $3, true) a;
+    FROM _pgr_hbd_dijkstra(_pgr_get_statement($1), _pgr_get_statement($1), $2::BIGINT[], $2::BIGINT[], $3, true) a;
 $BODY$
 LANGUAGE SQL VOLATILE
 COST 100
@@ -55,6 +54,7 @@ COMMENT ON FUNCTION pgr_hbd_dijkstra_cost_matrix(TEXT, TEXT, ANYARRAY, BOOLEAN)
 IS 'pgr_hbd_dijkstra_cost_matrix
 - Parameters:
     - Edges SQL with columns: id, source, target, cost [,reverse_cost]
+    - Vertices SQL with columns: id, order
     - Vertices SQL with columns: id, order
     - ARRAY [vertices identifiers]
 - Optional Parameters
