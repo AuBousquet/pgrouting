@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pgRouting v4.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-28 12:12+0000\n"
+"POT-Creation-Date: 2025-03-13 19:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3080,9 +3080,6 @@ msgid "Application of the contraction hierarchies method"
 msgstr ""
 
 msgid "We finally show an example of contraction hierarchies building, on the same sample graph as before, also with an undirected graph."
-msgstr ""
-
-msgid "he following query shows the original data involved in the contraction operation."
 msgstr ""
 
 msgid "Contraction hierarchies results"
