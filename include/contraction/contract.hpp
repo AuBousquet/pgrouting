@@ -35,8 +35,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <vector>
 #include <cstdint>
 
-#include "contraction/contractionGraph.hpp"
-#include "contraction/ch_graphs.hpp"
+#include "cpp_common/ch_graphs.hpp"
+#include "cpp_common/contractionGraph.hpp"
 #include "contraction/linearContraction.hpp"
 #include "contraction/deadEndContraction.hpp"
 
@@ -106,7 +106,7 @@ class Pgr_contract {
     void perform_deadEnd(G &graph,
             Identifiers<V> forbidden_vertices) {
         Pgr_deadend<G> deadendContractor;
-        deadendContractor.setForbiddenVertices(forbidden_vertices);
+        graph.setForbiddenVertices(forbidden_vertices);
 
         deadendContractor.calculateVertices(graph);
         try {
