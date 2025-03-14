@@ -533,6 +533,17 @@ class Pgr_contractionGraph :
         return adjacent_vertices;
     }
 
+    /*!
+        @brief defines the graph vertices order from a vector of pairs (vertex, order)
+        @param [in] vertices vector of pairs (vertex, order)
+    */
+    void set_vertices_order(
+        std::vector< std::pair<int64_t, int64_t> > vertices) {
+        for (const auto &v : vertices) {
+            this->graph[this->vertices_map[v.first]].set_order(v.second);
+        }
+    }
+
  private:
     int64_t min_edge_id;
     Identifiers<V> forbiddenVertices;

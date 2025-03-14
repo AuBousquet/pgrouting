@@ -45,6 +45,7 @@ extern "C" {
 }
 
 #include <vector>
+#include <utility>
 #include <cstdint>
 
 #include "cpp_common/undefPostgresDefine.hpp"
@@ -107,6 +108,11 @@ IID_t_rt pgr_fetch_row(
         int64_t*, size_t*, bool);
 
 Orders_t fetch_orders(
+        const HeapTuple, const TupleDesc &,
+        const std::vector<Column_info_t> &,
+        int64_t*, size_t*, bool);
+
+OrderedVertex_t fetch_ordered_vertices(
         const HeapTuple, const TupleDesc &,
         const std::vector<Column_info_t> &,
         int64_t*, size_t*, bool);
