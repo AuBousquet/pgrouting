@@ -53,6 +53,35 @@ class dijkstra_one_goal_visitor : public boost::default_dijkstra_visitor {
 };
 
 template <typename V>
+class dijkstra_max_distance_visitor: public boost::default_dijkstra_visitor {
+ public:
+    explicit dijkstra_max_distance_visitor(
+            double distance_goal,
+            std::vector<double> &distances,
+            std::set<int64_t> &reached_vertices_ids,
+            std::ostringstream &log):
+        m_distance_goal(distance_goal),
+        m_dist(distances),
+        m_reached_vertices_ids(reached_vertices_ids),
+        m_log(log) {
+            pgassert(m_distance_goal > 0);
+        }
+        template <class B_G>
+        void examine_vertex(V u, B_G &g) {
+            if (m_dist[u] > m_distance_goal) {
+                throw max_dist_reached();
+            }
+            m_reached_vertices_ids.insert(g[u].id);
+        }
+
+ private:
+    double m_distance_goal;
+    std::vector<double> &m_dist;
+    std::set<int64_t> &m_reached_vertices_ids;
+    std::ostringstream &m_log;
+};
+
+template <typename V>
 class dijkstra_many_goal_visitor : public boost::default_dijkstra_visitor {
  public:
      dijkstra_many_goal_visitor(
@@ -83,9 +112,9 @@ class dijkstra_many_goal_visitor : public boost::default_dijkstra_visitor {
          }
 
  private:
-     std::set<V> m_goals;
-     size_t m_n_goals;
-     std::set<V> &m_found_goals;
+    std::set<V> m_goals;
+    size_t m_n_goals;
+    std::set<V> &m_found_goals;
 };
 
 template <typename V>
@@ -106,8 +135,8 @@ class dijkstra_distance_visitor : public boost::default_dijkstra_visitor {
          }
 
  private:
-     double m_distance_goal;
-     std::vector<double> &m_dist;
+    double m_distance_goal;
+    std::vector<double> &m_dist;
 };
 
 template <typename V, typename E>
@@ -162,12 +191,12 @@ class dijkstra_distance_visitor_no_init : public boost::default_dijkstra_visitor
          }
 
  private:
-     V m_root;
-     double m_distance_goal;
-     size_t m_num_examined;
-     std::vector<V > &m_predecessors;
-     std::vector<double> &m_dist;
-     std::vector<boost::default_color_type> &m_color;
+    V m_root;
+    double m_distance_goal;
+    size_t m_num_examined;
+    std::vector<V > &m_predecessors;
+    std::vector<double> &m_dist;
+    std::vector<boost::default_color_type> &m_color;
 };
 
 

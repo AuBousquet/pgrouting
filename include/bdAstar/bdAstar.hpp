@@ -66,7 +66,6 @@ class Pgr_bdAstar : public Pgr_bidirectional<G> {
     using Pgr_bidirectional<G>::forward_cost;
     using Pgr_bidirectional<G>::forward_edge;
 
-
     using Pgr_bidirectional<G>::bidirectional;
 
 
@@ -84,14 +83,16 @@ class Pgr_bdAstar : public Pgr_bidirectional<G> {
             int heuristic,
             double factor,
             double epsilon,
-            bool only_cost) {
+            bool only_cost,
+            std::ostringstream &log,
+            std::ostringstream &err) {
         m_log << "pgr_bdAstar\n";
         v_source = start_vertex;
         v_target = end_vertex;
         m_heuristic = heuristic;
         m_factor = factor * epsilon;
 
-        return bidirectional(only_cost);
+        return bidirectional(only_cost, log, err);
     }
 
     using Pgr_bidirectional<G>::log;
@@ -200,7 +201,9 @@ std::deque<Path> bdastar(
         int heuristic,
         double factor,
         double epsilon,
-        bool only_cost) {
+        bool only_cost,
+        std::ostringstream &log,
+        std::ostringstream &err) {
     std::deque<Path> paths;
     pgrouting::bidirectional::Pgr_bdAstar<G> fn_bdAstar(graph);
 
@@ -214,7 +217,8 @@ std::deque<Path> bdastar(
 
             paths.push_back(fn_bdAstar.pgr_bdAstar(
                         graph.get_V(c.first), graph.get_V(destination),
-                        heuristic, factor, epsilon, only_cost));
+                        heuristic, factor, epsilon, only_cost,
+                        log, err));
         }
     }
 

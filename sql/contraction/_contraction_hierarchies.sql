@@ -1,13 +1,13 @@
 /*PGR-GNU*****************************************************************
-File: ch_graphs.hpp
+File: _contraction_hierarchies.sql
 
 Generated with Template by:
 Copyright (c) 2015 pgRouting developers
 Mail: project@pgrouting.org
 
 Function's developer:
-Copyright (c) 2016 Rohith Reddy
-Mail:
+Copyright (c) Aurélie Bousquet - 2024
+Mail: aurelie.bousquet at oslandia.com
 
 ------
 
@@ -27,36 +27,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
  ********************************************************************PGR-GNU*/
 
-#ifndef INCLUDE_CONTRACTION_CH_GRAPHS_HPP_
-#define INCLUDE_CONTRACTION_CH_GRAPHS_HPP_
-#pragma once
+----------------------------
+----------------------------
+-- contraction_hierarchies
+----------------------------
+----------------------------
 
+--v4.0
+CREATE FUNCTION _pgr_contraction_hierarchies(
+    edges_sql TEXT,
+    forbidden_vertices BIGINT[],
+    directed BOOLEAN,
 
-#include <limits>
-#include <algorithm>
-#include <vector>
+    OUT type TEXT,
+    OUT id BIGINT,
+    OUT contracted_vertices BIGINT[],
+    OUT source BIGINT,
+    OUT target BIGINT,
+    OUT cost FLOAT,
+    OUT metric BIGINT,
+    OUT vertex_order BIGINT)
+RETURNS SETOF RECORD AS
+'MODULE_PATHNAME'
+LANGUAGE C VOLATILE STRICT;
 
-#include "contraction/contractionGraph.hpp"
-#include "cpp_common/base_graph.hpp"
-#include "cpp_common/ch_vertex.hpp"
-#include "cpp_common/ch_edge.hpp"
+-- COMMENTS
 
-
-namespace pgrouting {
-namespace graph {
-
-using CHUndirectedGraph =  Pgr_contractionGraph <
-    boost::adjacency_list < boost::listS, boost::vecS,
-    boost::undirectedS,
-    CH_vertex, CH_edge>, false>;
-
-using CHDirectedGraph = Pgr_contractionGraph<
-    boost::adjacency_list < boost::listS, boost::vecS,
-    boost::bidirectionalS,
-    CH_vertex, CH_edge>, true>;
-
-
-}  // namespace graph
-}  // namespace pgrouting
-
-#endif  // INCLUDE_CONTRACTION_CH_GRAPHS_HPP_
+COMMENT ON FUNCTION _pgr_contraction_hierarchies(TEXT, BIGINT[], BOOLEAN)
+IS 'pgRouting internal function';

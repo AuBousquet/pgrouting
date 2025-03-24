@@ -72,20 +72,25 @@ class Pgr_bdDijkstra : public Pgr_bidirectional<G> {
     using Pgr_bidirectional<G>::bidirectional;
 
  public:
-     explicit Pgr_bdDijkstra(G &pgraph):
-         Pgr_bidirectional<G>(pgraph) {
-             m_log << "pgr_bdDijkstra constructor\n";
-         }
+    explicit Pgr_bdDijkstra(G &pgraph):
+        Pgr_bidirectional<G>(pgraph) {
+            m_log << "pgr_bdDijkstra constructor\n";
+        }
 
-     ~Pgr_bdDijkstra() = default;
+    ~Pgr_bdDijkstra() = default;
 
-     Path pgr_bdDijkstra(V start_vertex, V end_vertex, bool only_cost) {
-         m_log << "pgr_bdDijkstra\n";
-         v_source = start_vertex;
-         v_target = end_vertex;
+    Path pgr_bdDijkstra(
+        V start_vertex,
+        V end_vertex,
+        bool only_cost,
+        std::ostringstream &log,
+        std::ostringstream &err) {
+            m_log << "pgr_bdDijkstra\n";
+            v_source = start_vertex;
+            v_target = end_vertex;
 
-         return bidirectional(only_cost);
-     }
+        return bidirectional(only_cost, log, err);
+    }
 
 
     using Pgr_bidirectional<G>::log;
