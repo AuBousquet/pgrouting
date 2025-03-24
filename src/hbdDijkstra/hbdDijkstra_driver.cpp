@@ -123,7 +123,7 @@ void pgr_hbd_dijkstra(
             paths =
                 detail::perform_hbd_dijkstra
                     <typename pgrouting::graph::CHDirectedGraph>(
-                    graph, combinations, only_cost, log);
+                    graph, combinations, only_cost, log, err);
         } else {
             pgrouting::graph::CHUniqueUndirectedGraph graph;
             graph.insert_edges(edges);
@@ -131,7 +131,7 @@ void pgr_hbd_dijkstra(
             paths =
                 detail::perform_hbd_dijkstra
                     <typename pgrouting::graph::CHUniqueUndirectedGraph>(
-                    graph, combinations, only_cost, log);
+                    graph, combinations, only_cost, log, err);
         }
         auto count = count_tuples(paths);
 

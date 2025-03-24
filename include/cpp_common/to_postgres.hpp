@@ -183,7 +183,8 @@ std::deque<pgrouting::Path> perform_hbd_dijkstra(
         G &graph,
         const std::map<int64_t, std::set<int64_t>> &combinations,
         bool only_cost,
-        std::ostringstream &log) {
+        std::ostringstream &log,
+        std::ostringstream &err) {
     using pgrouting::Path;
 
     pgrouting::bidirectional::Pgr_hbdDijkstra<G> hbd_searcher(graph);
@@ -198,7 +199,7 @@ std::deque<pgrouting::Path> perform_hbd_dijkstra(
         hbd_searcher.clear();
 
         paths.push_back(hbd_searcher.path_search(
-            graph.get_V(source), graph.get_V(target), only_cost));
+            graph.get_V(source), graph.get_V(target), only_cost, log, err));
         }
     }
     return paths;

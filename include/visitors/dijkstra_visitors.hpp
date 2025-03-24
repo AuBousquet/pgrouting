@@ -112,9 +112,9 @@ class dijkstra_many_goal_visitor : public boost::default_dijkstra_visitor {
          }
 
  private:
-     std::set<V> m_goals;
-     size_t m_n_goals;
-     std::set<V> &m_found_goals;
+    std::set<V> m_goals;
+    size_t m_n_goals;
+    std::set<V> &m_found_goals;
 };
 
 template <typename V>
@@ -135,8 +135,8 @@ class dijkstra_distance_visitor : public boost::default_dijkstra_visitor {
          }
 
  private:
-     double m_distance_goal;
-     std::vector<double> &m_dist;
+    double m_distance_goal;
+    std::vector<double> &m_dist;
 };
 
 template <typename V, typename E>
@@ -191,12 +191,12 @@ class dijkstra_distance_visitor_no_init : public boost::default_dijkstra_visitor
          }
 
  private:
-     V m_root;
-     double m_distance_goal;
-     size_t m_num_examined;
-     std::vector<V > &m_predecessors;
-     std::vector<double> &m_dist;
-     std::vector<boost::default_color_type> &m_color;
+    V m_root;
+    double m_distance_goal;
+    size_t m_num_examined;
+    std::vector<V > &m_predecessors;
+    std::vector<double> &m_dist;
+    std::vector<boost::default_color_type> &m_color;
 };
 
 

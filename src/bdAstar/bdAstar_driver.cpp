@@ -104,11 +104,27 @@ void pgr_do_bdAstar(
         if (directed) {
             pgrouting::xyDirectedGraph graph;
             graph.insert_edges(edges);
-            paths = pgrouting::algorithms::bdastar(graph, combinations, heuristic, factor, epsilon, only_cost);
+            paths = pgrouting::algorithms::bdastar(
+                graph,
+                combinations,
+                heuristic,
+                factor,
+                epsilon,
+                only_cost,
+                log,
+                err);
         } else {
             pgrouting::xyUndirectedGraph graph;
             graph.insert_edges(edges);
-            paths = pgrouting::algorithms::bdastar(graph, combinations, heuristic, factor, epsilon, only_cost);
+            paths = pgrouting::algorithms::bdastar(
+                graph,
+                combinations,
+                heuristic,
+                factor,
+                epsilon,
+                only_cost,
+                log,
+                err);
         }
 
         size_t count(0);

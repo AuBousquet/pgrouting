@@ -79,12 +79,17 @@ class Pgr_hbdDijkstra : public Pgr_bidirectional<G> {
 
     ~Pgr_hbdDijkstra() = default;
 
-    Path path_search(V start_vertex, V end_vertex, bool only_cost) {
+    Path path_search(
+        V start_vertex,
+        V end_vertex,
+        bool only_cost,
+        std::ostringstream &log,
+        std::ostringstream &err) {
         m_log << "pgr_hbdDijkstra\n";
         v_source = start_vertex;
         v_target = end_vertex;
 
-        return bidirectional(only_cost);
+        return bidirectional(only_cost, log, err);
     }
 
  private:
