@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pgRouting v3.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-22 16:17-0600\n"
+"POT-Creation-Date: 2025-04-23 07:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -266,9 +266,6 @@ msgid ":ref:`genindex`"
 msgstr ""
 
 msgid ":ref:`search`"
-msgstr ""
-
-msgid "Boost Graph inside"
 msgstr ""
 
 msgid "DFS - Category"
@@ -6298,6 +6295,9 @@ msgstr ""
 msgid "|Boost| Boost Graph Inside"
 msgstr ""
 
+msgid "Boost Graph inside"
+msgstr ""
+
 msgid "Signatures"
 msgstr ""
 
@@ -6601,7 +6601,7 @@ msgstr ""
 msgid "New official function."
 msgstr ""
 
-msgid "Any duplicated identifier will be ignored. The coordinates than will be kept is arbitrarily."
+msgid "Any duplicated identifier will be ignored. The coordinates that will be kept is arbitrarily."
 msgstr ""
 
 msgid "The coordinates are quite similar for the same identifier, for example ::"
@@ -13061,27 +13061,6 @@ msgid "Minors 3.x"
 msgstr ""
 
 msgid "pgRouting 3.8"
-msgstr ""
-
-msgid "`#2772 <https://github.com/pgRouting/pgrouting/issues/2772>`__: Promote to official pgr_extractVertices in 3.8"
-msgstr ""
-
-msgid "`#2760 <https://github.com/pgRouting/pgrouting/issues/2760>`__: Promote to official pgr_degree in 3.8"
-msgstr ""
-
-msgid "`#2774 <https://github.com/pgRouting/pgrouting/issues/2774>`__: Promote to official pgr_findCloseEdges in 3.8"
-msgstr ""
-
-msgid "New proposed functions"
-msgstr ""
-
-msgid "Deprecation of functions."
-msgstr ""
-
-msgid "Deprecated functions:"
-msgstr ""
-
-msgid "The use removed."
 msgstr ""
 
 msgid "pgRouting 3.7"
