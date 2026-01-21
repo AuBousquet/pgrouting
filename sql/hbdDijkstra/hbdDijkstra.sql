@@ -30,8 +30,164 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -- pgr_hbd_dijkstra
 -------------------
 --v4.0
+
+-- ONE TO ONE
+CREATE FUNCTION pgr_hbd_dijkstra(
+    TEXT,   -- edges_sql (required)
+    TEXT,   -- vertices_sql (required)
+    BIGINT, -- from_vid
+    BIGINT, -- to_vid
+
+    directed BOOLEAN DEFAULT true,
+
+    OUT seq INTEGER,
+    OUT path_seq INTEGER,
+    OUT node BIGINT,
+    OUT edge BIGINT,
+    OUT cost FLOAT,
+    OUT agg_cost FLOAT)
+RETURNS SETOF RECORD AS
+$BODY$
+    SELECT seq, path_seq, node, edge, cost, agg_cost
+    FROM _pgr_hbd_dijkstra(_pgr_get_statement($1), _pgr_get_statement($2), ARRAY[$3]::BIGINT[], ARRAY[$4]::BIGINT[], $5, false);
+$BODY$
+LANGUAGE sql VOLATILE STRICT
+COST 100
+ROWS 1000;
+
+COMMENT ON FUNCTION pgr_hbd_dijkstra(TEXT, TEXT, BIGINT, BIGINT, BOOLEAN)
+IS 'pgr_bdDijkstra(One to One)
+- Parameters:
+  - edges SQL with columns: id, source, target, cost [,reverse_cost]
+  - Vertices SQL with columns: id, order
+  - From vertex identifier
+  - To vertex identifier
+- Optional Parameters:
+  - directed := true
+- Documentation:
+  - ${PROJECT_DOC_LINK}/pgr_hbd_dijkstra.html
+';
+
+-- ONE TO MANY
+CREATE FUNCTION pgr_hbd_dijkstra(
+    TEXT,    -- edges_sql (required)
+    TEXT,    -- vertices_sql (required)
+    BIGINT,   -- from_vid (required)
+    ANYARRAY, -- to_vids (required)
+
+    directed BOOLEAN DEFAULT TRUE,
+
+    OUT seq INTEGER,
+    OUT path_seq INTEGER,
+    OUT end_vid BIGINT,
+    OUT node BIGINT,
+    OUT edge BIGINT,
+    OUT cost FLOAT,
+    OUT agg_cost FLOAT)
+RETURNS SETOF RECORD AS
+$BODY$
+    SELECT seq, path_seq, end_vid, node, edge, cost, agg_cost
+    FROM _pgr_hbd_dijkstra(_pgr_get_statement($1), _pgr_get_statement($2), ARRAY[$3]::BIGINT[], $4::BIGINT[], $5, false);
+$BODY$
+LANGUAGE sql VOLATILE STRICT
+COST 100
+ROWS 1000;
+
+
+COMMENT ON FUNCTION pgr_hbd_dijkstra(TEXT, TEXT, BIGINT, ANYARRAY, BOOLEAN)
+IS 'pgr_hbd_dijkstra(One to Many)
+- Parameters:
+  - Edges SQL with columns: id, source, target, cost [,reverse_cost]
+  - Vertices SQL with columns: id, order
+  - From vertex identifier
+  - To ARRAY[vertices identifiers]
+- Optional Parameters
+  - directed := true
+- Documentation:
+  - ${PROJECT_DOC_LINK}/pgr_hbd_dijkstra.html
+';
+
+-- MANY TO ONE
+CREATE FUNCTION pgr_hbd_dijkstra(
+    TEXT,    -- edges_sql (required)
+    TEXT,    -- vertices_sql (required)
+    ANYARRAY, -- from_vids (required)
+    BIGINT,   -- to_vid (required)
+
+    directed BOOLEAN DEFAULT TRUE,
+
+    OUT seq INTEGER,
+    OUT path_seq INTEGER,
+    OUT start_vid BIGINT,
+    OUT node BIGINT,
+    OUT edge BIGINT,
+    OUT cost FLOAT,
+    OUT agg_cost FLOAT)
+RETURNS SETOF RECORD AS
+$BODY$
+    SELECT seq, path_seq, start_vid, node, edge, cost, agg_cost
+    FROM _pgr_hbd_dijkstra(_pgr_get_statement($1), _pgr_get_statement($2), $3::BIGINT[], ARRAY[$4]::BIGINT[], $5, false);
+$BODY$
+LANGUAGE sql VOLATILE STRICT
+COST 100
+ROWS 1000;
+
+COMMENT ON FUNCTION pgr_hbd_dijkstra(TEXT, TEXT, ANYARRAY, BIGINT, BOOLEAN)
+IS 'pgr_bdDijkstra(Many to One)
+- Parameters:
+  - Edges SQL with columns: id, source, target, cost [,reverse_cost]
+  - Vertices SQL with columns: id, order
+  - From ARRAY[vertices identifiers]
+  - To vertex identifier
+- Optional Parameters
+  - directed := true
+- Documentation:
+  - ${PROJECT_DOC_LINK}/pgr_hbd_dijkstra.html
+';
+
+-- MANY TO MANY
 CREATE FUNCTION pgr_hbd_dijkstra(
     TEXT,     -- edges_sql (required)
+    TEXT,    -- vertices_sql (required)
+    ANYARRAY, -- from_vids (required)
+    ANYARRAY, -- to_vids (required)
+
+    directed BOOLEAN DEFAULT TRUE,
+
+    OUT seq INTEGER,
+    OUT path_seq INTEGER,
+    OUT start_vid BIGINT,
+    OUT end_vid BIGINT,
+    OUT node BIGINT,
+    OUT edge BIGINT,
+    OUT cost FLOAT,
+    OUT agg_cost FLOAT)
+RETURNS SETOF RECORD AS
+$BODY$
+    SELECT seq, path_seq, start_vid, end_vid, node, edge, cost, agg_cost
+    FROM _pgr_hbd_dijkstra(_pgr_get_statement($1), _pgr_get_statement($2), $3::BIGINT[], $4::BIGINT[], directed, false);
+$BODY$
+LANGUAGE SQL VOLATILE STRICT
+COST 100
+ROWS 1000;
+
+COMMENT ON FUNCTION pgr_hbd_dijkstra(TEXT, TEXT, ANYARRAY, ANYARRAY, BOOLEAN)
+IS 'pgr_hbd_dijkstra(Many to Many)
+- Parameters:
+  - Edges SQL with columns: id, source, target, cost [,reverse_cost]
+  - Vertices SQL with columns: id, order
+  - From ARRAY[vertices identifiers]
+  - To ARRAY[vertices identifiers]
+- Optional Parameters
+  - directed := true
+- Documentation:
+  - ${PROJECT_DOC_LINK}/pgr_hbd_dijkstra.html
+';
+
+-- COMBINATIONS
+CREATE FUNCTION pgr_hbd_dijkstra(
+    TEXT,     -- edges_sql (required)
+    TEXT,     -- vertices_sql (required)
     TEXT,     -- combinations_sql (required)
 
     directed BOOLEAN DEFAULT TRUE,
@@ -47,18 +203,17 @@ CREATE FUNCTION pgr_hbd_dijkstra(
 RETURNS SETOF RECORD AS
 $BODY$
     SELECT seq, path_seq, start_vid, end_vid, node, edge, cost, agg_cost
-    FROM _pgr_hbd_dijkstra(_pgr_get_statement($1), _pgr_get_statement($2), directed, false);
+    FROM _pgr_hbd_dijkstra(_pgr_get_statement($1), _pgr_get_statement($2), _pgr_get_statement($3), directed, false);
 $BODY$
 LANGUAGE SQL VOLATILE STRICT
 COST 100
 ROWS 1000;
 
-
--- COMMENTS
-COMMENT ON FUNCTION pgr_hbd_dijkstra(TEXT, TEXT, BOOLEAN)
+COMMENT ON FUNCTION pgr_hbd_dijkstra(TEXT, TEXT, TEXT, BOOLEAN)
 IS 'pgr_hbd_dijkstra(Combinations)
 - Parameters:
   - Edges SQL with columns: id, source, target, cost [,reverse_cost]
+  - Vertices SQL with columns: id, order
   - Combinations SQL with columns: source, target
 - Optional Parameters
   - directed := true
