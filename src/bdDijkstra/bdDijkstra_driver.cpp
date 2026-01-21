@@ -56,7 +56,9 @@ std::deque<pgrouting::Path>
 pgr_bdDijkstra(
         G &graph,
         const std::map<int64_t, std::set<int64_t>> &combinations,
-        bool only_cost) {
+        bool only_cost,
+        std::ostringstream &log,
+        std::ostringstream &err) {
     using pgrouting::Path;
 
     pgrouting::bidirectional::Pgr_bdDijkstra<G> fn_bdDijkstra(graph);
@@ -70,7 +72,12 @@ pgr_bdDijkstra(
             if (!graph.has_vertex(target)) continue;
             fn_bdDijkstra.clear();
 
-            paths.push_back(fn_bdDijkstra.pgr_bdDijkstra(graph.get_V(source), graph.get_V(target), only_cost));
+            paths.push_back(fn_bdDijkstra.pgr_bdDijkstra(
+                graph.get_V(source),
+                graph.get_V(target),
+                only_cost,
+                log,
+                err));
         }
     }
     return paths;
@@ -138,11 +145,11 @@ pgr_do_bdDijkstra(
         if (directed) {
             pgrouting::DirectedGraph graph;
             graph.insert_edges(edges);
-            paths = pgr_bdDijkstra(graph, combinations, only_cost);
+            paths = pgr_bdDijkstra(graph, combinations, only_cost, log, err);
         } else {
             pgrouting::UndirectedGraph graph;
             graph.insert_edges(edges);
-            paths = pgr_bdDijkstra(graph, combinations, only_cost);
+            paths = pgr_bdDijkstra(graph, combinations, only_cost, log, err);
         }
 
         auto count = count_tuples(paths);
@@ -158,8 +165,12 @@ pgr_do_bdDijkstra(
         (*return_tuples) = pgr_alloc(count, (*return_tuples));
         (*return_count) = (collapse_paths(return_tuples, paths));
 
-        *log_msg = to_pg_msg(log);
-        *notice_msg = to_pg_msg(notice);
+        *log_msg = log.str().empty()?
+            *log_msg :
+            to_pg_msg(log);
+        *notice_msg = notice.str().empty()?
+            *notice_msg :
+            to_pg_msg(notice);
     } catch (AssertFailedException &except) {
         (*return_tuples) = pgr_free(*return_tuples);
         (*return_count) = 0;
