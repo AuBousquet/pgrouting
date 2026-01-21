@@ -44,9 +44,9 @@ extern "C" {
 #include <access/htup_details.h>
 }
 
-#include <vector>
-#include <utility>
 #include <cstdint>
+#include <utility>
+#include <vector>
 
 #include "cpp_common/undefPostgresDefine.hpp"
 
@@ -60,6 +60,7 @@ extern "C" {
 #include "cpp_common/edge_t.hpp"
 #include "c_types/iid_t_rt.h"
 #include "cpp_common/orders_t.hpp"
+#include "cpp_common/orderedVertex_t.hpp"
 #include "cpp_common/restriction_t.hpp"
 #include "cpp_common/point_on_edge_t.hpp"
 #include "cpp_common/vehicle_t.hpp"
