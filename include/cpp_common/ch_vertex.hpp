@@ -42,6 +42,8 @@ namespace pgrouting {
 class CH_vertex {
  public:
     int64_t id;
+    int64_t vertex_order;
+    int64_t metric;
 
     CH_vertex();
     CH_vertex(const Edge_t &other, bool is_source) :

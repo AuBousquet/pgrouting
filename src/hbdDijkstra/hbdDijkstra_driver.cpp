@@ -6,8 +6,8 @@ Copyright (c) 2015 pgRouting developers
 Mail: project@pgrouting.org
 
 Function's developer:
-Copyright (c) 2016 Celia Virginia Vergara Castillo
-Mail: vicky at erosion.dev
+Copyright (c) Aurélie Bousquet - 2025
+Mail: aurelie.bousquet at oslandia.com
 
 ------
 
@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
  ********************************************************************PGR-GNU*/
 
-#include "drivers/bdDijkstra/bdDijkstra_driver.h"
 
 #include <sstream>
 #include <deque>
@@ -42,59 +41,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "cpp_common/pgdata_getters.hpp"
 #include "cpp_common/alloc.hpp"
 #include "cpp_common/assert.hpp"
-#include "cpp_common/base_graph.hpp"
-#include "bdDijkstra/bdDijkstra.hpp"
+#include "cpp_common/ch_graphs.hpp"
+#include "cpp_common/combinations.hpp"
+#include "cpp_common/pgdata_getters.hpp"
+#include "cpp_common/to_postgres.hpp"
+#include "drivers/hbdDijkstra/hbdDijkstra_driver.h"
 
-#include "c_types/ii_t_rt.h"
 
-
-
-namespace {
-
-template < class G >
-std::deque<pgrouting::Path>
-pgr_bdDijkstra(
-        G &graph,
-        const std::map<int64_t, std::set<int64_t>> &combinations,
-        bool only_cost,
-        std::ostringstream &log,
-        std::ostringstream &err) {
-    using pgrouting::Path;
-
-    pgrouting::bidirectional::Pgr_bdDijkstra<G> fn_bdDijkstra(graph);
-    std::deque<Path> paths;
-
-    for (const auto &comb : combinations) {
-        auto source = comb.first;
-        if (!graph.has_vertex(source)) continue;
-
-        for (const auto &target : comb.second) {
-            if (!graph.has_vertex(target)) continue;
-            fn_bdDijkstra.clear();
-
-            paths.push_back(fn_bdDijkstra.pgr_bdDijkstra(
-                graph.get_V(source),
-                graph.get_V(target),
-                only_cost,
-                log,
-                err));
-        }
-    }
-    return paths;
-}
-
-}  // namespace
-
-void
-pgr_do_bdDijkstra(
-        const char *edges_sql,
-        const char *combinations_sql,
+void pgr_hbd_dijkstra(
+        char *edges_sql,
+        char *vertices_sql,
+        char *combinations_sql,
         ArrayType *starts,
         ArrayType *ends,
-
         bool directed,
         bool only_cost,
-
         Path_rt **return_tuples,
         size_t *return_count,
         char **log_msg,
@@ -109,7 +70,7 @@ pgr_do_bdDijkstra(
     std::ostringstream log;
     std::ostringstream err;
     std::ostringstream notice;
-    const char *hint = nullptr;
+    char *hint = nullptr;
 
     try {
         pgassert(!(*log_msg));
@@ -118,6 +79,7 @@ pgr_do_bdDijkstra(
         pgassert(!(*return_tuples));
         pgassert(*return_count == 0);
 
+        // origins and destinations extraction
         hint = combinations_sql;
         auto combinations = get_combinations(combinations_sql, starts, ends, true);
         hint = nullptr;
@@ -128,30 +90,49 @@ pgr_do_bdDijkstra(
             return;
         }
 
-
-
+        // Edges creation
         hint = edges_sql;
         auto edges = pgrouting::pgget::get_edges(std::string(edges_sql), true, false);
 
         if (edges.empty()) {
             *notice_msg = to_pg_msg("No edges found");
-            *log_msg = hint? to_pg_msg(hint) : to_pg_msg(log);
+            *log_msg = hint ? to_pg_msg(hint) : to_pg_msg(log);
             return;
         }
         hint = nullptr;
 
+        // Vertices creation
+        hint = vertices_sql;
+        auto vertices =
+            pgrouting::pgget::get_ordered_vertices(std::string(vertices_sql));
+
+        if (vertices.empty()) {
+            *notice_msg = to_pg_msg("No vertices found");
+            *log_msg = hint ? to_pg_msg(hint) : to_pg_msg(log);
+            return;
+        }
+        hint = nullptr;
+
+        // Graph creation and shortest path search
         std::deque<Path> paths;
 
         if (directed) {
-            pgrouting::DirectedGraph graph;
+            pgrouting::graph::CHDirectedGraph graph;
             graph.insert_edges(edges);
-            paths = pgr_bdDijkstra(graph, combinations, only_cost, log, err);
+            graph.cp_vertices_order(vertices);
+            paths =
+                detail::perform_hbd_dijkstra
+                    <typename pgrouting::graph::CHDirectedGraph>(
+                    graph, combinations, only_cost, log, err);
         } else {
-            pgrouting::UndirectedGraph graph;
+            pgrouting::graph::CHUniqueUndirectedGraph graph;
             graph.insert_edges(edges);
-            paths = pgr_bdDijkstra(graph, combinations, only_cost, log, err);
+            graph.cp_vertices_order(vertices);
+            paths =
+                detail::perform_hbd_dijkstra
+                    <typename pgrouting::graph::CHUniqueUndirectedGraph>(
+                    graph, combinations, only_cost, log, err);
         }
-
         auto count = count_tuples(paths);
 
         if (count == 0) {
@@ -165,6 +146,7 @@ pgr_do_bdDijkstra(
         (*return_tuples) = pgr_alloc(count, (*return_tuples));
         (*return_count) = (collapse_paths(return_tuples, paths));
 
+        pgassert(err.str().empty());
         *log_msg = log.str().empty()?
             *log_msg :
             to_pg_msg(log);

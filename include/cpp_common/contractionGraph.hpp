@@ -27,8 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
  ********************************************************************PGR-GNU*/
 
-#ifndef INCLUDE_CONTRACTION_CONTRACTIONGRAPH_HPP_
-#define INCLUDE_CONTRACTION_CONTRACTIONGRAPH_HPP_
+#ifndef INCLUDE_COMMON_CONTRACTIONGRAPH_HPP_
+#define INCLUDE_COMMON_CONTRACTIONGRAPH_HPP_
 #pragma once
 
 #include <limits>
@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include "cpp_common/base_graph.hpp"
 #include "cpp_common/ch_vertex.hpp"
-#include "cpp_common/ch_edge.hpp"
+#include "cpp_common/orderedVertex_t.hpp"
 
 namespace pgrouting {
 namespace graph {
@@ -547,6 +547,63 @@ class Pgr_contractionGraph : public Pgr_base_graph<G, CH_vertex, CH_edge, t_dire
         return adjacent_vertices;
     }
 
+    /*!
+        @brief defines the graph vertices order from a vector of pairs (vertex, order)
+        @param [in] vertices vector of pairs (vertex, order)
+    */
+    void set_vertices_order(
+        std::vector< std::pair<int64_t, int64_t> > vertices) {
+        for (const auto &v : vertices) {
+            this->graph[this->vertices_map[v.first]].set_order(v.second);
+        }
+    }
+
+    void cp_vertices_order(std::vector<OrderedVertex_t> &vertices) {
+        for (auto it = vertices.begin(); it != vertices.end(); it++) {
+            V u;
+            u = this->vertices_map[it->id];
+            this->graph[u].vertex_order = it->vertex_order;
+        }
+    }
+
+    /*!
+        @brief get the vertex descriptors of adjacent upward vertices of *v*
+        @param [in] v vertex_descriptor
+        @return Identifiers<V>: The set of upward vertex descriptors adjacent to
+        the given vertex *v*
+    */
+    Identifiers<V> find_adjacent_up_vertices(V v) const {
+        Identifiers<V> adjacent_vertices;
+
+        for (const auto &out :
+            boost::make_iterator_range(find_adjacent_out_vertices(v)))
+        if ((this->graph[v]).vertex_order
+        <= ((this->graph[out]).vertex_order)) {
+            adjacent_vertices += out;
+        }
+
+        return adjacent_vertices;
+    }
+
+    /*!
+        @brief get the vertex descriptors of adjacent backward vertices of *v*
+        @param [in] v vertex_descriptor
+        @return Identifiers<V>: The set of backward vertex descriptors adjacent to
+        the given vertex *v*
+    */
+    Identifiers<V> find_adjacent_down_vertices(V v) const {
+        Identifiers<V> adjacent_vertices;
+
+        for (const auto &in :
+            boost::make_iterator_range(find_adjacent_in_vertices(v)))
+        if ((this->graph[v]).vertex_order
+        >= ((this->graph[in]).vertex_order)) {
+            adjacent_vertices += in;
+        }
+
+        return adjacent_vertices;
+    }
+
  private:
     int64_t min_edge_id;
     Identifiers<V> forbiddenVertices;
@@ -555,4 +612,4 @@ class Pgr_contractionGraph : public Pgr_base_graph<G, CH_vertex, CH_edge, t_dire
 }  // namespace graph
 }  // namespace pgrouting
 
-#endif  // INCLUDE_CONTRACTION_CONTRACTIONGRAPH_HPP_
+#endif  // INCLUDE_COMMON_CONTRACTIONGRAPH_HPP_

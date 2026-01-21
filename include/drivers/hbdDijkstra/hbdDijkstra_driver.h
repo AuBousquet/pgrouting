@@ -1,13 +1,13 @@
 /*PGR-GNU*****************************************************************
-File: ch_graphs.hpp
+File: bdDijkstra_driver.h
 
 Generated with Template by:
 Copyright (c) 2015 pgRouting developers
 Mail: project@pgrouting.org
 
 Function's developer:
-Copyright (c) 2016 Rohith Reddy
-Mail:
+Copyright (c) 2015 Celia Virginia Vergara Castillo
+Mail: vicky at erosion.dev
 
 ------
 
@@ -27,41 +27,51 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
  ********************************************************************PGR-GNU*/
 
-#ifndef INCLUDE_CONTRACTION_CH_GRAPHS_HPP_
-#define INCLUDE_CONTRACTION_CH_GRAPHS_HPP_
+#ifndef INCLUDE_DRIVERS_HBDDIJKSTRA_HBDDIJKSTRA_DRIVER_H_
+#define INCLUDE_DRIVERS_HBDDIJKSTRA_HBDDIJKSTRA_DRIVER_H_
 #pragma once
 
 
-#include <limits>
-#include <algorithm>
-#include <vector>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#include "contraction/contractionGraph.hpp"
-#include "cpp_common/base_graph.hpp"
-#include "cpp_common/ch_vertex.hpp"
-#include "cpp_common/ch_edge.hpp"
+#include <postgres.h>
+#include <utils/array.h>
 
+#ifdef __cplusplus
+}
+#endif
 
-namespace pgrouting {
-namespace graph {
+#include "cpp_common/undefPostgresDefine.hpp"
 
-using CHUndirectedGraph =  Pgr_contractionGraph <
-    boost::adjacency_list < boost::listS, boost::vecS,
-    boost::undirectedS,
-    CH_vertex, CH_edge>, false>;
+#ifdef __cplusplus
+#   include <cstddef>
+#   include <cstdint>
+using Path_rt = struct Path_rt;
+#else
+#   include <stddef.h>
+#   include <stdint.h>
+typedef struct Path_rt Path_rt;
+#endif
 
-using CHUniqueUndirectedGraph =  Pgr_contractionGraph <
-    boost::adjacency_list < boost::setS, boost::vecS,
-    boost::undirectedS,
-    CH_vertex, CH_edge>, false>;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-using CHDirectedGraph = Pgr_contractionGraph<
-    boost::adjacency_list < boost::listS, boost::vecS,
-    boost::bidirectionalS,
-    CH_vertex, CH_edge>, true>;
+void pgr_hbd_dijkstra(
+        char*,
+        char*,
+        char*,
+        ArrayType*, ArrayType*,
 
+        bool, bool,
 
-}  // namespace graph
-}  // namespace pgrouting
+        Path_rt**, size_t*,
+        char**, char**, char**);
 
-#endif  // INCLUDE_CONTRACTION_CH_GRAPHS_HPP_
+#ifdef __cplusplus
+}
+#endif
+
+#endif  // INCLUDE_DRIVERS_HBDDIJKSTRA_HBDDIJKSTRA_DRIVER_H_
