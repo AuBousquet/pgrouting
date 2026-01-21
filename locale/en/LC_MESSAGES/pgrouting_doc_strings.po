@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pgRouting v4.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-08 15:44+0000\n"
+"POT-Creation-Date: 2026-01-21 09:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3752,6 +3752,9 @@ msgid ":math:`residual\\_capacity_i = capacity_i - flow_i`"
 msgstr ""
 
 msgid "https://en.wikipedia.org/wiki/Maximum_flow_problem"
+msgstr ""
+
+msgid "It is expected to terminate faster than pgr_dijkstra"
 msgstr ""
 
 msgid ""
@@ -13273,6 +13276,26 @@ msgstr ""
 msgid ""
 "`Boost: Hawick Circuit Algorithm <https://www.boost.org/doc/libs/1_78_0/libs/"
 "graph/doc/hawick_circuits.html>`__"
+msgstr ""
+
+msgid "Signature change on pgr_bdDijsktra(One to One)"
+msgstr ""
+
+msgid "Returns set of |old-generic-result|"
+msgstr ""
+
+msgid "Returns set of |result-1-1|"
+msgstr ""
+
+msgid "Returns set of |result-1-m|"
+msgstr ""
+
+msgid "Returns set of |result-m-1|"
+msgstr ""
+
+msgid ""
+"The ``pgr_bdDijkstraCost`` function sumarizes of the cost of the shortest "
+"path using the bidirectional Dijkstra Algorithm."
 msgstr ""
 
 msgid "``pgr_isPlanar`` - Experimental"
